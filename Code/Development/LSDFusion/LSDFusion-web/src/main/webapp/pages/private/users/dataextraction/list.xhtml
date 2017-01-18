@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition template="/pages/private/users/template/private.xhtml">
+
+
+        <ui:define name="title">
+            <h:outputText value="#{bundle.ListDataExtractionTitle}"></h:outputText>
+        </ui:define>
+
+        <ui:define name="body">
+            <h:form id="DataExtractionListForm">
+                <p:panel header="#{bundle.ListDataExtractionTitle}">
+                    <p:dataTable id="datalist" value="#{dataExtractionBean.items}" var="item"
+                                 emptyMessage="#{bundle.ListDataExtractionEmptyMessage}"
+                                 selectionMode="single" selection="#{dataExtractionBean.selected}"
+                                 paginator="true" sortMode="multiple"
+                                 rowKey="#{item.primaryKey}"
+                                 rows="10"
+                                 rowsPerPageTemplate="10,20,30,40,50"
+                                 >
+
+                        <p:ajax event="rowSelect"   update="createButton viewButton deleteButton"/>
+                        <p:ajax event="rowUnselect" update="createButton viewButton deleteButton"/>
+
+                        <p:column sortBy="#{item.naturalDataExtraction.name}">
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListDataExtractionTitle_naturalDataExtraction_name}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.naturalDataExtraction.name}"/>
+                        </p:column>                           
+                        <p:column sortBy="#{item.naturalDataExtraction.surname}">
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListDataExtractionTitle_naturalDataExtraction_surname}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.naturalDataExtraction.surname}"/>
+                        </p:column>
+                        <p:column sortBy="#{item.naturalDataExtraction.pseudonym}">
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListDataExtractionTitle_naturalDataExtraction_pseudonym}"/>
+                            </f:facet>
+                            <h:outputText value="#{item.naturalDataExtraction.pseudonym}"/>
+                        </p:column>                                       
+                        <f:facet name="footer">
+                            <p:commandButton id="createButton" icon="fa fa-plus" value="#{bundle.Create}" actionListener="#{dataExtractionBean.prepareCreate}" update=":DataExtractionCreateForm" oncomplete="PF('DataExtractionCreateDialog').show()">
+                                <f:setPropertyActionListener target="#{naturalDataExtractionBean.selected}" value="#{dataExtractionBean.selected.naturalDataExtraction}"/>   
+                                <p:resetInput target=":DataExtractionCreateForm" />
+                            </p:commandButton>
+                            <p:commandButton id="viewButton"   icon="ui-icon-search" value="#{bundle.View}" actionListener="#{dataExtractionBean.getSelected(true)}" update=":DataExtractionViewForm" oncomplete="PF('DataExtractionViewDialog').show()" disabled="#{empty dataExtractionBean.selected}"/>                           
+                            <p:commandButton id="deleteButton" icon="ui-icon-trash"  value="#{bundle.Delete}" actionListener="#{dataExtractionBean.destroy}" update=":growl,datalist" disabled="#{empty dataExtractionBean.selected}"/>
+                        </f:facet>
+                    </p:dataTable>
+                  
+                </p:panel>
+            </h:form>
+
+            <ui:include src="Create.xhtml"/>            
+            <ui:include src="View.xhtml"/>     
+        </ui:define>
+    </ui:composition>
+
+</html>

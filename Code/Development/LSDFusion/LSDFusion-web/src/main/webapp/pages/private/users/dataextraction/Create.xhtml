@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+
+        <p:dialog id="DataExtractionCreateDlg" widgetVar="DataExtractionCreateDialog" modal="true" resizable="false" appendTo="@(body)" closable="false" header="#{bundle.CreateDataExtractionTitle}">
+            <h:form id="DataExtractionCreateForm">
+                <h:panelGroup id="display">
+                    <p:panelGrid columns="2" rendered="#{dataExtractionBean.selected != null}">
+                        <p:outputLabel value="#{bundle.CreateDataExtractionLabel_naturalDataExtraction_name}" for="name" />
+                        <p:inputText id="name" value="#{dataExtractionBean.selected.naturalDataExtraction.name}" title="#{bundle.CreateDataExtractionTitle_naturalDataExtraction_name}" required="true" requiredMessage="#{bundle.CreateDataExtractionRequiredMessage_naturalDataExtraction_name}"/>
+                        <p:outputLabel value="#{bundle.CreateDataExtractionLabel_naturalDataExtraction_surname}" for="surname" />
+                        <p:inputText id="surname" value="#{dataExtractionBean.selected.naturalDataExtraction.surname}" title="#{bundle.CreateDataExtractionTitle_naturalDataExtraction_surname}" required="true" requiredMessage="#{bundle.CreateDataExtractionRequiredMessage_naturalDataExtraction_surname}"/>
+                        <p:outputLabel value="#{bundle.CreateDataExtractionLabel_naturalDataExtraction_birthdate}" for="birthdate" />
+                        <p:calendar id="birthdate" pattern="dd/MM/yyyy" value="#{dataExtractionBean.selected.naturalDataExtraction.birthdate}" title="#{bundle.EditDataExtractionTitle_naturalDataExtraction_birthdate}"  mask="true" navigator="true" required="true" requiredMessage="#{bundle.EditDataExtractionRequiredMessage_naturalDataExtraction_birthdate}"/>
+                        <p:outputLabel value="#{bundle.CreateDataExtractionLabel_naturalDataExtraction_gender}" for="gender" />
+                        <p:selectOneMenu id="gender" value="#{dataExtractionBean.selected.naturalDataExtraction.gender}" converter="#{genderConverter}" required="true" requiredMessage="#{bundle.EditDataExtractionRequiredMessage_naturalDataExtraction_gender}">
+                            <f:selectItem itemLabel="#{bundle.SelectOneMessage}" itemDisabled="true" noSelectionOption="true"/>
+                            <f:selectItems value="#{genderBean.items}"
+                                           var="genderItem"
+                                           itemLabel="#{genderItem.gender}"
+                                           itemValue="#{genderItem}"/>
+                        </p:selectOneMenu>                       
+                        <p:outputLabel value="#{bundle.CreateDataExtractionLabel_naturalDataExtraction_pseudonym}" for="pseudonym" />
+                        <p:inputText id="pseudonym" value="#{dataExtractionBean.selected.naturalDataExtraction.pseudonym}" title="#{bundle.CreateDataExtractionTitle_naturalDataExtraction_pseudonym}" validator="#{naturalDataExtractionBean.validatePseudonym}" required="true" requiredMessage="#{bundle.CreateDataExtractionRequiredMessage_naturalDataExtraction_pseudonym}"/>
+                    </p:panelGrid>
+                    <p:commandButton actionListener="#{dataExtractionBean.create}" value="#{bundle.Save}" update="display,:DataExtractionListForm:datalist,:growl" oncomplete="handleSubmit(args,'DataExtractionCreateDialog');"/>
+                    <p:commandButton actionListener="#{dataExtractionBean.setSelected(null)}" value="#{bundle.Cancel}" resetValues="true" process="@this" update="display,:DataExtractionListForm:datalist" icon="fa fa-close" onclick="PF('DataExtractionCreateDialog').hide()"/>
+                </h:panelGroup>
+            </h:form>
+        </p:dialog>
+
+    </ui:composition>
+</html>
