@@ -16,6 +16,7 @@ import javax.enterprise.context.RequestScoped;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.sparql.core.DatasetGraph;
@@ -34,14 +35,15 @@ public class DataExtractionService {
 
     public Collection<Model> extractDataModel(File... files) throws IOException {
         Collection<Model> models = new HashSet<>();
+        Collection<Collection<RDFNode>> equivalentClasses = getEquivalentClasses(files);
         for (File file : files) {
             //models.add(RDFDataMgr.loadModel(file.getPath()));
         }
         return models;
     }
 
-    public Collection<Collection<String>> getEquivalentClasses(File... files) throws IOException {
-        Collection<Collection<String>> equivalentClasses = new HashSet<>();
+    public Collection<Collection<RDFNode>> getEquivalentClasses(File... files) throws IOException {
+        Collection<Collection<RDFNode>> equivalentClasses = new HashSet<>();
         Path tempDirectory = Files.createTempDirectory(null);
         for (File file : files) {
             Location location = Location.create(tempDirectory.toString());
@@ -53,10 +55,10 @@ public class DataExtractionService {
             StmtIterator iterator = dataset.getDefaultModel().listStatements();
             while (iterator.hasNext()) {
                 Statement statement = iterator.next();
-                String subject = statement.getSubject().toString();
-                String object = statement.getObject().toString();
-                Collection<String> classe = null;
-                for (Collection<String> resources : equivalentClasses) {
+                RDFNode subject = statement.getSubject();
+                RDFNode object = statement.getObject();
+                Collection<RDFNode> classe = null;
+                for (Collection<RDFNode> resources : equivalentClasses) {
                     if (resources.contains(subject)) {
                         classe = resources;
                         break;

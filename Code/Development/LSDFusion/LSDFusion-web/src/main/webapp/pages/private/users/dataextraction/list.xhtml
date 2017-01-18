@@ -8,7 +8,6 @@
 
     <ui:composition template="/pages/private/users/template/private.xhtml">
 
-
         <ui:define name="title">
             <h:outputText value="#{bundle.ListDataExtractionTitle}"></h:outputText>
         </ui:define>
@@ -19,48 +18,46 @@
                     <p:dataTable id="datalist" value="#{dataExtractionBean.items}" var="item"
                                  emptyMessage="#{bundle.ListDataExtractionEmptyMessage}"
                                  selectionMode="single" selection="#{dataExtractionBean.selected}"
-                                 paginator="true" sortMode="multiple"
-                                 rowKey="#{item.primaryKey}"
+                                 sortMode="multiple"
+                                 draggableColumns="true"
+                                 paginator="true"
+                                 rowKey="#{item.UUID}"
                                  rows="10"
                                  rowsPerPageTemplate="10,20,30,40,50"
                                  >
 
-                        <p:ajax event="rowSelect"   update="createButton viewButton deleteButton"/>
-                        <p:ajax event="rowUnselect" update="createButton viewButton deleteButton"/>
+                        <p:ajax event="rowSelect"   update="createButton viewButton deleteButton" />
+                        <p:ajax event="rowUnselect" update="createButton viewButton deleteButton" />
 
-                        <p:column sortBy="#{item.naturalDataExtraction.name}">
+                        <p:column sortBy="#{item.created}">
                             <f:facet name="header">
-                                <h:outputText value="#{bundle.ListDataExtractionTitle_naturalDataExtraction_name}"/>
+                                <h:outputText value="#{bundle.ListDataExtractionTitle_created}" />
                             </f:facet>
-                            <h:outputText value="#{item.naturalDataExtraction.name}"/>
-                        </p:column>                           
-                        <p:column sortBy="#{item.naturalDataExtraction.surname}">
-                            <f:facet name="header">
-                                <h:outputText value="#{bundle.ListDataExtractionTitle_naturalDataExtraction_surname}"/>
-                            </f:facet>
-                            <h:outputText value="#{item.naturalDataExtraction.surname}"/>
-                        </p:column>
-                        <p:column sortBy="#{item.naturalDataExtraction.pseudonym}">
-                            <f:facet name="header">
-                                <h:outputText value="#{bundle.ListDataExtractionTitle_naturalDataExtraction_pseudonym}"/>
-                            </f:facet>
-                            <h:outputText value="#{item.naturalDataExtraction.pseudonym}"/>
-                        </p:column>                                       
+                            <h:outputText value="#{item.created}">
+                                <f:convertDateTime />
+                            </h:outputText>
+                        </p:column>   
+
                         <f:facet name="footer">
-                            <p:commandButton id="createButton" icon="fa fa-plus" value="#{bundle.Create}" actionListener="#{dataExtractionBean.prepareCreate}" update=":DataExtractionCreateForm" oncomplete="PF('DataExtractionCreateDialog').show()">
-                                <f:setPropertyActionListener target="#{naturalDataExtractionBean.selected}" value="#{dataExtractionBean.selected.naturalDataExtraction}"/>   
-                                <p:resetInput target=":DataExtractionCreateForm" />
+                            <p:commandButton id="createButton" icon="fa fa-plus" value="#{bundle.Create}" actionListener="#{dataExtractionBean.prepareCreate}" process="@this" update=":DataExtractionCreateForm,@parent" oncomplete="PF('DataExtractionCreateDialog').show()">
+                                <f:setPropertyActionListener target="#{dataExtractionBean.selected}" value="#{dataExtractionBean.prepareCreate()}" />
                             </p:commandButton>
-                            <p:commandButton id="viewButton"   icon="ui-icon-search" value="#{bundle.View}" actionListener="#{dataExtractionBean.getSelected(true)}" update=":DataExtractionViewForm" oncomplete="PF('DataExtractionViewDialog').show()" disabled="#{empty dataExtractionBean.selected}"/>                           
-                            <p:commandButton id="deleteButton" icon="ui-icon-trash"  value="#{bundle.Delete}" actionListener="#{dataExtractionBean.destroy}" update=":growl,datalist" disabled="#{empty dataExtractionBean.selected}"/>
+                            <p:commandButton id="viewButton"   icon="fa fa-search" value="#{bundle.View}" actionListener="#{dataExtractionBean.getSelected(true)}" process="@this" update=":DataExtractionViewForm" oncomplete="PF('DataExtractionViewDialog').show()" disabled="#{empty dataExtractionBean.selected}" />                           
+                            <p:commandButton id="deleteButton" icon="fa fa-trash"  value="#{bundle.Delete}" actionListener="#{dataExtractionBean.destroy}" process="@this" update=":growl,datalist" disabled="#{empty dataExtractionBean.selected}" />
                         </f:facet>
+
                     </p:dataTable>
-                  
+
                 </p:panel>
             </h:form>
 
-            <ui:include src="Create.xhtml"/>            
-            <ui:include src="View.xhtml"/>     
+            <p:socket channel="/push/DataExtraction">
+                <p:ajax event="message" update=":DataExtractionListForm:datalist,:growl" />
+            </p:socket>
+
+            <ui:include src="create.xhtml" />            
+            <ui:include src="View.xhtml" />  
+
         </ui:define>
     </ui:composition>
 

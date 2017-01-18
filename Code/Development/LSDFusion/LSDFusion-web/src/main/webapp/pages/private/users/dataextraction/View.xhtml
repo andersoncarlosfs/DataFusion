@@ -12,20 +12,10 @@
             <h:form id="DataExtractionViewForm">
                 <h:panelGroup id="display">
                     <p:panelGrid columns="2" rendered="#{dataExtractionBean.selected != null}">
-                        <h:outputText value="#{bundle.ViewDataExtractionLabel_naturalDataExtraction_name}"/>
-                        <h:outputText value="#{dataExtractionBean.selected.naturalDataExtraction.name}" title="#{bundle.ViewDataExtractionTitle_naturalDataExtraction_name}"/>
-                        <h:outputText value="#{bundle.ViewDataExtractionLabel_naturalDataExtraction_surname}"/>
-                        <h:outputText value="#{dataExtractionBean.selected.naturalDataExtraction.surname}" title="#{bundle.ViewDataExtractionTitle_naturalDataExtraction_surname}"/>
-                        <h:outputText value="#{bundle.ViewDataExtractionLabel_naturalDataExtraction_birthdate}"/>
-                        <h:outputText value="#{dataExtractionBean.selected.naturalDataExtraction.birthdate}" title="#{bundle.ViewDataExtractionTitle_naturalDataExtraction_birthdate}">
-                            <f:convertDateTime pattern="dd/MM/yyyy" />
-                        </h:outputText>
-                        <h:outputText value="#{bundle.ViewDataExtractionLabel_naturalDataExtraction_pseudonym}" rendered="#{dataExtractionBean.selected.naturalDataExtraction.pseudonym != null}"/>
-                        <h:outputText value="#{dataExtractionBean.selected.naturalDataExtraction.pseudonym}" title="#{bundle.ViewDataExtractionTitle_naturalDataExtraction_pseudonym}" rendered="#{dataExtractionBean.selected.naturalDataExtraction.pseudonym != null}"/>
-                        <h:outputText value="#{bundle.ViewDataExtractionLabel_naturalDataExtraction_gender}"/>
-                        <h:outputText value="#{dataExtractionBean.selected.naturalDataExtraction.gender.gender}" title="#{bundle.ViewDataExtractionTitle_naturalDataExtraction_gender}"/>
+                        <h:outputText value="#{bundle.ViewDataExtractionLabel_naturalDataExtraction_name}" />
+                        <h:outputText value="#{dataExtractionBean.selected.created}" title="#{bundle.ViewDataExtractionTitle_naturalDataExtraction_name}" />                        
                     </p:panelGrid>
-                    <p:commandButton type="button" value="#{bundle.Close}" icon="fa fa-close" onclick="PF('DataExtractionViewDialog').hide()"/>
+                    <p:commandButton type="button" value="#{bundle.Close}" icon="fa fa-close" onclick="PF('DataExtractionViewDialog').hide()" />
                 </h:panelGroup>
             </h:form>
         </p:dialog>

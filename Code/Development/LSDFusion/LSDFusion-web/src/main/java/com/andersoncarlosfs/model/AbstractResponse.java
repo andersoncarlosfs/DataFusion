@@ -5,6 +5,7 @@
  */
 package com.andersoncarlosfs.model;
 
+import com.andersoncarlosfs.model.enums.Status;
 import java.util.Calendar;
 import java.util.UUID;
 
@@ -12,12 +13,19 @@ import java.util.UUID;
  *
  * @author AndersonCarlos
  */
-public abstract class AbstractRequest implements Comparable<AbstractRequest>, Cloneable {
+public abstract class AbstractResponse implements Comparable<AbstractResponse>, Cloneable {
 
-    private final UUID uuid = UUID.randomUUID();
+    private final UUID uuid;
     private final Calendar created = Calendar.getInstance();
+    private Status status;
 
-    public AbstractRequest() {
+    public AbstractResponse(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public AbstractResponse(UUID uuid, Status status) {
+        this.uuid = uuid;
+        this.status = status;
     }
 
     /**
@@ -35,13 +43,27 @@ public abstract class AbstractRequest implements Comparable<AbstractRequest>, Cl
     }
 
     /**
+     * @return the status
+     */
+    public Status getStatus() {
+        return status;
+    }
+
+    /**
+     * @param status the status to set
+     */
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    /**
      *
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      * @param o
      * @return
      */
     @Override
-    public int compareTo(AbstractRequest o) {
+    public int compareTo(AbstractResponse o) {
         return created.compareTo(o.created);
     }
 
@@ -52,8 +74,8 @@ public abstract class AbstractRequest implements Comparable<AbstractRequest>, Cl
      * @return
      */
     @Override
-    public AbstractRequest clone() throws CloneNotSupportedException {
-        return (AbstractRequest) super.clone();
+    public AbstractResponse clone() throws CloneNotSupportedException {
+        return (AbstractResponse) super.clone();
     }
 
     /**
@@ -79,7 +101,7 @@ public abstract class AbstractRequest implements Comparable<AbstractRequest>, Cl
         if (!(getClass().isInstance(object))) {
             return false;
         }
-        AbstractRequest other = (AbstractRequest) object;
+        AbstractResponse other = (AbstractResponse) object;
         if ((uuid == null && other.uuid != null) || (uuid != null && !uuid.equals(other.uuid))) {
             return false;
         }

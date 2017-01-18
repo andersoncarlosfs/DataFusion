@@ -8,8 +8,7 @@ package com.andersoncarlosfs.controller.services;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.RDFNode;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -65,11 +64,11 @@ public class DataExtractionServiceTest {
         File file = new File("C:\\Users\\AndersonCarlos\\Desktop\\LSDFusion\\Datasets\\DBpedia\\links\\sample.ttl");
         File file2 = new File("C:\\Users\\AndersonCarlos\\Desktop\\LSDFusion\\Datasets\\DBpedia\\links\\sample2.ttl");
         DataExtractionService service = new DataExtractionService();
-        Collection<Collection<String>> classes = service.getEquivalentClasses(file, file2);
-        for (Collection<String> classe : classes) {
+        Collection<Collection<RDFNode>> classes = service.getEquivalentClasses(file, file2);
+        for (Collection<RDFNode> classe : classes) {
             System.out.println("{");
-            for (String string : classe) {
-               System.out.println(string); 
+            for (RDFNode node : classe) {
+               System.out.println(node.toString()); 
             }
             System.out.println("}");
         }

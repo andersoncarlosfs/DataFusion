@@ -5,20 +5,35 @@
  */
 package com.andersoncarlosfs.model.requests;
 
+import com.andersoncarlosfs.annotations.scopes.RequestScope;
 import com.andersoncarlosfs.model.AbstractRequest;
 import java.io.File;
-import javax.enterprise.context.RequestScoped;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  *
  * @author AndersonCarlos
  */
-@RequestScoped
+@RequestScope
 public class DataExtractionRequest extends AbstractRequest {
 
-    private File files;
+    private final Collection<File> files;
 
-    public DataExtractionRequest() {
+    public DataExtractionRequest(Collection<File> files) {
+        this.files = files;
+    }
+
+    public DataExtractionRequest(File... files) {
+        this.files = Arrays.asList(files);
+    }
+
+    /**
+     * @return the files
+     */
+    public Collection<File> getFiles() {
+        return Collections.unmodifiableCollection(files);
     }
 
 }
