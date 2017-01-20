@@ -5,6 +5,7 @@
  */
 package com.andersoncarlosfs.controller.services;
 
+import java.io.File;
 import javax.enterprise.context.RequestScoped;
 
 /**
@@ -14,11 +15,10 @@ import javax.enterprise.context.RequestScoped;
 @RequestScoped
 public class DataFusionService {
 
-    public void fuseData() {
+    public void fuseData(File... files) {
     }
 
-    private void calculateScore() {
-
+    private void getEquivalentClasses(File... files) {
     }
 
 }

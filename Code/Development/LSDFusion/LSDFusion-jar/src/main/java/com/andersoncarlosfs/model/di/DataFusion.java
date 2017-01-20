@@ -3,13 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.andersoncarlosfs.controller.services;
+package com.andersoncarlosfs.model.di;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import javax.enterprise.context.RequestScoped;
@@ -31,18 +32,24 @@ import org.apache.jena.tdb.sys.TDBInternal;
  * @author Anderson Carlos Ferreira da Silva
  */
 @RequestScoped
-public class DataExtractionService {
+public class DataFusion {
 
-    public Collection<Model> extractDataModel(File... files) throws IOException {
+    private final Collection<File> files;
+
+    public DataFusion(File... files) {
+        this.files = Arrays.asList(files);
+    }
+
+    public Collection<Model> extractDataModel() throws IOException {
         Collection<Model> models = new HashSet<>();
-        Collection<Collection<RDFNode>> equivalentClasses = getEquivalentClasses(files);
+        Collection<Collection<RDFNode>> equivalentClasses = getEquivalentClasses();
         for (File file : files) {
             //models.add(RDFDataMgr.loadModel(file.getPath()));
         }
         return models;
     }
 
-    public Collection<Collection<RDFNode>> getEquivalentClasses(File... files) throws IOException {
+    public Collection<Collection<RDFNode>> getEquivalentClasses() throws IOException {
         Collection<Collection<RDFNode>> equivalentClasses = new HashSet<>();
         Path tempDirectory = Files.createTempDirectory(null);
         for (File file : files) {
@@ -77,6 +84,10 @@ public class DataExtractionService {
         }
         tempDirectory.toFile().delete();
         return equivalentClasses;
+    }
+
+    private void calculateScore() {
+
     }
 
 }

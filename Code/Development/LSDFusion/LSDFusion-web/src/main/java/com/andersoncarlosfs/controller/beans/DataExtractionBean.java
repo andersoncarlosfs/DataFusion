@@ -4,7 +4,6 @@ import com.andersoncarlosfs.annotations.scopes.ApplicationScope;
 import com.andersoncarlosfs.model.AbstractController;
 import com.andersoncarlosfs.model.requests.DataExtractionRequest;
 import com.andersoncarlosfs.model.responses.DataExtractionResponse;
-import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
