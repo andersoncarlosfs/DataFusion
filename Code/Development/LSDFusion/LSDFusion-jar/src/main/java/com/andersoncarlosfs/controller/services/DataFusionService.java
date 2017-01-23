@@ -5,8 +5,14 @@
  */
 package com.andersoncarlosfs.controller.services;
 
-import java.io.File;
+import com.andersoncarlosfs.model.di.DataFusion;
+import com.andersoncarlosfs.model.entities.Dataset;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collection;
 import javax.enterprise.context.RequestScoped;
+import org.apache.jena.rdf.model.RDFNode;
 
 /**
  *
@@ -15,10 +21,14 @@ import javax.enterprise.context.RequestScoped;
 @RequestScoped
 public class DataFusionService {
 
-    public void fuseData(File... files) {
+    public void fuseData(Dataset... Datasets) {
     }
 
-    private void getEquivalentClasses(File... files) {
+    public Collection<Collection<RDFNode>> getEquivalentClasses(Dataset... datasets) throws IOException {
+        Path temporaryDirectory = Files.createTempDirectory(null);
+        DataFusion dataFusion = new DataFusion(temporaryDirectory, datasets);
+        temporaryDirectory.toFile().delete();
+        return dataFusion.getEquivalentClasses();
     }
 
 }

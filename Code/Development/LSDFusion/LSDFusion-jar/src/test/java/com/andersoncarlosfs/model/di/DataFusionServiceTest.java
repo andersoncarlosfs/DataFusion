@@ -5,6 +5,8 @@
  */
 package com.andersoncarlosfs.model.di;
 
+import com.andersoncarlosfs.controller.services.DataFusionService;
+import com.andersoncarlosfs.model.entities.Dataset;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -19,9 +21,9 @@ import org.junit.Test;
  *
  * @author lsdfusion
  */
-public class DataFusionTest {
+public class DataFusionServiceTest {
 
-    public DataFusionTest() {
+    public DataFusionServiceTest() {
     }
 
     @BeforeClass
@@ -48,10 +50,10 @@ public class DataFusionTest {
     @Test
     public void testGetEquivalentClasses() throws IOException {
         System.out.println("getEquivalentClasses");
-        File file = new File("C:\\Users\\AndersonCarlos\\Desktop\\LSDFusion\\Datasets\\DBpedia\\links\\sample.ttl");
-        File file2 = new File("C:\\Users\\AndersonCarlos\\Desktop\\LSDFusion\\Datasets\\DBpedia\\links\\sample2.ttl");
-        DataFusion service = new DataFusion();
-        Collection<Collection<RDFNode>> classes = service.getEquivalentClasses(file, file2);
+        Dataset dataset1 = new Dataset(new File("C:\\Users\\AndersonCarlos\\Desktop\\LSDFusion\\Datasets\\DBpedia\\links\\sample.ttl"));
+        Dataset dataset2 = new Dataset( new File("C:\\Users\\AndersonCarlos\\Desktop\\LSDFusion\\Datasets\\DBpedia\\links\\sample2.ttl"));
+        DataFusionService service = new DataFusionService();
+        Collection<Collection<RDFNode>> classes = service.getEquivalentClasses(dataset1, dataset2);
         for (Collection<RDFNode> classe : classes) {
             System.out.println("{");
             for (RDFNode node : classe) {

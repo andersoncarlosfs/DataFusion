@@ -11,8 +11,8 @@ package com.andersoncarlosfs.model.enums;
  */
 public enum Configuration {
 
-    PunctuationMarks("[()\\[\\]{},.;!?<>%/\\-_#]"),
-    ResourceBundle("com/andersoncarlosfs/i18n/text/bundles/Bundle"),
+    TemporaryDirectory(""),
+    PunctuationMarks("[()\\[\\]{},.;!?<>%/\\-_#]"),    
     MessageDigest("SHA-256");
 
     private final String value;
