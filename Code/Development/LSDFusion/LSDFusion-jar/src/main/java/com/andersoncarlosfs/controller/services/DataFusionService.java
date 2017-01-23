@@ -6,7 +6,7 @@
 package com.andersoncarlosfs.controller.services;
 
 import com.andersoncarlosfs.model.di.DataFusion;
-import com.andersoncarlosfs.model.entities.Dataset;
+import com.andersoncarlosfs.model.DataSource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,12 +21,12 @@ import org.apache.jena.rdf.model.RDFNode;
 @RequestScoped
 public class DataFusionService {
 
-    public void fuseData(Dataset... Datasets) {
+    public void fuseData(DataSource... dataSources) {
     }
 
-    public Collection<Collection<RDFNode>> getEquivalentClasses(Dataset... datasets) throws IOException {
+    public Collection<Collection<RDFNode>> getEquivalentClasses(DataSource... dataSources) throws IOException {
         Path temporaryDirectory = Files.createTempDirectory(null);
-        DataFusion dataFusion = new DataFusion(temporaryDirectory, datasets);
+        DataFusion dataFusion = new DataFusion(temporaryDirectory, dataSources);
         temporaryDirectory.toFile().delete();
         return dataFusion.getEquivalentClasses();
     }

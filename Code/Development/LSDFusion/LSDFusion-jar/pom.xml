@@ -21,14 +21,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>LSDFusion-entities</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-            <type>jar</type>
-        </dependency>
+    <dependencies>       
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>apache-jena-libs</artifactId>

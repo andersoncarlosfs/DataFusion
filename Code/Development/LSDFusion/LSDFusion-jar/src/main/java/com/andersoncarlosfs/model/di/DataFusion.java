@@ -5,12 +5,12 @@
  */
 package com.andersoncarlosfs.model.di;
 
-import com.andersoncarlosfs.model.AbstractDataIntegration;
-import com.andersoncarlosfs.model.entities.Dataset;
-import java.io.FileInputStream;
+import com.andersoncarlosfs.model.DataSource;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import javax.enterprise.context.RequestScoped;
 import org.apache.jena.query.ReadWrite;
@@ -29,19 +29,31 @@ import org.apache.jena.tdb.sys.TDBInternal;
  * @author Anderson Carlos Ferreira da Silva
  */
 @RequestScoped
-public class DataFusion extends AbstractDataIntegration {
+public class DataFusion {
 
-    public DataFusion(Path temporaryDirectory, Dataset... datasets) throws IOException {
-        super(temporaryDirectory, datasets);
+    private final Path temporaryDirectory;
+    private final Collection<DataSource> dataSources;
+
+    public DataFusion(Path temporaryDirectory, DataSource... dataSources) {
+        this.temporaryDirectory = temporaryDirectory;
+        this.dataSources = Collections.unmodifiableCollection(Arrays.asList(dataSources));
+    }
+
+    /**
+     *
+     * @return the dataSources
+     */
+    public Collection<DataSource> getDataSources() {
+        return dataSources;
     }
 
     public Collection<Collection<RDFNode>> getEquivalentClasses() throws IOException {
         Collection<Collection<RDFNode>> equivalentClasses = new HashSet<>();
-        for (com.andersoncarlosfs.model.entities.Dataset dataset : getDatasets()) {
-            Location location = Location.create(getTemporaryDirectory().toString());
+        for (DataSource dataSource : dataSources) {
+            Location location = Location.create(temporaryDirectory.toString());
             DatasetGraph rdfDatasetGraph = TDBFactory.createDatasetGraph(location);
             DatasetGraphTDB rdfDatasetGraphTDB = TDBInternal.getBaseDatasetGraphTDB(rdfDatasetGraph);
-            TDBLoader.load(rdfDatasetGraphTDB, new FileInputStream(dataset.getFile()), false);
+            TDBLoader.load(rdfDatasetGraphTDB, dataSource.getInputStream(), false);
             org.apache.jena.query.Dataset rdfDataset = TDBFactory.createDataset(location);
             rdfDataset.begin(ReadWrite.READ);
             StmtIterator iterator = rdfDataset.getDefaultModel().listStatements();
