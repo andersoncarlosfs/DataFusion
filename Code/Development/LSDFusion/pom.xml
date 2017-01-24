@@ -7,7 +7,6 @@
   <packaging>pom</packaging>
   <name>LSDFusion</name>
   <modules>
-    <module>LSDFusion-entities</module>
     <module>LSDFusion-jar</module>
     <module>LSDFusion-web</module>
     <module>LSDFusion-ear</module>
