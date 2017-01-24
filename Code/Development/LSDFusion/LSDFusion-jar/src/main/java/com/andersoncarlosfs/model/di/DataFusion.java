@@ -36,55 +36,48 @@ public class DataFusion implements AutoCloseable {
 
     private final Collection<DataSource> dataSources;
     private final Path temporaryDirectory;
+    private final Dataset dataset;
 
     public DataFusion(DataSource... dataSources) throws IOException {
         this.dataSources = Collections.unmodifiableCollection(Arrays.asList(dataSources));
-        this.temporaryDirectory = Files.createTempDirectory(null);
-    }
-
-    /**
-     *
-     * @return the dataSources
-     */
-    public Collection<DataSource> getDataSources() {
-        return dataSources;
+        temporaryDirectory = Files.createTempDirectory(null);
+        Location location = Location.create(temporaryDirectory.toString());
+        DatasetGraph datasetGraph = TDBFactory.createDatasetGraph(location);
+        DatasetGraphTDB datasetGraphTDB = TDBInternal.getBaseDatasetGraphTDB(datasetGraph);
+        for (DataSource dataSource : this.dataSources) {
+            TDBLoader.load(datasetGraphTDB, dataSource.getInputStream(), false);
+        }
+        dataset = TDBFactory.createDataset(location);
     }
 
     public Collection<Collection<RDFNode>> getEquivalentClasses() throws IOException {
         Collection<Collection<RDFNode>> equivalentClasses = new HashSet<>();
-        for (DataSource dataSource : dataSources) {
-            Location location = Location.create(temporaryDirectory.toString());
-            DatasetGraph datasetGraph = TDBFactory.createDatasetGraph(location);
-            DatasetGraphTDB datasetGraphTDB = TDBInternal.getBaseDatasetGraphTDB(datasetGraph);
-            TDBLoader.load(datasetGraphTDB, dataSource.getInputStream(), false);
-            Dataset dataset = TDBFactory.createDataset(location);
-            dataset.begin(ReadWrite.READ);
-            StmtIterator iterator = dataset.getDefaultModel().listStatements();
-            while (iterator.hasNext()) {
-                Statement statement = iterator.next();
-                RDFNode predicate = statement.getPredicate();
-                if (predicate.equals(OWL.sameAs)) {
-                    RDFNode subject = statement.getSubject();
-                    RDFNode object = statement.getObject();
-                    Collection<RDFNode> classe = null;
-                    for (Collection<RDFNode> resources : equivalentClasses) {
-                        if (resources.contains(subject)) {
-                            classe = resources;
-                            break;
-                        }
-                    }
-                    if (classe == null) {
-                        classe = new HashSet<>();
-                        classe.add(subject);
-                        equivalentClasses.add(classe);
-                    }
-                    if (!classe.contains(object)) {
-                        classe.add(object);
+        dataset.begin(ReadWrite.READ);
+        StmtIterator iterator = dataset.getDefaultModel().listStatements();
+        while (iterator.hasNext()) {
+            Statement statement = iterator.next();
+            RDFNode predicate = statement.getPredicate();
+            if (predicate.equals(OWL.sameAs)) {
+                RDFNode subject = statement.getSubject();
+                RDFNode object = statement.getObject();
+                Collection<RDFNode> classe = null;
+                for (Collection<RDFNode> resources : equivalentClasses) {
+                    if (resources.contains(subject)) {
+                        classe = resources;
+                        break;
                     }
                 }
+                if (classe == null) {
+                    classe = new HashSet<>();
+                    classe.add(subject);
+                    equivalentClasses.add(classe);
+                }
+                if (!classe.contains(object)) {
+                    classe.add(object);
+                }
             }
-            dataset.end();
         }
+        dataset.end();
         return equivalentClasses;
     }
 
@@ -99,6 +92,7 @@ public class DataFusion implements AutoCloseable {
      */
     @Override
     public void close() throws Exception {
+        dataset.close();
         temporaryDirectory.toFile().delete();
     }
 
