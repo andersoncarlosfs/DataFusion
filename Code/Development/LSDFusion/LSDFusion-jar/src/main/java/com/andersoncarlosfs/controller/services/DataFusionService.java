@@ -8,8 +8,6 @@ package com.andersoncarlosfs.controller.services;
 import com.andersoncarlosfs.model.di.DataFusion;
 import com.andersoncarlosfs.model.DataSource;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collection;
 import javax.enterprise.context.RequestScoped;
 import org.apache.jena.rdf.model.RDFNode;
@@ -25,9 +23,7 @@ public class DataFusionService {
     }
 
     public Collection<Collection<RDFNode>> getEquivalentClasses(DataSource... dataSources) throws IOException {
-        Path temporaryDirectory = Files.createTempDirectory(null);
-        DataFusion dataFusion = new DataFusion(temporaryDirectory, dataSources);
-        temporaryDirectory.toFile().delete();
+        DataFusion dataFusion = new DataFusion(dataSources);
         return dataFusion.getEquivalentClasses();
     }
 

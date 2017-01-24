@@ -11,8 +11,7 @@ package com.andersoncarlosfs.model.enums;
  */
 public enum Configuration {
 
-    TemporaryDirectory(""),
-    PunctuationMarks("[()\\[\\]{},.;!?<>%/\\-_#]"),    
+    PunctuationMarks("[()\\[\\]{},.;!?<>%/\\-_#]"),
     MessageDigest("SHA-256");
 
     private final String value;
