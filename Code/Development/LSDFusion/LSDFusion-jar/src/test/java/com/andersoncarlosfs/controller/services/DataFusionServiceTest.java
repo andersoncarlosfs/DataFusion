@@ -56,14 +56,14 @@ public class DataFusionServiceTest {
         dataSource1.setSyntax(Lang.TURTLE);
         DataSource dataSource2 = new DataSource();
         dataSource2.setInputStream(new File("/home/lsdfusion/Desktop/LSDFusion/Datasets/OpenFoodFacts/OpenFoodFacts.rdf"));
-        dataSource2.setSyntax(Lang.RDFXML);
+        dataSource2.setSyntax(Lang.RDFNULL);
         //http://data.bnf.fr/semanticweb
         DataSource dataSource3 = new DataSource();
         dataSource3.setInputStream(new File("/home/lsdfusion/Desktop/LSDFusion/Datasets/BNF/BNF.nt"));
         dataSource3.setSyntax(Lang.NT);
         DataFusionService service = new DataFusionService();
         Integer size = 0;
-        Collection<Collection<RDFNode>> classes = service.findEquivalenceClasses(dataSource3);
+        Collection<Collection<RDFNode>> classes = service.findEquivalenceClasses(dataSource1, dataSource2, dataSource3);
         for (Collection<RDFNode> classe : classes) {
             size += classe.size();
             System.out.println("{");
