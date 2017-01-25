@@ -55,7 +55,7 @@ public class DataFusionServiceTest {
         DataSource dataSource2 = new DataSource();
         dataSource2.setInputStream(new File("C:\\Users\\AndersonCarlos\\Desktop\\LSDFusion\\Datasets\\DBpedia\\links\\sample2.ttl"));
         DataFusionService service = new DataFusionService();
-        Collection<Collection<RDFNode>> classes = service.getEquivalentClasses(dataSource1, dataSource2);
+        Collection<Collection<RDFNode>> classes = service.findEquivalentClasses(dataSource1, dataSource2);
         for (Collection<RDFNode> classe : classes) {
             System.out.println("{");
             for (RDFNode node : classe) {
