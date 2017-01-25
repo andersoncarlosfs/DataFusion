@@ -43,28 +43,36 @@ public class DataFusionServiceTest {
     }
 
     /**
-     * Test of getEquivalentClasses method, of class DataFusion.
+     * Test of getEquivalenceClasses method, of class DataFusion.
      *
      * @throws java.io.IOException
      */
     @Test
-    public void testGetEquivalentClasses() throws IOException {
-        System.out.println("begin test getEquivalentClasses");        
+    public void testGetEquivalenceClasses() throws IOException {
+        System.out.println("begin test getEquivalentClasses");
         //https://www.w3.org/wiki/DataSetRDFDumps
         DataSource dataSource1 = new DataSource();
         dataSource1.setInputStream(new File("/home/lsdfusion/Desktop/LSDFusion/Datasets/MeSH/MeSH.ttl"));
         dataSource1.setSyntax(Lang.TURTLE);
-        //DataSource dataSource2 = new DataSource();
-        //dataSource2.setInputStream(new File("C:\\Users\\AndersonCarlos\\Desktop\\LSDFusion\\Datasets\\DBpedia\\links\\sample2.ttl"));
+        DataSource dataSource2 = new DataSource();
+        dataSource2.setInputStream(new File("/home/lsdfusion/Desktop/LSDFusion/Datasets/OpenFoodFacts/OpenFoodFacts.rdf"));
+        dataSource2.setSyntax(Lang.RDFXML);
+        //http://data.bnf.fr/semanticweb
+        DataSource dataSource3 = new DataSource();
+        dataSource3.setInputStream(new File("/home/lsdfusion/Desktop/LSDFusion/Datasets/BNF/BNF.nt"));
+        dataSource3.setSyntax(Lang.NT);
         DataFusionService service = new DataFusionService();
-        Collection<Collection<RDFNode>> classes = service.findEquivalentClasses(dataSource1);
+        Integer size = 0;
+        Collection<Collection<RDFNode>> classes = service.findEquivalenceClasses(dataSource3);
         for (Collection<RDFNode> classe : classes) {
+            size += classe.size();
             System.out.println("{");
             for (RDFNode node : classe) {
                 System.out.println(node.toString());
-            }
+            }      
             System.out.println("}");
         }
+        System.out.println("Total of equivalence classes: " + size);
         System.out.println("end test getEquivalentClasses");
     }
 
