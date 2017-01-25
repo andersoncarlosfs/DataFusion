@@ -30,11 +30,17 @@ import org.apache.jena.vocabulary.OWL;
 public abstract class DataIntegration implements AutoCloseable {
 
     /**
-     * 
+     *
      * @return the temporaryDirectory
      */
     protected abstract Path getTemporaryDirectory();
 
+    /**
+     *
+     * @param dataSources
+     * @return the equivalent classes
+     * @throws IOException
+     */
     public Collection<Collection<RDFNode>> findEquivalentClasses(Collection<DataSource> dataSources) throws IOException {
         Collection<Collection<RDFNode>> equivalentClasses = new HashSet<>();
         for (DataSource dataSource : dataSources) {
