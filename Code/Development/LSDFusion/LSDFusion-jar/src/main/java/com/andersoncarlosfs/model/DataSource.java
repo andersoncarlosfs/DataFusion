@@ -10,7 +10,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.Calendar;
 import javax.enterprise.context.RequestScoped;
+import org.apache.jena.riot.Lang;
 
 /**
  *
@@ -21,6 +23,8 @@ public class DataSource implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private InputStream inputStream;
+    private Lang lang;
+    private Calendar lastModified;
 
     public DataSource() {
     }
@@ -48,6 +52,38 @@ public class DataSource implements Serializable {
      */
     public void setInputStream(File file) throws FileNotFoundException {
         this.inputStream = new FileInputStream(file);
+    }
+
+    /**
+     *
+     * @return the lang
+     */
+    public Lang getLang() {
+        return lang;
+    }
+
+    /**
+     *
+     * @param lang the lang to set
+     */
+    public void setLang(Lang lang) {
+        this.lang = lang;
+    }
+
+    /**
+     *
+     * @return the lastModified
+     */
+    public Calendar getLastModified() {
+        return lastModified;
+    }
+
+    /**
+     *
+     * @param lastModified the lastModified to set
+     */
+    public void setLastModified(Calendar lastModified) {
+        this.lastModified = lastModified;
     }
 
 }
