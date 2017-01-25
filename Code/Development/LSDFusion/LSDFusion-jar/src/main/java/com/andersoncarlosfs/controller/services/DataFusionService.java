@@ -5,6 +5,7 @@
  */
 package com.andersoncarlosfs.controller.services;
 
+import com.andersoncarlosfs.model.DataCluster;
 import com.andersoncarlosfs.model.DataSource;
 import com.andersoncarlosfs.model.di.DataFusion;
 import java.io.IOException;
@@ -26,7 +27,7 @@ public class DataFusionService {
      * @return the equivalent classes
      * @throws java.io.IOException
      */
-    public Collection<Collection<RDFNode>> findEquivalenceClasses(DataSource... dataSources) throws IOException {
+    public Collection<DataCluster> findEquivalenceClasses(DataSource... dataSources) throws IOException {
         return new DataFusion(Arrays.asList(dataSources)).findEquivalenceClasses();
     }
 

@@ -5,6 +5,7 @@
  */
 package com.andersoncarlosfs.controller.services;
 
+import com.andersoncarlosfs.model.DataCluster;
 import com.andersoncarlosfs.model.DataSource;
 import java.io.File;
 import java.io.IOException;
@@ -52,15 +53,15 @@ public class DataFusionServiceTest {
         System.out.println("begin test getEquivalentClasses");
         //https://www.w3.org/wiki/DataSetRDFDumps
         DataSource dataSource1 = new DataSource();
-        dataSource1.setInputStream(new File("/home/lsdfusion/Desktop/LSDFusion/Datasets/MeSH/MeSH.ttl"));
+        dataSource1.setInputStream(new File("../../../../Datasets/MeSH/MeSH.ttl"));
         dataSource1.setSyntax(Lang.TURTLE);
         //http://data.bnf.fr/semanticweb
         DataSource dataSource2 = new DataSource();
-        dataSource2.setInputStream(new File("/home/lsdfusion/Desktop/LSDFusion/Datasets/BNF/BNF.nt"));
+        dataSource2.setInputStream(new File("../../../../Datasets/BNF/BNF.nt"));
         dataSource2.setSyntax(Lang.NT);
         DataFusionService service = new DataFusionService();
         Integer size = 0;
-        Collection<Collection<RDFNode>> classes = service.findEquivalenceClasses(dataSource1, dataSource2);
+        Collection<DataCluster> classes = service.findEquivalenceClasses(dataSource1, dataSource2);
         for (Collection<RDFNode> classe : classes) {
             size += classe.size();
             System.out.println("{");

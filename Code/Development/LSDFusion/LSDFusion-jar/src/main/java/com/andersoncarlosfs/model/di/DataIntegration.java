@@ -5,6 +5,7 @@
  */
 package com.andersoncarlosfs.model.di;
 
+import com.andersoncarlosfs.model.DataCluster;
 import com.andersoncarlosfs.model.DataSource;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,8 +39,8 @@ public abstract class DataIntegration implements AutoCloseable {
      * @return the equivalent classes
      * @throws IOException
      */
-    public Collection<Collection<RDFNode>> findEquivalenceClasses(DataSource... dataSources) throws IOException {
-        Collection<Collection<RDFNode>> equivalentClasses = new HashSet<>();
+    public Collection<DataCluster> findEquivalenceClasses(DataSource... dataSources) throws IOException {
+        Collection<DataCluster> equivalentClasses = new HashSet<>();
         for (DataSource dataSource : dataSources) {
             Location location = Location.create(Files.createTempDirectory(getTemporaryDirectory(), null).toString());
             Dataset dataset = TDBFactory.createDataset(location);
@@ -51,15 +52,15 @@ public abstract class DataIntegration implements AutoCloseable {
                 if (predicate.equals(OWL.sameAs)) {
                     RDFNode subject = statement.getSubject();
                     RDFNode object = statement.getObject();
-                    Collection<RDFNode> classe = null;
-                    for (Collection<RDFNode> resources : equivalentClasses) {
+                    DataCluster classe = null;
+                    for (DataCluster resources : equivalentClasses) {
                         if (resources.contains(subject)) {
                             classe = resources;
                             break;
                         }
                     }
                     if (classe == null) {
-                        classe = new HashSet<>();
+                        classe = new DataCluster();
                         classe.add(subject);
                         equivalentClasses.add(classe);
                     }

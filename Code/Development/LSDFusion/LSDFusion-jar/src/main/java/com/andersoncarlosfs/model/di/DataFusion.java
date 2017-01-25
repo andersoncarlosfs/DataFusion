@@ -5,6 +5,7 @@
  */
 package com.andersoncarlosfs.model.di;
 
+import com.andersoncarlosfs.model.DataCluster;
 import com.andersoncarlosfs.model.DataSource;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -59,7 +60,7 @@ public class DataFusion extends DataIntegration {
      * @return the equivalent classes
      * @throws IOException
      */
-    public Collection<Collection<RDFNode>> findEquivalenceClasses() throws IOException {
+    public Collection<DataCluster> findEquivalenceClasses() throws IOException {
         if (links.isEmpty()) {
             return super.findEquivalenceClasses((DataSource[]) datasets.toArray());
         }
