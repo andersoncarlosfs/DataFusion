@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.andersoncarlosfs.model.di;
+package com.andersoncarlosfs.controller.services;
 
-import com.andersoncarlosfs.controller.services.DataFusionService;
 import com.andersoncarlosfs.model.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.riot.Lang;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -49,13 +49,15 @@ public class DataFusionServiceTest {
      */
     @Test
     public void testGetEquivalentClasses() throws IOException {
-        System.out.println("getEquivalentClasses");
+        System.out.println("begin test getEquivalentClasses");        
+        //https://www.w3.org/wiki/DataSetRDFDumps
         DataSource dataSource1 = new DataSource();
-        dataSource1.setInputStream(new File("C:\\Users\\AndersonCarlos\\Desktop\\LSDFusion\\Datasets\\DBpedia\\links\\sample.ttl"));
-        DataSource dataSource2 = new DataSource();
-        dataSource2.setInputStream(new File("C:\\Users\\AndersonCarlos\\Desktop\\LSDFusion\\Datasets\\DBpedia\\links\\sample2.ttl"));
+        dataSource1.setInputStream(new File("/home/lsdfusion/Desktop/LSDFusion/Datasets/MeSH/MeSH.ttl"));
+        dataSource1.setSyntax(Lang.TURTLE);
+        //DataSource dataSource2 = new DataSource();
+        //dataSource2.setInputStream(new File("C:\\Users\\AndersonCarlos\\Desktop\\LSDFusion\\Datasets\\DBpedia\\links\\sample2.ttl"));
         DataFusionService service = new DataFusionService();
-        Collection<Collection<RDFNode>> classes = service.findEquivalentClasses(dataSource1, dataSource2);
+        Collection<Collection<RDFNode>> classes = service.findEquivalentClasses(dataSource1);
         for (Collection<RDFNode> classe : classes) {
             System.out.println("{");
             for (RDFNode node : classe) {
@@ -63,6 +65,7 @@ public class DataFusionServiceTest {
             }
             System.out.println("}");
         }
+        System.out.println("end test getEquivalentClasses");
     }
 
 }

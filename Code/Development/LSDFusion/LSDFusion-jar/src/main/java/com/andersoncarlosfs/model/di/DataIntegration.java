@@ -15,11 +15,14 @@ import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.tdb.TDBLoader;
 import org.apache.jena.tdb.base.file.Location;
 import org.apache.jena.tdb.store.DatasetGraphTDB;
+import org.apache.jena.tdb.store.GraphNonTxnTDB;
 import org.apache.jena.tdb.sys.TDBInternal;
 import org.apache.jena.vocabulary.OWL;
 
@@ -45,11 +48,8 @@ public abstract class DataIntegration implements AutoCloseable {
         Collection<Collection<RDFNode>> equivalentClasses = new HashSet<>();
         for (DataSource dataSource : dataSources) {
             Location location = Location.create(getTemporaryDirectory().toString());
-            DatasetGraph datasetGraph = TDBFactory.createDatasetGraph(location);
-            DatasetGraphTDB datasetGraphTDB = TDBInternal.getBaseDatasetGraphTDB(datasetGraph);
-            TDBLoader.load(datasetGraphTDB, dataSource.getInputStream(), false);
             Dataset dataset = TDBFactory.createDataset(location);
-            dataset.begin(ReadWrite.READ);
+            RDFDataMgr.read(dataset, dataSource.getInputStream(), dataSource.getSyntax());
             StmtIterator iterator = dataset.getDefaultModel().listStatements();
             while (iterator.hasNext()) {
                 Statement statement = iterator.next();
@@ -74,8 +74,6 @@ public abstract class DataIntegration implements AutoCloseable {
                     }
                 }
             }
-            dataset.end();
-            dataset.close();
         }
         return equivalentClasses;
     }

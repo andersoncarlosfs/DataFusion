@@ -23,7 +23,7 @@ public class DataSource implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private InputStream inputStream;
-    private Lang lang;
+    private Lang syntax;
     private Calendar lastModified;
 
     public DataSource() {
@@ -56,18 +56,18 @@ public class DataSource implements Serializable {
 
     /**
      *
-     * @return the lang
+     * @return the syntax
      */
-    public Lang getLang() {
-        return lang;
+    public Lang getSyntax() {
+        return syntax;
     }
 
     /**
      *
-     * @param lang the lang to set
+     * @param syntax the syntax to set
      */
-    public void setLang(Lang lang) {
-        this.lang = lang;
+    public void setSyntax(Lang syntax) {
+        this.syntax = syntax;
     }
 
     /**
