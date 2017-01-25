@@ -54,22 +54,19 @@ public class DataFusionServiceTest {
         DataSource dataSource1 = new DataSource();
         dataSource1.setInputStream(new File("/home/lsdfusion/Desktop/LSDFusion/Datasets/MeSH/MeSH.ttl"));
         dataSource1.setSyntax(Lang.TURTLE);
-        DataSource dataSource2 = new DataSource();
-        dataSource2.setInputStream(new File("/home/lsdfusion/Desktop/LSDFusion/Datasets/OpenFoodFacts/OpenFoodFacts.rdf"));
-        dataSource2.setSyntax(Lang.RDFNULL);
         //http://data.bnf.fr/semanticweb
-        DataSource dataSource3 = new DataSource();
-        dataSource3.setInputStream(new File("/home/lsdfusion/Desktop/LSDFusion/Datasets/BNF/BNF.nt"));
-        dataSource3.setSyntax(Lang.NT);
+        DataSource dataSource2 = new DataSource();
+        dataSource2.setInputStream(new File("/home/lsdfusion/Desktop/LSDFusion/Datasets/BNF/BNF.nt"));
+        dataSource2.setSyntax(Lang.NT);
         DataFusionService service = new DataFusionService();
         Integer size = 0;
-        Collection<Collection<RDFNode>> classes = service.findEquivalenceClasses(dataSource1, dataSource2, dataSource3);
+        Collection<Collection<RDFNode>> classes = service.findEquivalenceClasses(dataSource1, dataSource2);
         for (Collection<RDFNode> classe : classes) {
             size += classe.size();
             System.out.println("{");
             for (RDFNode node : classe) {
                 System.out.println(node.toString());
-            }      
+            }
             System.out.println("}");
         }
         System.out.println("Total of equivalence classes: " + size);

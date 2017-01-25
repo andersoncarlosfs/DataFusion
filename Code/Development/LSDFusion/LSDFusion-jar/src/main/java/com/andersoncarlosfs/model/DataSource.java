@@ -23,7 +23,7 @@ public class DataSource implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private InputStream inputStream;
-    private Lang syntax;
+    private Lang syntax = Lang.RDFNULL;
     private Calendar lastModified;
 
     public DataSource() {

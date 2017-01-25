@@ -12,10 +12,12 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import javax.enterprise.context.RequestScoped;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
+import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
@@ -54,21 +56,25 @@ public class DataFusion extends DataIntegration {
 
     /**
      *
-     * @param dataSources
      * @return the equivalent classes
      * @throws IOException
      */
-    public Collection<Collection<RDFNode>> findEquivalentClasses() throws IOException {
+    public Collection<Collection<RDFNode>> findEquivalenceClasses() throws IOException {
         if (links.isEmpty()) {
-            return findEquivalentClasses(datasets);
+            return super.findEquivalenceClasses((DataSource[]) datasets.toArray());
         }
-        return findEquivalentClasses(links);
+        return super.findEquivalenceClasses((DataSource[]) datasets.toArray());
     }
 
-    private void calculateScore() {
+    /**
+     *
+     * @return the equivalent classes
+     * @throws IOException
+     */
+    private Collection<Map<Collection<RDFNode>, Property>> calculateScore() throws IOException {
         Map<RDFNode, Integer> occurrenceFrequency = new HashMap<>();
-        for (DataSource dataSource : dataSources) {
-            Location location = Location.create(Files.createTempDirectory(temporaryDirectory, null).toString());
+        for (DataSource dataSource : datasets) {
+            Location location = Location.create(getTemporaryDirectory().toString());
             DatasetGraph datasetGraph = TDBFactory.createDatasetGraph(location);
             DatasetGraphTDB datasetGraphTDB = TDBInternal.getBaseDatasetGraphTDB(datasetGraph);
             TDBLoader.load(datasetGraphTDB, dataSource.getInputStream(), false);
@@ -85,6 +91,7 @@ public class DataFusion extends DataIntegration {
             dataset.end();
             dataset.close();
         }
+        return null;
     }
 
 }

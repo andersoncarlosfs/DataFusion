@@ -24,10 +24,10 @@ public class DataFusionService {
      *
      * @param dataSources
      * @return the equivalent classes
-     * @throws IOException
+     * @throws java.io.IOException
      */
-    public Collection<Collection<RDFNode>> findEquivalentClasses(DataSource... dataSources) throws IOException {
-        return new DataFusion(Arrays.asList(dataSources)).findEquivalentClasses();
+    public Collection<Collection<RDFNode>> findEquivalenceClasses(DataSource... dataSources) throws IOException {
+        return new DataFusion(Arrays.asList(dataSources)).findEquivalenceClasses();
     }
 
 }

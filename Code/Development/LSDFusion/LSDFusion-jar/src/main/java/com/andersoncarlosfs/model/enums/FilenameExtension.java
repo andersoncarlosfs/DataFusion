@@ -12,7 +12,7 @@ package com.andersoncarlosfs.model.enums;
 public enum FilenameExtension {
 
     RDF("rdf");
-    
+
     private final String value;
 
     private FilenameExtension(String value) {
