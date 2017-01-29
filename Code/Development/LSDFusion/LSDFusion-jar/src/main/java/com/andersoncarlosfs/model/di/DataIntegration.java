@@ -5,7 +5,7 @@
  */
 package com.andersoncarlosfs.model.di;
 
-import com.andersoncarlosfs.model.DataCluster;
+import com.andersoncarlosfs.model.EquivalenceClass;
 import com.andersoncarlosfs.model.DataSource;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,11 +36,11 @@ public abstract class DataIntegration implements AutoCloseable {
     /**
      *
      * @param dataSources
-     * @return the equivalent classes
+     * @return the equivalence classes
      * @throws IOException
      */
-    public Collection<DataCluster> findEquivalenceClasses(DataSource... dataSources) throws IOException {
-        Collection<DataCluster> equivalentClasses = new HashSet<>();
+    public Collection<EquivalenceClass> findEquivalenceClasses(DataSource... dataSources) throws IOException {
+        Collection<EquivalenceClass> equivalenceClasses = new HashSet<>();
         for (DataSource dataSource : dataSources) {
             Location location = Location.create(Files.createTempDirectory(getTemporaryDirectory(), null).toString());
             Dataset dataset = TDBFactory.createDataset(location);
@@ -52,17 +52,17 @@ public abstract class DataIntegration implements AutoCloseable {
                 if (predicate.equals(OWL.sameAs)) {
                     RDFNode subject = statement.getSubject();
                     RDFNode object = statement.getObject();
-                    DataCluster classe = null;
-                    for (DataCluster resources : equivalentClasses) {
+                    EquivalenceClass classe = null;
+                    for (EquivalenceClass resources : equivalenceClasses) {
                         if (resources.contains(subject)) {
                             classe = resources;
                             break;
                         }
                     }
                     if (classe == null) {
-                        classe = new DataCluster();
+                        classe = new EquivalenceClass(OWL.sameAs);
                         classe.add(subject);
-                        equivalentClasses.add(classe);
+                        equivalenceClasses.add(classe);
                     }
                     if (!classe.contains(object)) {
                         classe.add(object);
@@ -70,7 +70,7 @@ public abstract class DataIntegration implements AutoCloseable {
                 }
             }
         }
-        return equivalentClasses;
+        return equivalenceClasses;
     }
 
     /**

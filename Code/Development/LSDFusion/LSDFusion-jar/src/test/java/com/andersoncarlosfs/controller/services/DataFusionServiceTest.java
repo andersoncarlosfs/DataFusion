@@ -5,7 +5,7 @@
  */
 package com.andersoncarlosfs.controller.services;
 
-import com.andersoncarlosfs.model.DataCluster;
+import com.andersoncarlosfs.model.EquivalenceClass;
 import com.andersoncarlosfs.model.DataSource;
 import java.io.File;
 import java.io.IOException;
@@ -61,7 +61,7 @@ public class DataFusionServiceTest {
         dataSource2.setSyntax(Lang.NT);
         DataFusionService service = new DataFusionService();
         Integer size = 0;
-        Collection<DataCluster> classes = service.findEquivalenceClasses(dataSource1, dataSource2);
+        Collection<EquivalenceClass> classes = service.findEquivalenceClasses(dataSource1, dataSource2);
         for (Collection<RDFNode> classe : classes) {
             size += classe.size();
             System.out.println("{");
