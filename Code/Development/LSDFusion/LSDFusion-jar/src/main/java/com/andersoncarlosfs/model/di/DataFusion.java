@@ -5,8 +5,8 @@
  */
 package com.andersoncarlosfs.model.di;
 
-import com.andersoncarlosfs.model.EquivalenceClass;
 import com.andersoncarlosfs.model.DataSource;
+import com.andersoncarlosfs.model.QuotientSet;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -60,7 +60,7 @@ public class DataFusion extends DataIntegration {
      * @return the equivalence classes
      * @throws IOException
      */
-    public Collection<EquivalenceClass> findEquivalenceClasses() throws IOException {
+    public QuotientSet findEquivalenceClasses() throws IOException {
         if (links.isEmpty()) {
             return super.findEquivalenceClasses((DataSource[]) datasets.toArray());
         }

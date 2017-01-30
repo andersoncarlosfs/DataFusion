@@ -7,11 +7,10 @@ package com.andersoncarlosfs.model.di;
 
 import com.andersoncarlosfs.model.EquivalenceClass;
 import com.andersoncarlosfs.model.DataSource;
+import com.andersoncarlosfs.model.QuotientSet;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.HashSet;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
@@ -39,8 +38,8 @@ public abstract class DataIntegration implements AutoCloseable {
      * @return the equivalence classes
      * @throws IOException
      */
-    public Collection<EquivalenceClass> findEquivalenceClasses(DataSource... dataSources) throws IOException {
-        Collection<EquivalenceClass> equivalenceClasses = new HashSet<>();
+    public QuotientSet findEquivalenceClasses(DataSource... dataSources) throws IOException {
+        QuotientSet quotientSet = new QuotientSet(OWL.sameAs);
         for (DataSource dataSource : dataSources) {
             Location location = Location.create(Files.createTempDirectory(getTemporaryDirectory(), null).toString());
             Dataset dataset = TDBFactory.createDataset(location);
@@ -49,28 +48,28 @@ public abstract class DataIntegration implements AutoCloseable {
             while (iterator.hasNext()) {
                 Statement statement = iterator.next();
                 RDFNode predicate = statement.getPredicate();
-                if (predicate.equals(OWL.sameAs)) {
+                if (predicate.equals(quotientSet.getEquivalenceRelation())) {
                     RDFNode subject = statement.getSubject();
                     RDFNode object = statement.getObject();
-                    EquivalenceClass classe = null;
-                    for (EquivalenceClass resources : equivalenceClasses) {
-                        if (resources.contains(subject)) {
-                            classe = resources;
+                    EquivalenceClass equivalenceClass = null;
+                    for (EquivalenceClass subset : quotientSet) {
+                        if (subset.contains(subject)) {
+                            equivalenceClass = subset;
                             break;
                         }
                     }
-                    if (classe == null) {
-                        classe = new EquivalenceClass(OWL.sameAs);
-                        classe.add(subject);
-                        equivalenceClasses.add(classe);
+                    if (equivalenceClass == null) {
+                        equivalenceClass = new EquivalenceClass();
+                        equivalenceClass.add(subject);
+                        quotientSet.add(equivalenceClass);
                     }
-                    if (!classe.contains(object)) {
-                        classe.add(object);
+                    if (!equivalenceClass.contains(object)) {
+                        equivalenceClass.add(object);
                     }
                 }
             }
         }
-        return equivalenceClasses;
+        return quotientSet;
     }
 
     /**

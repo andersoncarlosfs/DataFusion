@@ -8,7 +8,6 @@ package com.andersoncarlosfs.model;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 
 /**
@@ -16,26 +15,17 @@ import org.apache.jena.rdf.model.RDFNode;
  * @author Anderson Carlos Ferreira da Silva
  */
 public class EquivalenceClass extends HashSet<RDFNode> {
-    
-    private final Property equivalenceRelation;
 
-    public EquivalenceClass(Property equivalenceRelation) {
+    public EquivalenceClass() {
         super();
-        this.equivalenceRelation = equivalenceRelation;
+    }
+    
+    public EquivalenceClass(Collection<? extends RDFNode> c) {
+        super(c);
     }
 
-    public EquivalenceClass(Property equivalenceRelation, Collection<? extends RDFNode> instances) {      
-        super(instances);
-        this.equivalenceRelation = equivalenceRelation;
-    }
-
-    public EquivalenceClass(Property equivalenceRelation, RDFNode... instances) {
+    public EquivalenceClass(RDFNode... instances) {
         super(Arrays.asList(instances));
-        this.equivalenceRelation = equivalenceRelation;
-    }
-
-    public Property equivalenceRelation() {
-        return equivalenceRelation;
     }
 
 }

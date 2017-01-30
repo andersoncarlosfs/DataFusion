@@ -5,12 +5,11 @@
  */
 package com.andersoncarlosfs.controller.services;
 
-import com.andersoncarlosfs.model.EquivalenceClass;
 import com.andersoncarlosfs.model.DataSource;
+import com.andersoncarlosfs.model.QuotientSet;
 import com.andersoncarlosfs.model.di.DataFusion;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import javax.enterprise.context.RequestScoped;
 
 /**
@@ -26,7 +25,7 @@ public class DataFusionService {
      * @return the equivalence classes
      * @throws java.io.IOException
      */
-    public Collection<EquivalenceClass> findEquivalenceClasses(DataSource... dataSources) throws IOException {
+    public QuotientSet findEquivalenceClasses(DataSource... dataSources) throws IOException {
         return new DataFusion(Arrays.asList(dataSources)).findEquivalenceClasses();
     }
 
