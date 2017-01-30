@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.andersoncarlosfs.model;
+package com.andersoncarlosfs.model.di;
 
 import java.util.Arrays;
 import java.util.Collection;

@@ -5,7 +5,7 @@
  */
 package com.andersoncarlosfs.controller.services;
 
-import com.andersoncarlosfs.model.EquivalenceClass;
+import com.andersoncarlosfs.model.di.EquivalenceClass;
 import com.andersoncarlosfs.model.DataSource;
 import java.io.File;
 import java.io.IOException;

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.andersoncarlosfs.model;
+package com.andersoncarlosfs.model.dq;
 
 import java.io.Serializable;
 import javax.validation.constraints.Size;
@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
  *
  * @author Anderson Carlos Ferreira da Silva
  */
-public class QualityAssessment implements Serializable {
+public class DataQualityAssessment implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Size(min = 0)
@@ -24,7 +24,7 @@ public class QualityAssessment implements Serializable {
     @Size(min = 0, max = 1)
     private Float freshness;
 
-    public QualityAssessment() {
+    public DataQualityAssessment() {
     }
 
     /**

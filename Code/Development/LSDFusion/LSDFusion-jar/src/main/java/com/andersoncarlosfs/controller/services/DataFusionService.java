@@ -6,7 +6,7 @@
 package com.andersoncarlosfs.controller.services;
 
 import com.andersoncarlosfs.model.DataSource;
-import com.andersoncarlosfs.model.QuotientSet;
+import com.andersoncarlosfs.model.di.QuotientSet;
 import com.andersoncarlosfs.model.di.DataFusion;
 import java.io.IOException;
 import java.util.Arrays;
