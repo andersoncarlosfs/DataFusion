@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
  *
  * @author Anderson Carlos Ferreira da Silva
  */
-public class DataQualityInformation implements Serializable {
+public class QualityAssessment implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Size(min = 0)
@@ -24,7 +24,7 @@ public class DataQualityInformation implements Serializable {
     @Size(min = 0, max = 1)
     private Float freshness;
 
-    public DataQualityInformation() {
+    public QualityAssessment() {
     }
 
     /**
