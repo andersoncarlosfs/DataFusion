@@ -16,19 +16,19 @@ import org.apache.jena.rdf.model.Property;
  */
 public class QuotientSet extends HashSet<EquivalenceClass> {
 
-    private final Property equivalenceRelation;
+    private final Collection<Property> equivalenceRelation;
 
-    public QuotientSet(Property equivalenceRelation) {
+    public QuotientSet(Collection<Property> equivalenceRelation) {
         super();
         this.equivalenceRelation = equivalenceRelation;
     }
 
-    public QuotientSet(Property equivalenceRelation, Collection<? extends EquivalenceClass> c) {
+    public QuotientSet(Collection<Property> equivalenceRelation, Collection<? extends EquivalenceClass> c) {
         super(c);
         this.equivalenceRelation = equivalenceRelation;
     }
 
-    public QuotientSet(Property equivalenceRelation, EquivalenceClass... equivalenceClasses) {
+    public QuotientSet(Collection<Property> equivalenceRelation, EquivalenceClass... equivalenceClasses) {
         super(Arrays.asList(equivalenceClasses));
         this.equivalenceRelation = equivalenceRelation;
     }
@@ -37,7 +37,7 @@ public class QuotientSet extends HashSet<EquivalenceClass> {
      *
      * @return the equivalenceRelation
      */
-    public Property getEquivalenceRelation() {
+    public Collection<Property> getEquivalenceRelation() {
         return equivalenceRelation;
     }
 

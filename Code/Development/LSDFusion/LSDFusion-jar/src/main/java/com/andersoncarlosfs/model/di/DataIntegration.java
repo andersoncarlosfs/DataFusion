@@ -17,6 +17,7 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.tdb.base.file.Location;
 import org.apache.jena.vocabulary.OWL;
+import org.apache.jena.vocabulary.SKOS;
 
 /**
  *
@@ -49,6 +50,7 @@ public abstract class DataIntegration implements AutoCloseable {
                 if (predicate.equals(quotientSet.getEquivalenceRelation())) {
                     RDFNode subject = statement.getSubject();
                     RDFNode object = statement.getObject();
+                    // Find the equivalence class that contains the subject
                     EquivalenceClass equivalenceClass = null;
                     for (EquivalenceClass subset : quotientSet) {
                         if (subset.contains(subject)) {
@@ -56,11 +58,13 @@ public abstract class DataIntegration implements AutoCloseable {
                             break;
                         }
                     }
+                    // Create a equivalence class if not exist and add to it the subject
                     if (equivalenceClass == null) {
                         equivalenceClass = new EquivalenceClass();
                         equivalenceClass.add(subject);
                         quotientSet.add(equivalenceClass);
                     }
+                    // Add to equivalence class the object
                     if (!equivalenceClass.contains(object)) {
                         equivalenceClass.add(object);
                     }

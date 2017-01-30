@@ -86,7 +86,21 @@ public class DataFusion extends DataIntegration {
                 RDFNode subject = statement.getSubject();
                 RDFNode predicate = statement.getPredicate();
                 RDFNode object = statement.getObject();
-                
+                EquivalenceClass equivalenceClass = null;                
+                for (EquivalenceClass subset : dataFusionAssessment.keySet()) {
+                    if (subset.contains(subject)) {
+                        equivalenceClass = subset;
+                        break;
+                    }
+                }
+                if (equivalenceClass == null) {
+                    equivalenceClass = new EquivalenceClass();
+                    equivalenceClass.add(subject);
+                    quotientSet.add(equivalenceClass);
+                }
+                if (!equivalenceClass.contains(object)) {
+                    equivalenceClass.add(object);
+                }
             }
             dataset.end();
             dataset.close();
