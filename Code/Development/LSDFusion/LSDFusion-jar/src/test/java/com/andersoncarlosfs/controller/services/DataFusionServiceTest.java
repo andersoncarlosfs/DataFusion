@@ -5,8 +5,8 @@
  */
 package com.andersoncarlosfs.controller.services;
 
-import com.andersoncarlosfs.model.di.EquivalenceClass;
 import com.andersoncarlosfs.model.DataSource;
+import com.andersoncarlosfs.model.di.QuotientSet;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -61,8 +61,8 @@ public class DataFusionServiceTest {
         dataSource2.setSyntax(Lang.NT);
         DataFusionService service = new DataFusionService();
         Integer size = 0;
-        Collection<EquivalenceClass> classes = service.findEquivalenceClasses(dataSource1, dataSource2);
-        for (Collection<RDFNode> classe : classes) {
+        QuotientSet equivalenceClasses = service.findEquivalenceClasses(dataSource1, dataSource2);
+        for (Collection<RDFNode> classe : equivalenceClasses) {
             size += classe.size();
             System.out.println("{");
             for (RDFNode node : classe) {
@@ -70,7 +70,7 @@ public class DataFusionServiceTest {
             }
             System.out.println("}");
         }
-        System.out.println("Total of equivalence classes: " + size);
+        System.out.println("Total of equivalence classes: " + equivalenceClasses.size());
         System.out.println("end test getEquivalentClasses");
     }
 

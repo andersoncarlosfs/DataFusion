@@ -71,8 +71,8 @@ public class DataFusion extends DataIntegration {
      * @return the equivalence classes
      * @throws IOException
      */
-    private Collection<Map<Collection<RDFNode>, Property>> calculateScore() throws IOException {
-        Map<RDFNode, Integer> occurrenceFrequency = new HashMap<>();
+    private DataFusionAssessment calculateScore() throws IOException {
+        DataFusionAssessment dataFusionAssessment = new DataFusionAssessment(findEquivalenceClasses());
         for (DataSource dataSource : datasets) {
             Location location = Location.create(getTemporaryDirectory().toString());
             DatasetGraph datasetGraph = TDBFactory.createDatasetGraph(location);
@@ -86,7 +86,7 @@ public class DataFusion extends DataIntegration {
                 RDFNode subject = statement.getSubject();
                 RDFNode predicate = statement.getPredicate();
                 RDFNode object = statement.getObject();
-
+                
             }
             dataset.end();
             dataset.close();
