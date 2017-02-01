@@ -1,0 +1,8 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> . 
+
+
+<http://www.ina.fr/thesaurus/A1> owl:sameAs <http://www.ina.fr/thesaurus/B1>.
+<http://www.ina.fr/thesaurus/A2> owl:sameAs <http://www.ina.fr/thesaurus/B2>.
+<http://www.ina.fr/thesaurus/B2> owl:sameAs <http://www.ina.fr/thesaurus/A1>.
+<http://www.ina.fr/thesaurus/A3> owl:sameAs <http://www.ina.fr/thesaurus/B1>.
+

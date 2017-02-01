@@ -9,7 +9,7 @@ import com.andersoncarlosfs.model.DataSource;
 import com.andersoncarlosfs.model.di.QuotientSet;
 import com.andersoncarlosfs.model.di.DataFusion;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collection;
 import javax.enterprise.context.RequestScoped;
 
 /**
@@ -21,12 +21,13 @@ public class DataFusionService {
 
     /**
      *
-     * @param dataSources
+     * @param datasets
+     * @param links
      * @return the equivalence classes
      * @throws java.io.IOException
      */
-    public QuotientSet findEquivalenceClasses(DataSource... dataSources) throws IOException {
-        return new DataFusion(Arrays.asList(dataSources)).findEquivalenceClasses();
+    public QuotientSet findEquivalenceClasses(Collection<DataSource> datasets, DataSource... links) throws IOException {
+        return new DataFusion(datasets, links).findEquivalenceClasses();
     }
 
 }

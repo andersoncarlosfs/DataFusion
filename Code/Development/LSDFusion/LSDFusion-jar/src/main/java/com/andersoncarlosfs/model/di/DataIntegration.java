@@ -9,7 +9,10 @@ import com.andersoncarlosfs.model.DataSource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.HashSet;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
@@ -25,6 +28,14 @@ import org.apache.jena.vocabulary.SKOS;
  */
 public abstract class DataIntegration implements AutoCloseable {
 
+    public static final Collection<Property> equivalenceProperties;
+
+    static {
+        equivalenceProperties = new HashSet<>();
+        equivalenceProperties.add(OWL.sameAs);
+        equivalenceProperties.add(SKOS.exactMatch);
+    }
+
     /**
      *
      * @return the temporaryDirectory
@@ -34,11 +45,12 @@ public abstract class DataIntegration implements AutoCloseable {
     /**
      *
      * @param dataSources
+     * @param equivalenceProperties
      * @return the equivalence classes
      * @throws IOException
      */
-    public QuotientSet findEquivalenceClasses(DataSource... dataSources) throws IOException {
-        QuotientSet quotientSet = new QuotientSet(OWL.sameAs);
+    public QuotientSet findEquivalenceClasses(Collection<DataSource> dataSources, Collection<Property> equivalenceProperties) throws IOException {
+        QuotientSet quotientSet = new QuotientSet(equivalenceProperties);
         for (DataSource dataSource : dataSources) {
             Location location = Location.create(Files.createTempDirectory(getTemporaryDirectory(), null).toString());
             Dataset dataset = TDBFactory.createDataset(location);
@@ -47,27 +59,33 @@ public abstract class DataIntegration implements AutoCloseable {
             while (iterator.hasNext()) {
                 Statement statement = iterator.next();
                 RDFNode predicate = statement.getPredicate();
-                if (predicate.equals(quotientSet.getEquivalenceRelation())) {
+                if (quotientSet.getEquivalenceRelation().contains(predicate)) {
                     RDFNode subject = statement.getSubject();
                     RDFNode object = statement.getObject();
+                    
+                    EquivalenceClass equivalenceClass;
+                    EquivalenceClass set = null;
+                    
+                    equivalenceClass = new EquivalenceClass();
+                    equivalenceClass.add(subject);
+                    equivalenceClass.add(object);
+                    
+                    boolean b = false;
                     // Find the equivalence class that contains the subject
-                    EquivalenceClass equivalenceClass = null;
-                    for (EquivalenceClass subset : quotientSet) {
-                        if (subset.contains(subject)) {
-                            equivalenceClass = subset;
-                            break;
+                    for (EquivalenceClass subset : quotientSet) {                       
+                        for (RDFNode node : equivalenceClass) {
+                            if (subset.contains(node)) {
+                                b = true;
+                                set = subset;
+                                break;
+                            }
                         }
                     }
-                    // Create a equivalence class if not exist and add to it the subject
-                    if (equivalenceClass == null) {
-                        equivalenceClass = new EquivalenceClass();
-                        equivalenceClass.add(subject);
+                    if (b) {
+                        set.addAll(equivalenceClass);
+                    } else {
                         quotientSet.add(equivalenceClass);
-                    }
-                    // Add to equivalence class the object
-                    if (!equivalenceClass.contains(object)) {
-                        equivalenceClass.add(object);
-                    }
+                    } 
                 }
             }
         }

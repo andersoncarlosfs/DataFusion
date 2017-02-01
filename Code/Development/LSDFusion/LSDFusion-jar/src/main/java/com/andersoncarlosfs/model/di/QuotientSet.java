@@ -41,4 +41,9 @@ public class QuotientSet extends HashSet<EquivalenceClass> {
         return equivalenceRelation;
     }
 
+    @Override
+    public boolean add(EquivalenceClass e) {
+        return super.add(e); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }

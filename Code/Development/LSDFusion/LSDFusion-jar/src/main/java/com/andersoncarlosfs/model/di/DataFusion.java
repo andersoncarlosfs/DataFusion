@@ -12,8 +12,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import javax.enterprise.context.RequestScoped;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
@@ -35,12 +33,29 @@ import org.apache.jena.tdb.sys.TDBInternal;
 @RequestScoped
 public class DataFusion extends DataIntegration {
 
-    private final Collection<DataSource> datasets;
-    private final Collection<DataSource> links;
-    private final Path temporaryDirectory;
+    private Collection<DataSource> datasets;
+    private Collection<Property> equivalenceProperties;
+    private Collection<DataSource> links;
+    private Path temporaryDirectory;
 
     public DataFusion(Collection<DataSource> datasets, DataSource... links) throws IOException {
+        init(datasets, DataIntegration.equivalenceProperties, links);
+    }
+
+    public DataFusion(Collection<DataSource> datasets, Collection<Property> equivalenceProperties, DataSource... links) throws IOException {
+        init(datasets, equivalenceProperties, links);
+    }
+
+    /**
+     * 
+     * @param datasets
+     * @param equivalenceProperties
+     * @param links
+     * @throws IOException 
+     */
+    private void init(Collection<DataSource> datasets, Collection<Property> equivalenceProperties, DataSource... links) throws IOException {
         this.datasets = Collections.unmodifiableCollection(datasets);
+        this.equivalenceProperties = equivalenceProperties;
         this.links = Collections.unmodifiableCollection(Arrays.asList(links));
         this.temporaryDirectory = Files.createTempDirectory(null);
     }
@@ -61,9 +76,9 @@ public class DataFusion extends DataIntegration {
      */
     public QuotientSet findEquivalenceClasses() throws IOException {
         if (links.isEmpty()) {
-            return super.findEquivalenceClasses((DataSource[]) datasets.toArray());
+            return super.findEquivalenceClasses(datasets, equivalenceProperties);
         }
-        return super.findEquivalenceClasses((DataSource[]) datasets.toArray());
+        return super.findEquivalenceClasses(links, equivalenceProperties);
     }
 
     /**
@@ -86,20 +101,11 @@ public class DataFusion extends DataIntegration {
                 RDFNode subject = statement.getSubject();
                 RDFNode predicate = statement.getPredicate();
                 RDFNode object = statement.getObject();
-                EquivalenceClass equivalenceClass = null;                
-                for (EquivalenceClass subset : dataFusionAssessment.keySet()) {
-                    if (subset.contains(subject)) {
-                        equivalenceClass = subset;
+                for (EquivalenceClass equivalenceClass : dataFusionAssessment.keySet()) {
+                    if (equivalenceClass.contains(subject)) {
+                        //subject.asResource().listProperties()
                         break;
                     }
-                }
-                if (equivalenceClass == null) {
-                    equivalenceClass = new EquivalenceClass();
-                    equivalenceClass.add(subject);
-                    quotientSet.add(equivalenceClass);
-                }
-                if (!equivalenceClass.contains(object)) {
-                    equivalenceClass.add(object);
                 }
             }
             dataset.end();

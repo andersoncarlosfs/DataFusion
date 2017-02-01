@@ -9,7 +9,9 @@ import com.andersoncarlosfs.model.DataSource;
 import com.andersoncarlosfs.model.di.QuotientSet;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.riot.Lang;
 import org.junit.After;
@@ -52,16 +54,19 @@ public class DataFusionServiceTest {
     public void testGetEquivalenceClasses() throws IOException {
         System.out.println("begin test getEquivalentClasses");
         //https://www.w3.org/wiki/DataSetRDFDumps
-        DataSource dataSource1 = new DataSource();
-        dataSource1.setInputStream(new File("../../../../Datasets/MeSH/MeSH.ttl"));
-        dataSource1.setSyntax(Lang.TURTLE);
         //http://data.bnf.fr/semanticweb
-        DataSource dataSource2 = new DataSource();
-        dataSource2.setInputStream(new File("../../../../Datasets/BNF/BNF.nt"));
-        dataSource2.setSyntax(Lang.NT);
+        DataSource dataSource = new DataSource();
+        //dataSource.setInputStream(new File("../../../../Datasets/BNF/dataset.tar.gz"));
+        dataSource.setInputStream(new File("../../../../../INA/dataset.ttl"));        
+        dataSource.setSyntax(Lang.TURTLE);
+        DataSource link = new DataSource();
+        //link.setInputStream(new File("../../../../Datasets/BNF/links.nt"));
+        link.setInputStream(new File("../../../../../INA/links.n3"));
+        //link.setSyntax(Lang.NT);       
+        link.setSyntax(Lang.N3);       
         DataFusionService service = new DataFusionService();
         Integer size = 0;
-        QuotientSet equivalenceClasses = service.findEquivalenceClasses(dataSource1, dataSource2);
+        QuotientSet equivalenceClasses = service.findEquivalenceClasses(Arrays.asList(dataSource), link);       
         for (Collection<RDFNode> classe : equivalenceClasses) {
             size += classe.size();
             System.out.println("{");
