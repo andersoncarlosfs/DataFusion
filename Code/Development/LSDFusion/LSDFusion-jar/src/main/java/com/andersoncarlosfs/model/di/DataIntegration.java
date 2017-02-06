@@ -50,7 +50,7 @@ public abstract class DataIntegration implements AutoCloseable {
      * @throws IOException
      */
     public QuotientSet findEquivalenceClasses(Collection<DataSource> dataSources, Collection<Property> equivalenceProperties) throws IOException {
-        QuotientSet quotientSet = new QuotientSet(equivalenceProperties);
+        QuotientSet quotientSet = new QuotientSet();
         for (DataSource dataSource : dataSources) {
             Location location = Location.create(Files.createTempDirectory(getTemporaryDirectory(), null).toString());
             Dataset dataset = TDBFactory.createDataset(location);
@@ -58,34 +58,12 @@ public abstract class DataIntegration implements AutoCloseable {
             StmtIterator iterator = dataset.getDefaultModel().listStatements();
             while (iterator.hasNext()) {
                 Statement statement = iterator.next();
-                RDFNode predicate = statement.getPredicate();
-                if (quotientSet.getEquivalenceRelation().contains(predicate)) {
+                if (equivalenceProperties.contains(statement.getPredicate())) {
                     RDFNode subject = statement.getSubject();
                     RDFNode object = statement.getObject();
-                    
-                    EquivalenceClass equivalenceClass;
-                    EquivalenceClass set = null;
-                    
-                    equivalenceClass = new EquivalenceClass();
-                    equivalenceClass.add(subject);
-                    equivalenceClass.add(object);
-                    
-                    boolean b = false;
-                    // Find the equivalence class that contains the subject
-                    for (EquivalenceClass subset : quotientSet) {                       
-                        for (RDFNode node : equivalenceClass) {
-                            if (subset.contains(node)) {
-                                b = true;
-                                set = subset;
-                                break;
-                            }
-                        }
-                    }
-                    if (b) {
-                        set.addAll(equivalenceClass);
-                    } else {
-                        quotientSet.add(equivalenceClass);
-                    } 
+                    quotientSet.put(subject);
+                    quotientSet.put(object);
+                    quotientSet.union(subject, object);
                 }
             }
         }

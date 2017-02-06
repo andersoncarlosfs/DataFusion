@@ -101,12 +101,7 @@ public class DataFusion extends DataIntegration {
                 RDFNode subject = statement.getSubject();
                 RDFNode predicate = statement.getPredicate();
                 RDFNode object = statement.getObject();
-                for (EquivalenceClass equivalenceClass : dataFusionAssessment.keySet()) {
-                    if (equivalenceClass.contains(subject)) {
-                        //subject.asResource().listProperties()
-                        break;
-                    }
-                }
+                
             }
             dataset.end();
             dataset.close();

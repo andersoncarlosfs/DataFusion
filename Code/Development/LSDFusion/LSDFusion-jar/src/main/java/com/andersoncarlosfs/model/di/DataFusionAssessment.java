@@ -14,7 +14,7 @@ import org.apache.jena.rdf.model.RDFNode;
  *
  * @author Anderson Carlos Ferreira da Silva
  */
-public class DataFusionAssessment extends HashMap<EquivalenceClass, Map<RDFNode, Map<RDFNode, DataQualityAssessment>>> {
+public class DataFusionAssessment extends HashMap<RDFNode, Map<RDFNode, Map<RDFNode, DataQualityAssessment>>> {
 
     public DataFusionAssessment() {
         super();
@@ -22,9 +22,6 @@ public class DataFusionAssessment extends HashMap<EquivalenceClass, Map<RDFNode,
 
     public DataFusionAssessment(QuotientSet quotientSet) {
         super();
-        for (EquivalenceClass equivalenceClass : quotientSet) {
-            this.put(equivalenceClass, null);
-        }
     }
 
 }
