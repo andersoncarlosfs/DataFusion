@@ -59,9 +59,11 @@ public class DataFusionServiceTest {
         dataSource.setSyntax(Lang.TURTLE);
         DataSource link = new DataSource();
         //link.setInputStream(new File("../../../../Datasets/BNF/links.nt"));
-        link.setInputStream(new File("../../../../Datasets/INA/__.n3"));
+        //link.setInputStream(new File("../../../../Datasets/INA/links.n3"));
+        //link.setInputStream(new File("../../../../Datasets/DBpedia/links/links.ttl"));
         //link.setSyntax(Lang.NT);       
-        link.setSyntax(Lang.N3);
+        //link.setSyntax(Lang.N3);
+        //link.setSyntax(Lang.TTL);    
         DataFusionService service = new DataFusionService();
         Collection<Collection<RDFNode>> equivalenceClasses = service.findEquivalenceClasses(Arrays.asList(dataSource), link);
         for (Collection<RDFNode> classe : equivalenceClasses) {
