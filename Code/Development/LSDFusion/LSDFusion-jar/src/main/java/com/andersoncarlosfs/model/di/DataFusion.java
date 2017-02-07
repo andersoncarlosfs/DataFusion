@@ -74,7 +74,7 @@ public class DataFusion extends DataIntegration {
      * @return the equivalence classes
      * @throws IOException
      */
-    public QuotientSet findEquivalenceClasses() throws IOException {
+    public Collection<Collection<RDFNode>> findEquivalenceClasses() throws IOException {
         if (links.isEmpty()) {
             return super.findEquivalenceClasses(datasets, equivalenceProperties);
         }
