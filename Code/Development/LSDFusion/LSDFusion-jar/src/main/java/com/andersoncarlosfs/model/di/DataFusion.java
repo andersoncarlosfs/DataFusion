@@ -101,10 +101,10 @@ public class DataFusion extends DataIntegration {
      * @return the data fusion assessment
      * @throws IOException
      */
-    private DataFusionAssessment calculateScore() throws Exception {
+    public DataFusionAssessment calculateScore() throws Exception {
         DataFusionAssessment dataFusionAssessment = new DataFusionAssessment(findEquivalenceClasses(false));
         for (DataSource dataSource : datasets) {
-            Location location = Location.create(getTemporaryDirectory().toString());
+            Location location = Location.create(Files.createTempDirectory(getTemporaryDirectory(), dataSource.getUUID().toString()).toString());
             DatasetGraph datasetGraph = TDBFactory.createDatasetGraph(location);
             DatasetGraphTDB datasetGraphTDB = TDBInternal.getBaseDatasetGraphTDB(datasetGraph);
             TDBLoader.load(datasetGraphTDB, dataSource.getInputStream(), false);
