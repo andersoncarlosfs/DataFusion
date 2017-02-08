@@ -14,14 +14,18 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import javax.validation.constraints.NotNull;
+import org.apache.commons.io.FileUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.tdb.TDB;
 import org.apache.jena.tdb.TDBFactory;
+import org.apache.jena.tdb.base.block.FileMode;
 import org.apache.jena.tdb.base.file.Location;
+import org.apache.jena.tdb.sys.SystemTDB;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.SKOS;
 
@@ -34,9 +38,15 @@ public abstract class DataIntegration implements AutoCloseable {
     public static final Collection<Property> equivalenceProperties;
 
     static {
+
+        //
+        SystemTDB.setFileMode(FileMode.direct);
+
+        //
         equivalenceProperties = new HashSet<>();
         equivalenceProperties.add(OWL.sameAs);
         equivalenceProperties.add(SKOS.exactMatch);
+
     }
 
     /**
@@ -80,7 +90,15 @@ public abstract class DataIntegration implements AutoCloseable {
      */
     @Override
     public void close() throws Exception {
-        getTemporaryDirectory().toFile().delete();
+
+        //
+        TDB.closedown();
+        // Apache Commons IO
+        FileUtils.forceDelete(getTemporaryDirectory().toFile());
+        // 
+        //Files.walk(getTemporaryDirectory()).map(Path::toFile).sorted(Comparator.comparing(File::isDirectory)).forEach(File::delete);
+        //getTemporaryDirectory().toFile().delete();
+
     }
 
     /**
