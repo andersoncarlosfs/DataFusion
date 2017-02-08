@@ -47,11 +47,11 @@ public class DataFusion extends DataIntegration {
     }
 
     /**
-     * 
+     *
      * @param datasets
      * @param equivalenceProperties
      * @param links
-     * @throws IOException 
+     * @throws IOException
      */
     private void init(Collection<DataSource> datasets, Collection<Property> equivalenceProperties, DataSource... links) throws IOException {
         this.datasets = Collections.unmodifiableCollection(datasets);
@@ -74,11 +74,17 @@ public class DataFusion extends DataIntegration {
      * @return the equivalence classes
      * @throws IOException
      */
-    public Collection<Collection<RDFNode>> findEquivalenceClasses() throws IOException {
+    private Collection<Collection<RDFNode>> findEquivalenceClasses(boolean close) throws Exception {
+        Collection<Collection<RDFNode>> quotientSet;
         if (links.isEmpty()) {
-            return super.findEquivalenceClasses(datasets, equivalenceProperties);
+            quotientSet = super.findEquivalenceClasses(datasets, equivalenceProperties);
+        } else {
+            quotientSet = super.findEquivalenceClasses(links, equivalenceProperties);
         }
-        return super.findEquivalenceClasses(links, equivalenceProperties);
+        if (close) {
+            close();
+        }
+        return quotientSet;
     }
 
     /**
@@ -86,8 +92,17 @@ public class DataFusion extends DataIntegration {
      * @return the equivalence classes
      * @throws IOException
      */
-    private DataFusionAssessment calculateScore() throws IOException {
-        DataFusionAssessment dataFusionAssessment = new DataFusionAssessment(findEquivalenceClasses());
+    public Collection<Collection<RDFNode>> findEquivalenceClasses() throws Exception {
+        return findEquivalenceClasses(true);
+    }
+
+    /**
+     *
+     * @return the data fusion assessment
+     * @throws IOException
+     */
+    private DataFusionAssessment calculateScore() throws Exception {
+        DataFusionAssessment dataFusionAssessment = new DataFusionAssessment(findEquivalenceClasses(false));
         for (DataSource dataSource : datasets) {
             Location location = Location.create(getTemporaryDirectory().toString());
             DatasetGraph datasetGraph = TDBFactory.createDatasetGraph(location);
@@ -101,7 +116,7 @@ public class DataFusion extends DataIntegration {
                 RDFNode subject = statement.getSubject();
                 RDFNode predicate = statement.getPredicate();
                 RDFNode object = statement.getObject();
-                
+
             }
             dataset.end();
             dataset.close();
