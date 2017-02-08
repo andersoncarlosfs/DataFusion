@@ -65,7 +65,7 @@ public abstract class DataIntegration implements AutoCloseable {
     public Collection<Collection<RDFNode>> findEquivalenceClasses(Collection<DataSource> dataSources, Collection<Property> equivalenceProperties) throws IOException {
         RedBlackBalancedSearchTree quotientSet = new RedBlackBalancedSearchTree();
         for (DataSource dataSource : dataSources) {
-            Location location = Location.create(Files.createTempDirectory(getTemporaryDirectory(), null).toString());
+            Location location = Location.create(Files.createTempDirectory(getTemporaryDirectory(), dataSource.getUUID().toString()).toString());
             Dataset dataset = TDBFactory.createDataset(location);
             RDFDataMgr.read(dataset, dataSource.getInputStream(), dataSource.getSyntax());
             StmtIterator iterator = dataset.getDefaultModel().listStatements();
