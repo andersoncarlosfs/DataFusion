@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.UUID;
 import javax.enterprise.context.RequestScoped;
 import org.apache.jena.riot.Lang;
 
@@ -22,11 +23,20 @@ import org.apache.jena.riot.Lang;
 public class DataSource implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    private final UUID uuid = UUID.randomUUID();
     private InputStream inputStream;
     private Lang syntax = Lang.RDFNULL;
     private Calendar lastModified;
 
     public DataSource() {
+    }
+
+    /**
+     *
+     * @return the uuid
+     */
+    public UUID getUUID() {
+        return uuid;
     }
 
     /**
