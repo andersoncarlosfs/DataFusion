@@ -8,8 +8,11 @@ package com.andersoncarlosfs.model.di;
 import com.andersoncarlosfs.model.DataSource;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.rdf.model.Model;
@@ -31,7 +34,7 @@ import org.apache.jena.vocabulary.SKOS;
  * @author Anderson Carlos Ferreira da Silva
  */
 //https://www.w3.org/wiki/LargeTripleStores
-public abstract class DataIntegration implements AutoCloseable {
+public abstract class DataIntegration_____ implements AutoCloseable {
 
     private static final Property equivalenceProperty = ResourceFactory.createProperty("http://www.andersoncarlosfs.com/df#equivalent");
 
@@ -72,11 +75,10 @@ public abstract class DataIntegration implements AutoCloseable {
                 public boolean test(Statement s) {
                     return equivalenceProperties.contains(s.getPredicate());
                 }
-            };            
-            StmtIterator statements = model.listStatements(sN);
+            };
+            List<Statement> statements = model.listStatements(sN).toList();
             Set<Statement> visited = new HashSet<>();
-            while (statements.hasNext()) {
-                Statement statement = statements.next();
+            for (Statement statement : statements) {
                 if (!visited.contains(statement)) {
                     SimpleSelector sS = new SimpleSelector() {
                         @Override
@@ -88,7 +90,7 @@ public abstract class DataIntegration implements AutoCloseable {
                                     && equivalenceProperties.contains(s.getPredicate());
                         }
                     };
-                    StmtIterator s = model.listStatements(sS);
+                    StmtIterator s =  model.listStatements(sS);
                     Collection<RDFNode> equivalenceClass = new HashSet<>();
                     while (s.hasNext()) {
                         Statement d = s.next();
@@ -97,8 +99,11 @@ public abstract class DataIntegration implements AutoCloseable {
                         visited.add(d);
                     }
                     quotientSet.add(equivalenceClass);
-                    visited.add(statement);  
-                }                              
+                    visited.add(statement);
+                    if (visited.size() >= statements.size()) {
+                        break;
+                    }
+                }
             }
         }
         return quotientSet;

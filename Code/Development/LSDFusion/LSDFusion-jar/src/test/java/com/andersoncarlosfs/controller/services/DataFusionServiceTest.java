@@ -7,7 +7,6 @@ package com.andersoncarlosfs.controller.services;
 
 import com.andersoncarlosfs.model.DataSource;
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import org.apache.jena.rdf.model.RDFNode;
@@ -82,7 +81,7 @@ public class DataFusionServiceTest {
      *
      * @throws java.lang.Exception
      */
-    @Test
+    //@Test
     public void testX() throws Exception {
         System.out.println("begin test getEquivalentClasses");
         //https://www.w3.org/wiki/DataSetRDFDumps
@@ -103,7 +102,7 @@ public class DataFusionServiceTest {
         for (Collection<RDFNode> classe : equivalenceClasses) {
             System.out.println("{");
             for (RDFNode node : classe) {
-                System.out.println(node.toString());
+                //System.out.println(node.toString());
             }
             System.out.println("}");
         }
