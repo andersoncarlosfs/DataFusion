@@ -18,6 +18,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.SimpleSelector;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RDFDataMgr;
@@ -30,6 +31,7 @@ import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.SKOS;
 
 /**
+ * 2
  *
  * @author Anderson Carlos Ferreira da Silva
  */
@@ -68,16 +70,20 @@ public abstract class DataIntegration_ implements AutoCloseable {
             Location location = Location.create(Files.createTempDirectory(getTemporaryDirectory(), dataSource.getUUID().toString()).toString());
             Dataset dataset = TDBFactory.createDataset(location);
             RDFDataMgr.read(dataset, dataSource.getInputStream(), dataSource.getSyntax());
-            StmtIterator iterator = dataset.getDefaultModel().listStatements();
-            while (iterator.hasNext()) {
-                Statement statement = iterator.next();
-                if (equivalenceProperties.contains(statement.getPredicate())) {
-                    RDFNode subject = statement.getSubject();
-                    RDFNode object = statement.getObject();
-                    quotientSet.put(subject);
-                    quotientSet.put(object);
-                    quotientSet.union(subject, object);
+            SimpleSelector selector = new SimpleSelector() {
+                @Override
+                public boolean test(Statement s) {
+                    return equivalenceProperties.contains(s.getPredicate());
                 }
+            };
+            StmtIterator statements = dataset.getDefaultModel().listStatements(selector);
+            while (statements.hasNext()) {
+                Statement statement = statements.next();
+                RDFNode subject = statement.getSubject();
+                RDFNode object = statement.getObject();
+                quotientSet.put(subject);
+                quotientSet.put(object);
+                quotientSet.union(subject, object);
             }
         }
         return quotientSet.asCollection();

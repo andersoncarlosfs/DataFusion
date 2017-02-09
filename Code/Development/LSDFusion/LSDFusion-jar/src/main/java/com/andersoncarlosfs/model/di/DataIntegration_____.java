@@ -8,10 +8,8 @@ package com.andersoncarlosfs.model.di;
 import com.andersoncarlosfs.model.DataSource;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
@@ -30,7 +28,7 @@ import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.SKOS;
 
 /**
- *
+ * 3
  * @author Anderson Carlos Ferreira da Silva
  */
 //https://www.w3.org/wiki/LargeTripleStores

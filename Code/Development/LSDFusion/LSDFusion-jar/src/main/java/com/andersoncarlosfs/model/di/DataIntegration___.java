@@ -36,7 +36,7 @@ import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.SKOS;
 
 /**
- *
+ * 5
  * @author Anderson Carlos Ferreira da Silva
  */
 public abstract class DataIntegration___ implements AutoCloseable {

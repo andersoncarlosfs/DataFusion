@@ -27,11 +27,11 @@ import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.SKOS;
 
 /**
- *
+ * 1
  * @author Anderson Carlos Ferreira da Silva
  */
 //https://www.w3.org/wiki/LargeTripleStores
-public abstract class DataIntegration implements AutoCloseable {
+public abstract class DataIntegration____ implements AutoCloseable {
 
     private static final Property equivalenceProperty = ResourceFactory.createProperty("http://www.andersoncarlosfs.com/df#equivalent");
 
