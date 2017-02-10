@@ -88,13 +88,12 @@ public abstract class DataIntegration_1M implements AutoCloseable {
             RDFNode value = entry.getValue();
             RDFNode root = findEquivalenceClass(value);
             if (set.containsKey(root)) {
-                Collection<RDFNode> c = set.get(root);
-                c.add(key);
+                set.get(root).add(key);
             } else {
                 set.put(root, new HashSet<>(Arrays.asList(key)));
             }
         }
-        return set.values().stream().filter((Collection<RDFNode> c) -> c.size() > 1).collect(Collectors.toList());
+        return set.values().stream().collect(Collectors.toList());
     }
 
     /**

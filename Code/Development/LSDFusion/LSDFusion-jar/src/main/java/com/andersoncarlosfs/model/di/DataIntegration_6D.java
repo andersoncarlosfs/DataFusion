@@ -31,11 +31,11 @@ import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.SKOS;
 
 /**
- * 2
+ * 4,362s
  *
  * @author Anderson Carlos Ferreira da Silva
  */
-public abstract class DataIntegration_ implements AutoCloseable {
+public abstract class DataIntegration_6D implements AutoCloseable {
 
     public static final Collection<Property> equivalenceProperties;
 

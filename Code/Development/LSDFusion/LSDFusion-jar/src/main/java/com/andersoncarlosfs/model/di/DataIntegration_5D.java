@@ -9,14 +9,10 @@ import com.andersoncarlosfs.model.DataSource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.RecursiveTask;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.query.Dataset;
-import org.apache.jena.rdf.model.InfModel;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
@@ -24,8 +20,6 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.reasoner.Reasoner;
-import org.apache.jena.reasoner.ReasonerRegistry;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.tdb.TDB;
 import org.apache.jena.tdb.TDBFactory;
@@ -36,14 +30,15 @@ import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.SKOS;
 
 /**
- * 5
+ * 4,417s
+ *
  * @author Anderson Carlos Ferreira da Silva
  */
-public abstract class DataIntegration___ implements AutoCloseable {
+public abstract class DataIntegration_5D implements AutoCloseable {
 
     private static final Property equivalenceProperty = ResourceFactory.createProperty("http://www.andersoncarlosfs.com/df#equivalent");
-
     public static final Collection<Property> equivalenceProperties;
+    private final Collection<Collection<RDFNode>> quotientSet = new HashSet<>();
 
     static {
 
@@ -71,7 +66,6 @@ public abstract class DataIntegration___ implements AutoCloseable {
      * @throws IOException
      */
     public Collection<Collection<RDFNode>> findEquivalenceClasses(Collection<DataSource> dataSources, Collection<Property> equivalenceProperties) throws IOException {
-        //RedBlackBalancedSearchTree quotientSet = new RedBlackBalancedSearchTree();        
         Model model = ModelFactory.createDefaultModel();
         for (DataSource dataSource : dataSources) {
             Location location = Location.create(Files.createTempDirectory(getTemporaryDirectory(), dataSource.getUUID().toString()).toString());
@@ -86,23 +80,16 @@ public abstract class DataIntegration___ implements AutoCloseable {
                         }
                     });
         }
-        Reasoner reasoner = ReasonerRegistry.getTransitiveReasoner();
-        InfModel infModel = ModelFactory.createInfModel(reasoner, model);
-        Collection<Collection<RDFNode>> quotientSet = new HashSet<>();
-        infModel.listSubjects().forEachRemaining((Resource r) -> {
+        model.listSubjects().forEachRemaining((Resource subject) -> {
             Collection<RDFNode> collection = new HashSet<>();
-            infModel.listObjectsOfProperty(r, equivalenceProperty)
+            model.listObjectsOfProperty(subject, equivalenceProperty)
                     .forEachRemaining((RDFNode object) -> {
-                        infModel.remove(r, equivalenceProperty, object);
-                        infModel.remove(object.asResource(), equivalenceProperty, r);
-                        infModel.listResourcesWithProperty(equivalenceProperty, object).forEachRemaining((Resource subject) -> {
-                            infModel.remove(subject, equivalenceProperty, object);
-                            infModel.remove(object.asResource(), equivalenceProperty, subject);
-                            collection.add(subject);
+                        model.listResourcesWithProperty(equivalenceProperty, object).forEachRemaining((Resource subject1) -> {
+                            model.remove(subject1, equivalenceProperty, object);
+                            collection.add(subject1);
                         });
                         collection.add(object);
                     });
-            collection.add(r);
             quotientSet.add(collection);
         });
         quotientSet.removeIf(Collection::isEmpty);
@@ -139,44 +126,6 @@ public abstract class DataIntegration___ implements AutoCloseable {
             super.finalize();
 
         }
-    }
-
-    private class EquivalenceClassTask extends RecursiveTask<Collection<RDFNode>> {
-
-        private Model model;
-        private final RDFNode node;
-
-        public EquivalenceClassTask(Model model, RDFNode node) {
-            this.model = model;
-            this.node = node;
-        }
-
-        @Override
-        protected Collection<RDFNode> compute() {
-            Collection<ForkJoinTask> tasks = new ArrayList<>();
-            Collection<RDFNode> equivalenceClass = new HashSet<>();
-            model.listObjectsOfProperty(node.asResource(), equivalenceProperty).forEachRemaining((object) -> {
-                model.remove(object.asResource(), equivalenceProperty, node);
-                model.remove(node.asResource(), equivalenceProperty, object);
-                //tasks.add((new EquivalenceClassTask(model, object)).fork());
-                equivalenceClass.add(object);
-                model.listResourcesWithProperty(equivalenceProperty, object).forEachRemaining((resource) -> {
-                    model.remove(node.asResource(), equivalenceProperty, resource);
-                    model.remove(resource, equivalenceProperty, node);
-                    model.remove(object.asResource(), equivalenceProperty, resource);
-                    model.remove(resource, equivalenceProperty, object);
-                    //tasks.add((new EquivalenceClassTask(model, resource)).fork());
-                    equivalenceClass.add(resource);
-                });
-            });
-            //Collection<RDFNode> equivalenceClass = new HashSet<>();
-            for (ForkJoinTask task : tasks) {
-                equivalenceClass.addAll((Collection<RDFNode>) task.join());
-            }
-            equivalenceClass.add(node);
-            return equivalenceClass;
-        }
-
     }
 
 }

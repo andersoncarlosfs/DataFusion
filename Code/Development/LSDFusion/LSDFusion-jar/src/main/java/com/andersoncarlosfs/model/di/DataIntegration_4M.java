@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.rdf.model.Model;
@@ -28,15 +27,16 @@ import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.SKOS;
 
 /**
- * 3
+ * 2,836s
+ *
  * @author Anderson Carlos Ferreira da Silva
  */
 //https://www.w3.org/wiki/LargeTripleStores
-public abstract class DataIntegration_____ implements AutoCloseable {
+public abstract class DataIntegration_4M implements AutoCloseable {
 
     private static final Property equivalenceProperty = ResourceFactory.createProperty("http://www.andersoncarlosfs.com/df#equivalent");
-
     public static final Collection<Property> equivalenceProperties;
+    private final Collection<Collection<RDFNode>> quotientSet = new HashSet<>();
 
     static {
 
@@ -64,44 +64,39 @@ public abstract class DataIntegration_____ implements AutoCloseable {
      * @throws IOException
      */
     public Collection<Collection<RDFNode>> findEquivalenceClasses(Collection<DataSource> dataSources, Collection<Property> equivalenceProperties) throws IOException {
-        Collection<Collection<RDFNode>> quotientSet = new HashSet<>();
-        for (DataSource dataSource : dataSources) {
-            Model model = ModelFactory.createDefaultModel();
-            model.read("../../../../Datasets/INA/links.n3");
-            SimpleSelector sN = new SimpleSelector() {
-                @Override
-                public boolean test(Statement s) {
-                    return equivalenceProperties.contains(s.getPredicate());
-                }
-            };
-            List<Statement> statements = model.listStatements(sN).toList();
-            Set<Statement> visited = new HashSet<>();
-            for (Statement statement : statements) {
-                if (!visited.contains(statement)) {
-                    SimpleSelector sS = new SimpleSelector() {
-                        @Override
-                        public boolean test(Statement s) {
-                            return (s.getSubject().equals(statement.getSubject())
-                                    || s.getSubject().equals(statement.getObject())
-                                    || s.getObject().equals(statement.getSubject())
-                                    || s.getObject().equals(statement.getObject()))
-                                    && equivalenceProperties.contains(s.getPredicate());
-                        }
-                    };
-                    StmtIterator s =  model.listStatements(sS);
-                    Collection<RDFNode> equivalenceClass = new HashSet<>();
-                    while (s.hasNext()) {
-                        Statement d = s.next();
-                        equivalenceClass.add(d.getSubject());
-                        equivalenceClass.add(d.getObject());
-                        visited.add(d);
+        Model model = ModelFactory.createDefaultModel();
+        model.read("../../../../Datasets/INA/links.n3");
+        SimpleSelector selector = new SimpleSelector() {
+            @Override
+            public boolean test(Statement s) {
+                return equivalenceProperties.contains(s.getPredicate());
+            }
+        };
+        StmtIterator statements = model.listStatements(selector);
+        Set<Statement> visited = new HashSet<>();
+        while (statements.hasNext()) {
+            Statement statement = statements.next();
+            if (!visited.contains(statement)) {
+                SimpleSelector sS = new SimpleSelector() {
+                    @Override
+                    public boolean test(Statement s) {
+                        return (s.getSubject().equals(statement.getSubject())
+                                || s.getSubject().equals(statement.getObject())
+                                || s.getObject().equals(statement.getSubject())
+                                || s.getObject().equals(statement.getObject()))
+                                && equivalenceProperties.contains(s.getPredicate());
                     }
-                    quotientSet.add(equivalenceClass);
-                    visited.add(statement);
-                    if (visited.size() >= statements.size()) {
-                        break;
-                    }
+                };
+                StmtIterator s = model.listStatements(sS);
+                Collection<RDFNode> equivalenceClass = new HashSet<>();
+                while (s.hasNext()) {
+                    Statement d = s.next();
+                    equivalenceClass.add(d.getSubject());
+                    equivalenceClass.add(d.getObject());
+                    visited.add(d);
                 }
+                quotientSet.add(equivalenceClass);
+                visited.add(statement);
             }
         }
         return quotientSet;
