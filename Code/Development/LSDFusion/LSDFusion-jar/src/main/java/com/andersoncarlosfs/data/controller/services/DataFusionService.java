@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.andersoncarlosfs.controller.services;
+package com.andersoncarlosfs.data.controller.services;
 
-import com.andersoncarlosfs.model.DataSource;
-import com.andersoncarlosfs.model.di.DataFusion;
+import com.andersoncarlosfs.data.model.DataSource;
+import com.andersoncarlosfs.data.integration.DataFusion;
 import java.io.IOException;
 import java.util.Collection;
 import javax.enterprise.context.RequestScoped;

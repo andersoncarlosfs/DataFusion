@@ -5,7 +5,8 @@
  */
 package com.andersoncarlosfs.controller.services;
 
-import com.andersoncarlosfs.model.DataSource;
+import com.andersoncarlosfs.data.controller.services.DataFusionService;
+import com.andersoncarlosfs.data.model.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;

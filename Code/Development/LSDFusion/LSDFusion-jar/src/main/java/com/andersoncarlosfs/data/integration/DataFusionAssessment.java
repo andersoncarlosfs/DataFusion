@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.andersoncarlosfs.model.di;
+package com.andersoncarlosfs.data.integration;
 
-import com.andersoncarlosfs.model.dq.DataQualityAssessment;
+import com.andersoncarlosfs.data.model.DataQualityAssessment;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;

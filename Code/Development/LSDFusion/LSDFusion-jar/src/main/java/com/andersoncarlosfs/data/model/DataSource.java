@@ -1,4 +1,4 @@
-package com.andersoncarlosfs.model;
+package com.andersoncarlosfs.data.model;
 
 /*
  * To change this license header, choose License Headers in Project Attributes.
@@ -32,8 +32,19 @@ public class DataSource implements Serializable {
         this.file = file;
     }
 
+    public DataSource(File file, Lang syntax) {
+        this.file = file;
+        this.syntax = syntax;
+    }
+
     public DataSource(File file, Calendar lastModified) {
         this.file = file;
+        this.lastModified = lastModified;
+    }
+
+    public DataSource(File file, Lang syntax, Calendar lastModified) {
+        this.file = file;
+        this.syntax = syntax;
         this.lastModified = lastModified;
     }
 
