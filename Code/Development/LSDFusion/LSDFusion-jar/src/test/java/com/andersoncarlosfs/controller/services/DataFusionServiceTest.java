@@ -52,15 +52,13 @@ public class DataFusionServiceTest {
     public void testGetEquivalenceClasses() throws IOException {
         System.out.println("begin test getEquivalentClasses");
         //https://www.w3.org/wiki/DataSetRDFDumps
-        //http://data.bnf.fr/semanticweb
-        DataSource dataSource = new DataSource();
-        //dataSource.setInputStream(new File("../../../../Datasets/BNF/dataset.tar.gz"));
-        dataSource.setInputStream(new File("../../../../Datasets/INA/dataset.ttl"));
+        //http://data.bnf.fr/semanticweb        
+        //DataSource dataSource = new DataSource(new File("../../../../Datasets/BNF/dataset.tar.gz"));
+        DataSource dataSource = new DataSource(new File("../../../../Datasets/INA/dataset.ttl"));
         dataSource.setSyntax(Lang.TURTLE);
-        DataSource link = new DataSource();
-        //link.setInputStream(new File("../../../../Datasets/BNF/links.nt"));
-        link.setInputStream(new File("../../../../Datasets/INA/links.n3"));
-        //link.setInputStream(new File("../../../../Datasets/DBpedia/links/links.ttl"));
+        //DataSource link = new DataSource(new File("../../../../Datasets/BNF/links.nt"));
+        DataSource link = new DataSource(new File("../../../../Datasets/INA/links.n3"));
+        //DataSource link = new DataSource(new File("../../../../Datasets/DBpedia/links/links.ttl"));
         //link.setSyntax(Lang.NT);       
         link.setSyntax(Lang.N3);
         //link.setSyntax(Lang.TTL);    
@@ -86,15 +84,13 @@ public class DataFusionServiceTest {
     public void testX() throws IOException {
         System.out.println("begin test getEquivalentClasses");
         //https://www.w3.org/wiki/DataSetRDFDumps
-        //http://data.bnf.fr/semanticweb
-        DataSource dataSource = new DataSource();
-        //dataSource.setInputStream(new File("../../../../Datasets/BNF/dataset.tar.gz"));
-        dataSource.setInputStream(new File("../../../../Datasets/INA/dataset.ttl"));
+        //http://data.bnf.fr/semanticweb        
+        //DataSource dataSource = new DataSource(new File("../../../../Datasets/BNF/dataset.tar.gz"));
+        DataSource dataSource = new DataSource(new File("../../../../Datasets/INA/dataset.ttl"));
         dataSource.setSyntax(Lang.TURTLE);
-        DataSource link = new DataSource();
-        //link.setInputStream(new File("../../../../Datasets/BNF/links.nt"));
-        link.setInputStream(new File("../../../../Datasets/INA/links.n3"));
-        //link.setInputStream(new File("../../../../Datasets/DBpedia/links/links.ttl"));
+        //DataSource link = new DataSource(new File("../../../../Datasets/BNF/links.nt"));
+        DataSource link = new DataSource(new File("../../../../Datasets/INA/links.n3"));
+        //DataSource link = new DataSource(new File("../../../../Datasets/DBpedia/links/links.ttl"));
         //link.setSyntax(Lang.NT);       
         link.setSyntax(Lang.N3);
         //link.setSyntax(Lang.TTL);    

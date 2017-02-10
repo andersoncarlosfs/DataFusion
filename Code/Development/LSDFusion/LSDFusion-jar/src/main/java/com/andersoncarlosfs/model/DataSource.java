@@ -24,11 +24,17 @@ public class DataSource implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private final UUID uuid = UUID.randomUUID();
-    private InputStream inputStream;
+    private File file;
     private Lang syntax = Lang.RDFNULL;
     private Calendar lastModified;
 
-    public DataSource() {
+    public DataSource(File file) {
+        this.file = file;
+    }
+
+    public DataSource(File file, Calendar lastModified) {
+        this.file = file;
+        this.lastModified = lastModified;
     }
 
     /**
@@ -41,27 +47,19 @@ public class DataSource implements Serializable {
 
     /**
      *
+     * @return the file
+     */
+    public File getFile() {
+        return file;
+    }
+
+    /**
+     *
      * @return the inputStream
-     */
-    public InputStream getInputStream() {
-        return inputStream;
-    }
-
-    /**
-     *
-     * @param inputStream the inputStream to set
-     */
-    public void setInputStream(InputStream inputStream) {
-        this.inputStream = inputStream;
-    }
-
-    /**
-     *
-     * @param file the file to set
      * @throws java.io.FileNotFoundException
      */
-    public void setInputStream(File file) throws FileNotFoundException {
-        this.inputStream = new FileInputStream(file);
+    public InputStream getInputStream() throws FileNotFoundException {
+        return new FileInputStream(file);
     }
 
     /**

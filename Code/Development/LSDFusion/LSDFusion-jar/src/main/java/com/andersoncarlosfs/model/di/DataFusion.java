@@ -17,12 +17,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.SimpleSelector;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.tdb.TDBFactory;
+import org.apache.jena.tdb.base.file.Location;
 
 /**
  *
@@ -37,7 +39,11 @@ public class DataFusion extends DataIntegration {
 
     public DataFusion(Collection<DataSource> datasets, DataSource... links) throws IOException {
         this.datasets = Collections.unmodifiableCollection(datasets);
-        this.links = Arrays.asList(links);
+        if (links.length > 0) {
+            this.links = Arrays.asList(links);
+        } else {
+            this.links = this.datasets;
+        }
         this.temporaryDirectory = Files.createTempDirectory(null);
     }
 
@@ -53,23 +59,25 @@ public class DataFusion extends DataIntegration {
     /**
      *
      * @return the equivalence classes
+     * @throws java.io.IOException
      */
-    public QuotientSet findEquivalenceClasses() {
+    public QuotientSet findEquivalenceClasses() throws IOException {
         QuotientSet quotientSet = new QuotientSet();
-        Model model = ModelFactory.createDefaultModel();
-        model.read("../../../../Datasets/INA/links.n3");
-        SimpleSelector selector = new SimpleSelector() {
-            @Override
-            public boolean test(Statement s) {
-                return EQUIVALENCE_PROPERTIES.contains(s.getPredicate());
+        for (DataSource dataSource : links) {
+            if (dataSource.getFile().length() <= Runtime.getRuntime().freeMemory()) {
+                
+            }          
+            Location location = Location.create(Files.createTempDirectory(getTemporaryDirectory(), null).toString());
+                Dataset dataset = TDBFactory.createDataset(location);
+                RDFDataMgr.read(dataset, dataSource.getInputStream(), dataSource.getSyntax());
+                Model model = dataset.getDefaultModel();
+            StmtIterator statements = model.listStatements(EQUIVALENCE_SELECTOR);
+            while (statements.hasNext()) {
+                Statement statement = statements.next();
+                RDFNode subject = statement.getSubject();
+                RDFNode object = statement.getObject();
+                quotientSet.union(subject, object);
             }
-        };
-        StmtIterator statements = model.listStatements(selector);
-        while (statements.hasNext()) {
-            Statement statement = statements.next();
-            RDFNode subject = statement.getSubject();
-            RDFNode object = statement.getObject();
-            quotientSet.union(subject, object);
         }
         return quotientSet;
     }
