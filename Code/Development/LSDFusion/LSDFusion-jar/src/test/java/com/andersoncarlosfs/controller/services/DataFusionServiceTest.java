@@ -7,6 +7,7 @@ package com.andersoncarlosfs.controller.services;
 
 import com.andersoncarlosfs.model.DataSource;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import org.apache.jena.rdf.model.RDFNode;
@@ -45,10 +46,10 @@ public class DataFusionServiceTest {
     /**
      * Test of getEquivalenceClasses method, of class DataFusionService.
      *
-     * @throws java.lang.Exception
+     * @throws java.io.IOException
      */
     @Test
-    public void testGetEquivalenceClasses() throws Exception {
+    public void testGetEquivalenceClasses() throws IOException {
         System.out.println("begin test getEquivalentClasses");
         //https://www.w3.org/wiki/DataSetRDFDumps
         //http://data.bnf.fr/semanticweb
@@ -79,10 +80,10 @@ public class DataFusionServiceTest {
     /**
      * Test of X method, of class DataFusionService.
      *
-     * @throws java.lang.Exception
+     * @throws java.io.IOException
      */
     //@Test
-    public void testX() throws Exception {
+    public void testX() throws IOException {
         System.out.println("begin test getEquivalentClasses");
         //https://www.w3.org/wiki/DataSetRDFDumps
         //http://data.bnf.fr/semanticweb

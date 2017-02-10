@@ -12,19 +12,17 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.ReadWrite;
-import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.SimpleSelector;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.sparql.core.DatasetGraph;
-import org.apache.jena.tdb.TDBFactory;
-import org.apache.jena.tdb.TDBLoader;
-import org.apache.jena.tdb.base.file.Location;
-import org.apache.jena.tdb.store.DatasetGraphTDB;
-import org.apache.jena.tdb.sys.TDBInternal;
 
 /**
  *
@@ -33,30 +31,13 @@ import org.apache.jena.tdb.sys.TDBInternal;
 @RequestScoped
 public class DataFusion extends DataIntegration {
 
-    private Collection<DataSource> datasets;
-    private Collection<Property> equivalenceProperties;
-    private Collection<DataSource> links;
-    private Path temporaryDirectory;
+    private final Collection<DataSource> datasets;
+    private final Collection<DataSource> links;
+    private final Path temporaryDirectory;
 
     public DataFusion(Collection<DataSource> datasets, DataSource... links) throws IOException {
-        init(datasets, DataIntegration.equivalenceProperties, links);
-    }
-
-    public DataFusion(Collection<DataSource> datasets, Collection<Property> equivalenceProperties, DataSource... links) throws IOException {
-        init(datasets, equivalenceProperties, links);
-    }
-
-    /**
-     *
-     * @param datasets
-     * @param equivalenceProperties
-     * @param links
-     * @throws IOException
-     */
-    private void init(Collection<DataSource> datasets, Collection<Property> equivalenceProperties, DataSource... links) throws IOException {
         this.datasets = Collections.unmodifiableCollection(datasets);
-        this.equivalenceProperties = equivalenceProperties;
-        this.links = Collections.unmodifiableCollection(Arrays.asList(links));
+        this.links = Arrays.asList(links);
         this.temporaryDirectory = Files.createTempDirectory(null);
     }
 
@@ -72,56 +53,112 @@ public class DataFusion extends DataIntegration {
     /**
      *
      * @return the equivalence classes
-     * @throws IOException
      */
-    private Collection<Collection<RDFNode>> findEquivalenceClasses(boolean close) throws Exception {
-        Collection<Collection<RDFNode>> quotientSet;
-        if (links.isEmpty()) {
-            quotientSet = super.findEquivalenceClasses(datasets, equivalenceProperties);
-        } else {
-            quotientSet = super.findEquivalenceClasses(links, equivalenceProperties);
-        }
-        if (close) {
-            close();
+    public QuotientSet findEquivalenceClasses() {
+        QuotientSet quotientSet = new QuotientSet();
+        Model model = ModelFactory.createDefaultModel();
+        model.read("../../../../Datasets/INA/links.n3");
+        SimpleSelector selector = new SimpleSelector() {
+            @Override
+            public boolean test(Statement s) {
+                return EQUIVALENCE_PROPERTIES.contains(s.getPredicate());
+            }
+        };
+        StmtIterator statements = model.listStatements(selector);
+        while (statements.hasNext()) {
+            Statement statement = statements.next();
+            RDFNode subject = statement.getSubject();
+            RDFNode object = statement.getObject();
+            quotientSet.union(subject, object);
         }
         return quotientSet;
     }
 
     /**
      *
-     * @return the equivalence classes
-     * @throws IOException
+     * @return the data fusion assessment
      */
-    public Collection<Collection<RDFNode>> findEquivalenceClasses() throws Exception {
-        return findEquivalenceClasses(true);
+    public DataFusionAssessment calculateScore() {
+        return null;
     }
 
     /**
+     * Disjoint-set data structure to keep track of a set of equivalence class
+     * partitioned into a number of disjoint subsets
      *
-     * @return the data fusion assessment
-     * @throws IOException
+     * @see <a href="http://algs4.cs.princeton.edu/15uf/">1.5 Case Study:
+     * Union-Find</a>
+     *
+     * @author Anderson Carlos Ferreira da Silva
      */
-    public DataFusionAssessment calculateScore() throws Exception {
-        DataFusionAssessment dataFusionAssessment = new DataFusionAssessment(findEquivalenceClasses(false));
-        for (DataSource dataSource : datasets) {
-            Location location = Location.create(Files.createTempDirectory(getTemporaryDirectory(), dataSource.getUUID().toString()).toString());
-            DatasetGraph datasetGraph = TDBFactory.createDatasetGraph(location);
-            DatasetGraphTDB datasetGraphTDB = TDBInternal.getBaseDatasetGraphTDB(datasetGraph);
-            TDBLoader.load(datasetGraphTDB, dataSource.getInputStream(), false);
-            Dataset dataset = TDBFactory.createDataset(location);
-            dataset.begin(ReadWrite.READ);
-            StmtIterator iterator = dataset.getDefaultModel().listStatements();
-            while (iterator.hasNext()) {
-                Statement statement = iterator.next();
-                RDFNode subject = statement.getSubject();
-                RDFNode predicate = statement.getPredicate();
-                RDFNode object = statement.getObject();
+    public class QuotientSet extends HashMap<RDFNode, Collection<RDFNode>> {
 
+        /**
+         * Find
+         *
+         * @param node
+         * @return
+         */
+        private RDFNode find(RDFNode node) {
+            Collection nodeCollection = get(node);
+            if (nodeCollection.size() > 1) {
+                return node;
             }
-            dataset.end();
-            dataset.close();
+            RDFNode parent = (RDFNode) nodeCollection.iterator().next();
+            if (parent.equals(node)) {
+                return parent;
+            }
+            return find(parent);
         }
-        return null;
+
+        /**
+         * Search
+         *
+         * @param node
+         * @return
+         */
+        private Collection<RDFNode> search(RDFNode node) {
+            return getOrDefault(find(node), Collections.EMPTY_LIST);
+        }
+
+        /**
+         * Union
+         *
+         * @param subject
+         * @param object
+         */
+        private void union(RDFNode subject, RDFNode object) {
+            RDFNode subjectParent = subject;
+            RDFNode objectParent = object;
+            if (putIfAbsent(subject, new HashSet<>(Arrays.asList(subject))) != putIfAbsent(object, new HashSet<>(Arrays.asList(object)))) {
+                subjectParent = find(subject);
+                objectParent = find(object);
+            }
+            if (subjectParent.equals(objectParent)) {
+                return;
+            }
+            Collection subjectCollection = get(subjectParent);
+            Collection objectCollection = get(objectParent);
+            if (subjectCollection.size() < objectCollection.size()) {
+                objectCollection.addAll(subjectCollection);
+                put(subjectParent, new HashSet<>(Arrays.asList(objectParent)));
+            } else {
+                subjectCollection.addAll(objectCollection);
+                put(objectParent, new HashSet<>(Arrays.asList(subjectParent)));
+            }
+        }
+
+        /**
+         * @see Map#values()
+         *
+         * @return a view of the equivalence classes contained in this quotient
+         * set
+         */
+        @Override
+        public Collection<Collection<RDFNode>> values() {
+            return super.values().parallelStream().filter((Collection<RDFNode> c) -> c.size() > 1).collect(Collectors.toList());
+        }
+
     }
 
 }
