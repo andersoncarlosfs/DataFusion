@@ -6,11 +6,12 @@
 package com.andersoncarlosfs.data.integration;
 
 import com.andersoncarlosfs.data.model.Dataset;
+import com.andersoncarlosfs.data.model.LinkedDataset;
 import com.andersoncarlosfs.util.UnionFind;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import org.apache.jena.atlas.lib.Sink;
@@ -36,15 +37,16 @@ public class DataFusion {
      */
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
 
-    private final Collection<Dataset> datasets;
-    private final Collection<Dataset> links;
+    private final Collection<Dataset> datasets = new ArrayList<>();
+    private final Collection<LinkedDataset> links = new ArrayList<>();
 
-    public DataFusion(Collection<Dataset> datasets, Dataset... links) throws IOException {
-        this.datasets = Collections.unmodifiableCollection(datasets);
-        if (links.length > 0) {
-            this.links = Arrays.asList(links);
-        } else {
-            this.links = this.datasets;
+    public DataFusion(Collection<Dataset> datasets) throws IOException {
+        for (Dataset dataset : datasets) {
+            if (dataset instanceof LinkedDataset) {
+                this.links.add((LinkedDataset) dataset);
+            } else {
+                this.datasets.add(dataset);
+            }
         }
     }
 
@@ -55,8 +57,8 @@ public class DataFusion {
      */
     public Sink findEquivalenceClasses() throws IOException {
         Sink<Triple> sink = new SinkTripleEquivalent();
-        StreamRDF stream = new EquivalencePropertyFilterSinkRDF(sink);
-        for (Dataset dataset : links) {
+        for (LinkedDataset dataset : links) {
+            StreamRDF stream = new EquivalencePropertyFilterSinkRDF(sink);
             RDFDataMgr.parse(stream, dataset.getCanonicalPath(), dataset.getSyntax());
         }
         return (SinkTripleEquivalent) sink;
@@ -98,14 +100,16 @@ public class DataFusion {
      *
      * @author Anderson Carlos Ferreira da Silva
      */
-    private class EquivalencePropertyFilterSinkRDF extends StreamRDFBase {
+    private static class EquivalencePropertyFilterSinkRDF extends StreamRDFBase {
+
+        private final static Collection<Node> EQUIVALENCE_PROPERTIES = DataFusion.EQUIVALENCE_PROPERTIES.stream().map(RDFNode::asNode).collect(Collectors.toList());
 
         private final Collection<Node> properties;
         private final Sink<Triple> sink;
 
         private EquivalencePropertyFilterSinkRDF(Sink<Triple> sink) {
             this.sink = sink;
-            this.properties = EQUIVALENCE_PROPERTIES.stream().map(RDFNode::asNode).collect(Collectors.toList());
+            this.properties = EQUIVALENCE_PROPERTIES;
         }
 
         private EquivalencePropertyFilterSinkRDF(Sink<Triple> sink, Collection<Node> properties) {
