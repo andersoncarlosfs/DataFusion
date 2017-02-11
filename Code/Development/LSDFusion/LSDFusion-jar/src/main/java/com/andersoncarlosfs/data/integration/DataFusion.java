@@ -5,23 +5,22 @@
  */
 package com.andersoncarlosfs.data.integration;
 
-import com.andersoncarlosfs.data.model.DataSource;
+import com.andersoncarlosfs.data.model.Dataset;
+import com.andersoncarlosfs.util.UnionFind;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
-import org.apache.jena.rdf.model.Model;
+import org.apache.jena.atlas.lib.Sink;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.Selector;
-import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.riot.system.StreamRDFBase;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.SKOS;
 
@@ -33,19 +32,14 @@ import org.apache.jena.vocabulary.SKOS;
 public class DataFusion {
 
     /**
-     * 
+     *
      */
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
 
-    /**
-     * 
-     */
-    public static final Selector EQUIVALENCE_SELECTOR = new EquivalenceSelector(EQUIVALENCE_PROPERTIES);
+    private final Collection<Dataset> datasets;
+    private final Collection<Dataset> links;
 
-    private final Collection<DataSource> datasets;
-    private final Collection<DataSource> links;
-
-    public DataFusion(Collection<DataSource> datasets, DataSource... links) throws IOException {
+    public DataFusion(Collection<Dataset> datasets, Dataset... links) throws IOException {
         this.datasets = Collections.unmodifiableCollection(datasets);
         if (links.length > 0) {
             this.links = Arrays.asList(links);
@@ -59,19 +53,13 @@ public class DataFusion {
      * @return the equivalence classes
      * @throws java.io.IOException
      */
-    public QuotientSet findEquivalenceClasses() throws IOException {
-        QuotientSet quotientSet = new QuotientSet();
-        for (DataSource dataSource : links) {
-            Model model = RDFDataMgr.loadModel(dataSource.getFile().getCanonicalPath(), dataSource.getSyntax());
-            StmtIterator statements = model.listStatements(EQUIVALENCE_SELECTOR);
-            while (statements.hasNext()) {
-                Statement statement = statements.next();
-                RDFNode subject = statement.getSubject();
-                RDFNode object = statement.getObject();
-                quotientSet.union(subject, object);
-            }
+    public Sink findEquivalenceClasses() throws IOException {
+        Sink<Triple> sink = new SinkTripleEquivalent();
+        StreamRDF stream = new EquivalencePropertyFilterSinkRDF(sink);
+        for (Dataset dataset : links) {
+            RDFDataMgr.parse(stream, dataset.getCanonicalPath(), dataset.getSyntax());
         }
-        return quotientSet;
+        return (SinkTripleEquivalent) sink;
     }
 
     /**
@@ -86,145 +74,63 @@ public class DataFusion {
      *
      * @author Anderson Carlos Ferreira da Silva
      */
-    private static class EquivalenceSelector implements Selector {
+    public class SinkTripleEquivalent extends UnionFind<Node> implements Sink<Triple> {
 
-        private final Collection<Property> properties;
-
-        public EquivalenceSelector(Collection<Property> properties) {
-            this.properties = properties;
+        private SinkTripleEquivalent() {
         }
 
-        /**
-         *
-         * @see Selector#isSimple()
-         * @return
-         */
         @Override
-        public boolean isSimple() {
-            return false;
+        public void send(Triple triple) {
+            union(triple.getSubject(), triple.getObject());
         }
 
-        /**
-         *
-         * @see Selector#getSubject()
-         * @return
-         */
         @Override
-        public Resource getSubject() {
-            return null;
+        public void flush() {
         }
 
-        /**
-         *
-         * @see Selector#getPredicate()
-         * @return
-         */
         @Override
-        public Property getPredicate() {
-            return null;
-        }
-
-        /**
-         *
-         * @see Selector#getObject()
-         * @return
-         */
-        @Override
-        public RDFNode getObject() {
-            return null;
-        }
-
-        /**
-         *
-         * @see Selector#test(java.lang.Object)
-         * @param s
-         * @return
-         */
-        @Override
-        public boolean test(Statement s) {
-            return properties.contains(s.getPredicate());
+        public void close() {
         }
 
     }
 
     /**
-     * Disjoint-set data structure to keep track of a set of equivalence class
-     * partitioned into a number of disjoint subsets
-     *
-     * @see <a href="http://algs4.cs.princeton.edu/15uf/">1.5 Case Study:
-     * Union-Find</a>
      *
      * @author Anderson Carlos Ferreira da Silva
      */
-    public class QuotientSet {
+    private class EquivalencePropertyFilterSinkRDF extends StreamRDFBase {
 
-        private HashMap<RDFNode, Collection<RDFNode>> map = new HashMap<>();
+        private final Collection<Node> properties;
+        private final Sink<Triple> sink;
 
-        private QuotientSet() {
+        private EquivalencePropertyFilterSinkRDF(Sink<Triple> sink) {
+            this.sink = sink;
+            this.properties = EQUIVALENCE_PROPERTIES.stream().map(RDFNode::asNode).collect(Collectors.toList());
+        }
+
+        private EquivalencePropertyFilterSinkRDF(Sink<Triple> sink, Collection<Node> properties) {
+            this.sink = sink;
+            this.properties = properties;
         }
 
         /**
-         * Find
          *
-         * @param node
-         * @return
+         * @see StreamRDFBase#triple(org.apache.jena.graph.Triple)
          */
-        private RDFNode find(RDFNode node) {
-            Collection nodeCollection = map.get(node);
-            if (nodeCollection.size() > 1) {
-                return node;
-            }
-            RDFNode parent = (RDFNode) nodeCollection.iterator().next();
-            if (parent.equals(node)) {
-                return parent;
-            }
-            return find(parent);
-        }
-
-        /**
-         * Search
-         *
-         * @param node
-         * @return
-         */
-        public Collection<RDFNode> search(RDFNode node) {
-            return map.getOrDefault(find(node), Collections.EMPTY_LIST);
-        }
-
-        /**
-         * Union
-         *
-         * @param subject
-         * @param object
-         */
-        private void union(RDFNode subject, RDFNode object) {
-            RDFNode subjectParent = subject;
-            RDFNode objectParent = object;
-            if (map.putIfAbsent(subject, new HashSet<>(Arrays.asList(subject))) != map.putIfAbsent(object, new HashSet<>(Arrays.asList(object)))) {
-                subjectParent = find(subject);
-                objectParent = find(object);
-            }
-            if (subjectParent.equals(objectParent)) {
-                return;
-            }
-            Collection subjectCollection = map.get(subjectParent);
-            Collection objectCollection = map.get(objectParent);
-            if (subjectCollection.size() < objectCollection.size()) {
-                objectCollection.addAll(subjectCollection);
-                map.put(subjectParent, new HashSet<>(Arrays.asList(objectParent)));
-            } else {
-                subjectCollection.addAll(objectCollection);
-                map.put(objectParent, new HashSet<>(Arrays.asList(subjectParent)));
+        @Override
+        public void triple(Triple triple) {
+            if (properties.contains(triple.getPredicate())) {
+                sink.send(triple);
             }
         }
 
         /**
          *
-         * @return a view of the equivalence classes contained in this quotient
-         * set
+         * @see StreamRDFBase#finish()
          */
-        public Collection<Collection<RDFNode>> values() {
-            return map.values().parallelStream().filter((Collection<RDFNode> c) -> c.size() > 1).collect(Collectors.toList());
+        @Override
+        public void finish() {
+            sink.flush();
         }
 
     }

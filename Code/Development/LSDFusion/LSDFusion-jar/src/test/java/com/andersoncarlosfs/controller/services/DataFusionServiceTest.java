@@ -6,12 +6,12 @@
 package com.andersoncarlosfs.controller.services;
 
 import com.andersoncarlosfs.data.controller.services.DataFusionService;
-import com.andersoncarlosfs.data.model.DataSource;
+import com.andersoncarlosfs.data.model.Dataset;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.graph.Node;
 import org.apache.jena.riot.Lang;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -54,20 +54,20 @@ public class DataFusionServiceTest {
         System.out.println("begin test getEquivalentClasses");
         //https://www.w3.org/wiki/DataSetRDFDumps
         //http://data.bnf.fr/semanticweb        
-        //DataSource dataSource = new DataSource(new File("../../../../Datasets/BNF/dataset.tar.gz"));
-        DataSource dataSource = new DataSource(new File("../../../../Datasets/INA/dataset.ttl"));
-        dataSource.setSyntax(Lang.TURTLE);
-        //DataSource link = new DataSource(new File("../../../../Datasets/BNF/links.nt"));
-        DataSource link = new DataSource(new File("../../../../Datasets/INA/links.n3"));
-        //DataSource link = new DataSource(new File("../../../../Datasets/DBpedia/links/links.ttl"));
+        //DataSource dataset = new DataSource("../../../../Datasets/BNF/dataset.tar.gz");
+        Dataset dataset = new Dataset("../../../../Datasets/INA/dataset.ttl");
+        dataset.setSyntax(Lang.TURTLE);
+        //DataSource link = new DataSource("../../../../Datasets/BNF/links.nt");
+        Dataset link = new Dataset("../../../../Datasets/INA/links.n3");
+        //DataSource link = new DataSource("../../../../Datasets/DBpedia/links/links.ttl");
         //link.setSyntax(Lang.NT);       
         link.setSyntax(Lang.N3);
         //link.setSyntax(Lang.TTL);    
         DataFusionService service = new DataFusionService();
-        Collection<Collection<RDFNode>> equivalenceClasses = service.findEquivalenceClasses(Arrays.asList(dataSource), link);
-        for (Collection<RDFNode> classe : equivalenceClasses) {
+        Collection<Collection<Node>> equivalenceClasses = service.findEquivalenceClasses(Arrays.asList(dataset), link);
+        for (Collection<Node> classe : equivalenceClasses) {
             System.out.println("{");
-            for (RDFNode node : classe) {
+            for (Node node : classe) {
                 System.out.println(node.toString());
             }
             System.out.println("}");
@@ -83,29 +83,7 @@ public class DataFusionServiceTest {
      */
     //@Test
     public void testX() throws IOException {
-        System.out.println("begin test getEquivalentClasses");
-        //https://www.w3.org/wiki/DataSetRDFDumps
-        //http://data.bnf.fr/semanticweb        
-        //DataSource dataSource = new DataSource(new File("../../../../Datasets/BNF/dataset.tar.gz"));
-        DataSource dataSource = new DataSource(new File("../../../../Datasets/INA/dataset.ttl"));
-        dataSource.setSyntax(Lang.TURTLE);
-        //DataSource link = new DataSource(new File("../../../../Datasets/BNF/links.nt"));
-        DataSource link = new DataSource(new File("../../../../Datasets/INA/links.n3"));
-        //DataSource link = new DataSource(new File("../../../../Datasets/DBpedia/links/links.ttl"));
-        //link.setSyntax(Lang.NT);       
-        link.setSyntax(Lang.N3);
-        //link.setSyntax(Lang.TTL);    
-        DataFusionService service = new DataFusionService();
-        Collection<Collection<RDFNode>> equivalenceClasses = service.findEquivalenceClasses(Arrays.asList(link), link);
-        for (Collection<RDFNode> classe : equivalenceClasses) {
-            System.out.println("{");
-            for (RDFNode node : classe) {
-                //System.out.println(node.toString());
-            }
-            System.out.println("}");
-        }
-        System.out.println("Total of equivalence classes: " + equivalenceClasses.size());
-        System.out.println("end test getEquivalentClasses");
+
     }
 
 }

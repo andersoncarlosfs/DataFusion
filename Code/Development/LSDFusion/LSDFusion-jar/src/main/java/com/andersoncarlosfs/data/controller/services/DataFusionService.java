@@ -5,12 +5,13 @@
  */
 package com.andersoncarlosfs.data.controller.services;
 
-import com.andersoncarlosfs.data.model.DataSource;
+import com.andersoncarlosfs.data.model.Dataset;
 import com.andersoncarlosfs.data.integration.DataFusion;
+import com.andersoncarlosfs.util.UnionFind;
 import java.io.IOException;
 import java.util.Collection;
 import javax.enterprise.context.RequestScoped;
-import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.graph.Node;
 
 /**
  *
@@ -26,11 +27,11 @@ public class DataFusionService {
      * @return the equivalence classes
      * @throws java.io.IOException
      */
-    public Collection<Collection<RDFNode>> findEquivalenceClasses(Collection<DataSource> datasets, DataSource... links) throws IOException {
-        return new DataFusion(datasets, links).findEquivalenceClasses().values();
+    public Collection<Collection<Node>> findEquivalenceClasses(Collection<Dataset> datasets, Dataset... links) throws IOException {
+        return ((UnionFind) new DataFusion(datasets, links).findEquivalenceClasses()).values();
     }
 
-    public void X(Collection<DataSource> datasets, DataSource... links) throws Exception {
+    public void X(Collection<Dataset> datasets, Dataset... links) throws Exception {
         new DataFusion(datasets, links).calculateScore();
     }
 
