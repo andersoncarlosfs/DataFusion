@@ -7,7 +7,7 @@ package com.andersoncarlosfs.controller.services;
 
 import com.andersoncarlosfs.data.controller.services.DataFusionService;
 import com.andersoncarlosfs.data.model.Dataset;
-import java.io.File;
+import com.andersoncarlosfs.data.model.LinkedDataset;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,13 +58,13 @@ public class DataFusionServiceTest {
         Dataset dataset = new Dataset("../../../../Datasets/INA/dataset.ttl");
         dataset.setSyntax(Lang.TURTLE);
         //DataSource link = new DataSource("../../../../Datasets/BNF/links.nt");
-        Dataset link = new Dataset("../../../../Datasets/INA/links.n3");
+        Dataset link = new LinkedDataset("../../../../Datasets/INA/links.n3");
         //DataSource link = new DataSource("../../../../Datasets/DBpedia/links/links.ttl");
         //link.setSyntax(Lang.NT);       
         link.setSyntax(Lang.N3);
         //link.setSyntax(Lang.TTL);    
         DataFusionService service = new DataFusionService();
-        Collection<Collection<Node>> equivalenceClasses = service.findEquivalenceClasses(Arrays.asList(dataset), link);
+        Collection<Collection<Node>> equivalenceClasses = service.findEquivalenceClasses(Arrays.asList(dataset, link));
         for (Collection<Node> classe : equivalenceClasses) {
             System.out.println("{");
             for (Node node : classe) {
