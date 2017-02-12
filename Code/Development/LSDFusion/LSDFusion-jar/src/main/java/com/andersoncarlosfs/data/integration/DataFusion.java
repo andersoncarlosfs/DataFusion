@@ -58,7 +58,7 @@ public class DataFusion {
     public Sink findEquivalenceClasses() throws IOException {
         Sink<Triple> sink = new SinkTripleEquivalent();
         for (LinkedDataset dataset : links) {
-            StreamRDF stream = new EquivalencePropertyFilterSinkRDF(sink);
+            StreamRDF stream = new EquivalencePropertyFilterSinkRDF(sink, dataset.getEquivalenceProperties());
             RDFDataMgr.parse(stream, dataset.getCanonicalPath(), dataset.getSyntax());
         }
         return (SinkTripleEquivalent) sink;
@@ -102,19 +102,15 @@ public class DataFusion {
      */
     private static class EquivalencePropertyFilterSinkRDF extends StreamRDFBase {
 
-        private final static Collection<Node> EQUIVALENCE_PROPERTIES = DataFusion.EQUIVALENCE_PROPERTIES.stream().map(RDFNode::asNode).collect(Collectors.toList());
-
         private final Collection<Node> properties;
         private final Sink<Triple> sink;
 
-        private EquivalencePropertyFilterSinkRDF(Sink<Triple> sink) {
+        private EquivalencePropertyFilterSinkRDF(Sink<Triple> sink, Collection<Property> properties) {
+            if (properties == null) {
+                throw new NullPointerException("Equivalence properties cannot be null");
+            }
             this.sink = sink;
-            this.properties = EQUIVALENCE_PROPERTIES;
-        }
-
-        private EquivalencePropertyFilterSinkRDF(Sink<Triple> sink, Collection<Node> properties) {
-            this.sink = sink;
-            this.properties = properties;
+            this.properties = properties.stream().map(RDFNode::asNode).collect(Collectors.toList());
         }
 
         /**

@@ -23,16 +23,15 @@ public class DataFusionService {
     /**
      *
      * @param datasets
-     * @param links
      * @return the equivalence classes
      * @throws java.io.IOException
      */
-    public Collection<Collection<Node>> findEquivalenceClasses(Collection<Dataset> datasets, Dataset... links) throws IOException {
-        return ((UnionFind) new DataFusion(datasets, links).findEquivalenceClasses()).values();
+    public Collection<Collection<Node>> findEquivalenceClasses(Collection<Dataset> datasets) throws IOException {
+        return ((UnionFind) new DataFusion(datasets).findEquivalenceClasses()).values();
     }
 
-    public void X(Collection<Dataset> datasets, Dataset... links) throws Exception {
-        new DataFusion(datasets, links).calculateScore();
+    public void X(Collection<Dataset> datasets) throws Exception {
+        new DataFusion(datasets).calculateScore();
     }
 
 }
