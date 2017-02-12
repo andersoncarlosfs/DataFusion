@@ -55,20 +55,22 @@ public class DataFusion {
      * @return the equivalence classes
      * @throws java.io.IOException
      */
-    public Sink findEquivalenceClasses() throws IOException {
+    public UnionFind findEquivalenceClasses() throws IOException {
         Sink<Triple> sink = new SinkTripleEquivalent();
         for (LinkedDataset dataset : links) {
             StreamRDF stream = new EquivalencePropertyFilterSinkRDF(sink, dataset.getEquivalenceProperties());
             RDFDataMgr.parse(stream, dataset.getCanonicalPath(), dataset.getSyntax());
         }
-        return (SinkTripleEquivalent) sink;
+        return (UnionFind) sink;
     }
 
     /**
      *
      * @return the data fusion assessment
+     * @throws java.io.IOException
      */
-    public DataFusionAssessment calculateScore() {
+    public Sink calculateScore() throws IOException {
+        UnionFind unionFind = findEquivalenceClasses();
         return null;
     }
 
@@ -76,10 +78,7 @@ public class DataFusion {
      *
      * @author Anderson Carlos Ferreira da Silva
      */
-    public class SinkTripleEquivalent extends UnionFind<Node> implements Sink<Triple> {
-
-        private SinkTripleEquivalent() {
-        }
+    private class SinkTripleEquivalent extends UnionFind<Node> implements Sink<Triple> {
 
         @Override
         public void send(Triple triple) {
@@ -100,7 +99,30 @@ public class DataFusion {
      *
      * @author Anderson Carlos Ferreira da Silva
      */
-    private static class EquivalencePropertyFilterSinkRDF extends StreamRDFBase {
+    private class SinkTripleQualityAssessment implements Sink<Triple> {
+
+        @Override
+        public void send(Triple arg0) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void flush() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void close() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+    }
+
+    /**
+     *
+     * @author Anderson Carlos Ferreira da Silva
+     */
+    private class EquivalencePropertyFilterSinkRDF extends StreamRDFBase {
 
         private final Collection<Node> properties;
         private final Sink<Triple> sink;

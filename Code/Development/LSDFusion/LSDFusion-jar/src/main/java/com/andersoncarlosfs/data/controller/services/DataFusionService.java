@@ -7,7 +7,6 @@ package com.andersoncarlosfs.data.controller.services;
 
 import com.andersoncarlosfs.data.model.Dataset;
 import com.andersoncarlosfs.data.integration.DataFusion;
-import com.andersoncarlosfs.util.UnionFind;
 import java.io.IOException;
 import java.util.Collection;
 import javax.enterprise.context.RequestScoped;
@@ -27,10 +26,10 @@ public class DataFusionService {
      * @throws java.io.IOException
      */
     public Collection<Collection<Node>> findEquivalenceClasses(Collection<Dataset> datasets) throws IOException {
-        return ((UnionFind) new DataFusion(datasets).findEquivalenceClasses()).values();
+        return new DataFusion(datasets).findEquivalenceClasses().values();
     }
 
-    public void X(Collection<Dataset> datasets) throws Exception {
+    public void X(Collection<Dataset> datasets) throws IOException {
         new DataFusion(datasets).calculateScore();
     }
 

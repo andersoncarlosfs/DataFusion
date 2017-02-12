@@ -36,7 +36,7 @@ public class UnionFind<T> {
      * @param node
      * @return
      */
-    public T find(T node) {
+    public T search(T node) {
         Collection nodeCollection = map.get(node);
         if (nodeCollection.size() > 1) {
             return node;
@@ -45,7 +45,7 @@ public class UnionFind<T> {
         if (parent.equals(node)) {
             return parent;
         }
-        return find(parent);
+        return search(parent);
     }
 
     /**
@@ -54,7 +54,7 @@ public class UnionFind<T> {
      * @param node
      * @return
      */
-    public Collection<T> search(T node) {
+    public Collection<T> find(T node) {
         return map.getOrDefault(find(node), Collections.EMPTY_LIST);
     }
 
@@ -68,8 +68,8 @@ public class UnionFind<T> {
         T subjectParent = subject;
         T objectParent = object;
         if (map.putIfAbsent(subject, new HashSet<>(Arrays.asList(subject))) != map.putIfAbsent(object, new HashSet<>(Arrays.asList(object)))) {
-            subjectParent = find(subject);
-            objectParent = find(object);
+            subjectParent = search(subject);
+            objectParent = search(object);
         }
         if (subjectParent.equals(objectParent)) {
             return;

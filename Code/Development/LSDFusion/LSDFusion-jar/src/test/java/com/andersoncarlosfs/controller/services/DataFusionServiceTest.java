@@ -66,6 +66,7 @@ public class DataFusionServiceTest {
         //link.setSyntax(Lang.TTL);    
         DataFusionService service = new DataFusionService();
         Collection<Collection<Node>> equivalenceClasses = service.findEquivalenceClasses(Arrays.asList(dataset, link));
+        /*
         for (Collection<Node> classe : equivalenceClasses) {
             System.out.println("{");
             for (Node node : classe) {
@@ -73,6 +74,7 @@ public class DataFusionServiceTest {
             }
             System.out.println("}");
         }
+         */
         System.out.println("Total of equivalence classes: " + equivalenceClasses.size());
         System.out.println("end test getEquivalentClasses");
     }
@@ -82,9 +84,23 @@ public class DataFusionServiceTest {
      *
      * @throws java.io.IOException
      */
-    //@Test
+    @Test
     public void testX() throws IOException {
-
+        System.out.println("begin test getX");
+        //https://www.w3.org/wiki/DataSetRDFDumps
+        //http://data.bnf.fr/semanticweb        
+        //DataSource dataset = new DataSource("../../../../Datasets/BNF/dataset.tar.gz");
+        Dataset dataset = new Dataset("../../../../Datasets/INA/dataset.ttl");
+        dataset.setSyntax(Lang.TURTLE);
+        //DataSource link = new LinkedDataset("../../../../Datasets/BNF/links.nt", DataFusion.EQUIVALENCE_PROPERTIES);
+        Dataset link = new LinkedDataset("../../../../Datasets/INA/links.n3", DataFusion.EQUIVALENCE_PROPERTIES);
+        //DataSource link = new LinkedDataset("../../../../Datasets/DBpedia/links/links.ttl", DataFusion.EQUIVALENCE_PROPERTIES);
+        //link.setSyntax(Lang.NT);       
+        link.setSyntax(Lang.N3);
+        //link.setSyntax(Lang.TTL);    
+        DataFusionService service = new DataFusionService();
+        service.X(Arrays.asList(dataset, link));
+        System.out.println("end test getX");
     }
 
 }
