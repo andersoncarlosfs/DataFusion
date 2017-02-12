@@ -6,6 +6,7 @@
 package com.andersoncarlosfs.controller.services;
 
 import com.andersoncarlosfs.data.controller.services.DataFusionService;
+import com.andersoncarlosfs.data.integration.DataFusion;
 import com.andersoncarlosfs.data.model.Dataset;
 import com.andersoncarlosfs.data.model.LinkedDataset;
 import java.io.IOException;
@@ -57,9 +58,9 @@ public class DataFusionServiceTest {
         //DataSource dataset = new DataSource("../../../../Datasets/BNF/dataset.tar.gz");
         Dataset dataset = new Dataset("../../../../Datasets/INA/dataset.ttl");
         dataset.setSyntax(Lang.TURTLE);
-        //DataSource link = new DataSource("../../../../Datasets/BNF/links.nt");
-        Dataset link = new LinkedDataset("../../../../Datasets/INA/links.n3");
-        //DataSource link = new DataSource("../../../../Datasets/DBpedia/links/links.ttl");
+        //DataSource link = new LinkedDataset("../../../../Datasets/BNF/links.nt", DataFusion.EQUIVALENCE_PROPERTIES);
+        Dataset link = new LinkedDataset("../../../../Datasets/INA/links.n3", DataFusion.EQUIVALENCE_PROPERTIES);
+        //DataSource link = new LinkedDataset("../../../../Datasets/DBpedia/links/links.ttl", DataFusion.EQUIVALENCE_PROPERTIES);
         //link.setSyntax(Lang.NT);       
         link.setSyntax(Lang.N3);
         //link.setSyntax(Lang.TTL);    
