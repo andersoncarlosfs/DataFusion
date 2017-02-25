@@ -26,7 +26,7 @@ public class DataFusionService {
      * @throws java.io.IOException
      */
     public Collection<Collection<Node>> findEquivalenceClasses(Collection<Dataset> datasets) throws IOException {
-        return new DataFusion(datasets).findEquivalenceClasses().values();
+        return new DataFusion(datasets).findEquivalenceClasses().disjointValues();
     }
 
     public void X(Collection<Dataset> datasets) throws IOException {

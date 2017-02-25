@@ -7,7 +7,6 @@ package com.andersoncarlosfs.util;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.stream.Collectors;
@@ -23,15 +22,15 @@ import java.util.stream.Collectors;
  *
  * @author Anderson Carlos Ferreira da Silva
  */
-public class UnionFind<T> {
+public class DisjointSet<T> {
 
     private final HashMap<T, Collection<T>> map = new HashMap<>();
 
-    public UnionFind() {
+    public DisjointSet() {
     }
 
     /**
-     * Find
+     * Search
      *
      * @param node
      * @return
@@ -49,13 +48,13 @@ public class UnionFind<T> {
     }
 
     /**
-     * Search
+     * Find
      *
      * @param node
      * @return
      */
     public Collection<T> find(T node) {
-        return map.getOrDefault(find(node), Collections.EMPTY_LIST);
+        return map.getOrDefault(find(node), null);
     }
 
     /**
@@ -87,10 +86,19 @@ public class UnionFind<T> {
 
     /**
      *
-     * @return a view of the equivalence classes contained in this quotient set
+     * @return a collection of the equivalence classes contained in this
+     * disjoint set
      */
-    public Collection<Collection<T>> values() {
+    public Collection<Collection<T>> disjointValues() {
         return map.values().parallelStream().filter((Collection<T> c) -> c.size() > 1).collect(Collectors.toList());
+    }
+
+    /**
+     *
+     * @return a collection of the elements contained in this disjoint set
+     */
+    public Collection<T> values() {
+        return map.keySet();
     }
 
 }

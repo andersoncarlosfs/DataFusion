@@ -5,13 +5,16 @@
  */
 package com.andersoncarlosfs.data.integration;
 
+import com.andersoncarlosfs.data.model.DataQualityAssessment;
 import com.andersoncarlosfs.data.model.Dataset;
 import com.andersoncarlosfs.data.model.LinkedDataset;
-import com.andersoncarlosfs.util.UnionFind;
+import com.andersoncarlosfs.util.DisjointSet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import org.apache.jena.atlas.lib.Sink;
@@ -55,13 +58,13 @@ public class DataFusion {
      * @return the equivalence classes
      * @throws java.io.IOException
      */
-    public UnionFind findEquivalenceClasses() throws IOException {
+    public DisjointSet findEquivalenceClasses() throws IOException {
         Sink<Triple> sink = new SinkTripleEquivalent();
         for (LinkedDataset dataset : links) {
             StreamRDF stream = new EquivalencePropertyFilterSinkRDF(sink, dataset.getEquivalenceProperties());
             RDFDataMgr.parse(stream, dataset.getCanonicalPath(), dataset.getSyntax());
         }
-        return (UnionFind) sink;
+        return (DisjointSet) sink;
     }
 
     /**
@@ -70,7 +73,12 @@ public class DataFusion {
      * @throws java.io.IOException
      */
     public Sink calculateScore() throws IOException {
-        UnionFind unionFind = findEquivalenceClasses();
+        DisjointSet equivalenceClasses = findEquivalenceClasses();
+        Sink<Triple> sink = new SinkTripleQualityAssessment(equivalenceClasses);
+        StreamRDF stream = new NodeFilterSinkRDF(sink, equivalenceClasses.values());
+        for (Dataset dataset : datasets) {
+            RDFDataMgr.parse(stream, dataset.getCanonicalPath(), dataset.getSyntax());
+        }
         return null;
     }
 
@@ -78,7 +86,7 @@ public class DataFusion {
      *
      * @author Anderson Carlos Ferreira da Silva
      */
-    private class SinkTripleEquivalent extends UnionFind<Node> implements Sink<Triple> {
+    private class SinkTripleEquivalent extends DisjointSet<Node> implements Sink<Triple> {
 
         @Override
         public void send(Triple triple) {
@@ -101,19 +109,25 @@ public class DataFusion {
      */
     private class SinkTripleQualityAssessment implements Sink<Triple> {
 
+        private final DisjointSet equivalenceClasses;
+        private final Map<Node, Map<Node, DataQualityAssessment>> assessments;
+
+        private SinkTripleQualityAssessment(DisjointSet equivalenceClasses) {
+            this.equivalenceClasses = equivalenceClasses;
+            this.assessments = (Map) equivalenceClasses.values().parallelStream().collect(Collectors.toMap(v -> v, v -> new HashMap<>()));
+        }
+
         @Override
-        public void send(Triple arg0) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        public void send(Triple triple) {
+            System.out.println(triple.getPredicate());
         }
 
         @Override
         public void flush() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
         public void close() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
     }
@@ -152,7 +166,37 @@ public class DataFusion {
          */
         @Override
         public void finish() {
-            sink.flush();
+        }
+
+    }
+
+    /**
+     *
+     * @author Anderson Carlos Ferreira da Silva
+     */
+    private class NodeFilterSinkRDF extends StreamRDFBase {
+
+        private final Sink<Triple> sink;
+
+        private NodeFilterSinkRDF(Sink<Triple> sink) {
+            this.sink = sink;
+        }
+
+        /**
+         *
+         * @see StreamRDFBase#triple(org.apache.jena.graph.Triple)
+         */
+        @Override
+        public void triple(Triple triple) {
+            sink.send(triple);
+        }
+
+        /**
+         *
+         * @see StreamRDFBase#finish()
+         */
+        @Override
+        public void finish() {
         }
 
     }
