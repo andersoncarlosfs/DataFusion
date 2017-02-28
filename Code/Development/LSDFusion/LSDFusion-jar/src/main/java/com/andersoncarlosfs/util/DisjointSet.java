@@ -35,7 +35,7 @@ public class DisjointSet<T> {
      * @param node
      * @return
      */
-    public T search(T node) {
+    public T representative(T node) {
         Collection nodeCollection = map.get(node);
         if (nodeCollection.size() > 1) {
             return node;
@@ -44,7 +44,7 @@ public class DisjointSet<T> {
         if (parent.equals(node)) {
             return parent;
         }
-        return search(parent);
+        return representative(parent);
     }
 
     /**
@@ -67,8 +67,8 @@ public class DisjointSet<T> {
         T subjectParent = subject;
         T objectParent = object;
         if (map.putIfAbsent(subject, new HashSet<>(Arrays.asList(subject))) != map.putIfAbsent(object, new HashSet<>(Arrays.asList(object)))) {
-            subjectParent = search(subject);
-            objectParent = search(object);
+            subjectParent = representative(subject);
+            objectParent = representative(object);
         }
         if (subjectParent.equals(objectParent)) {
             return;

@@ -25,6 +25,7 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFBase;
+import org.apache.jena.sparql.core.Quad;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.SKOS;
 
@@ -59,12 +60,12 @@ public class DataFusion {
      * @throws java.io.IOException
      */
     public DisjointSet findEquivalenceClasses() throws IOException {
-        Sink<Triple> sink = new SinkTripleEquivalent();
+        EquivalenceClasses stream = new EquivalenceClasses();
         for (LinkedDataset dataset : links) {
-            StreamRDF stream = new EquivalencePropertyFilterSinkRDF(sink, dataset.getEquivalenceProperties());
+            stream.equivalenceProperties = dataset.getEquivalenceProperties().stream().map(RDFNode::asNode).collect(Collectors.toList());
             RDFDataMgr.parse(stream, dataset.getCanonicalPath(), dataset.getSyntax());
         }
-        return (DisjointSet) sink;
+        return stream;
     }
 
     /**
@@ -73,12 +74,11 @@ public class DataFusion {
      * @throws java.io.IOException
      */
     public Sink calculateScore() throws IOException {
-        DisjointSet equivalenceClasses = findEquivalenceClasses();
-        Sink<Triple> sink = new SinkTripleQualityAssessment(equivalenceClasses);
-        StreamRDF stream = new NodeFilterSinkRDF(sink, equivalenceClasses.values());
+        DataQualityEvaluation stream = new DataQualityEvaluation(findEquivalenceClasses());
         for (Dataset dataset : datasets) {
             RDFDataMgr.parse(stream, dataset.getCanonicalPath(), dataset.getSyntax());
         }
+        stream.X();
         return null;
     }
 
@@ -86,67 +86,34 @@ public class DataFusion {
      *
      * @author Anderson Carlos Ferreira da Silva
      */
-    private class SinkTripleEquivalent extends DisjointSet<Node> implements Sink<Triple> {
+    private class DataQualityEvaluation extends StreamRDFBase {
 
-        @Override
-        public void send(Triple triple) {
-            union(triple.getSubject(), triple.getObject());
-        }
+        private final DisjointSet<Node> equivalenceClasses;
+        private final Map<Node, Collection> nodes = new HashMap();
+        private final Map<Node, Map<Node, DataQualityAssessment>> assessments = new HashMap();
 
-        @Override
-        public void flush() {
-        }
-
-        @Override
-        public void close() {
-        }
-
-    }
-
-    /**
-     *
-     * @author Anderson Carlos Ferreira da Silva
-     */
-    private class SinkTripleQualityAssessment implements Sink<Triple> {
-
-        private final DisjointSet equivalenceClasses;
-        private final Map<Node, Map<Node, DataQualityAssessment>> assessments;
-
-        private SinkTripleQualityAssessment(DisjointSet equivalenceClasses) {
+        public DataQualityEvaluation(DisjointSet equivalenceClasses) {
             this.equivalenceClasses = equivalenceClasses;
-            this.assessments = (Map) equivalenceClasses.values().parallelStream().collect(Collectors.toMap(v -> v, v -> new HashMap<>()));
         }
 
-        @Override
-        public void send(Triple triple) {
-            System.out.println(triple.getPredicate());
-        }
+        /**
+         *
+         * @param subject
+         * @param predicate
+         * @param object
+         */
+        public void calculateScore(Node subject, Node predicate, Node object) {
 
-        @Override
-        public void flush() {
-        }
+            nodes.putIfAbsent(object, new ArrayList());
+            nodes.get(object).add(subject);
 
-        @Override
-        public void close() {
-        }
+            assessments.putIfAbsent(object, new HashMap<>());
+            assessments.get(object).putIfAbsent(predicate, new DataQualityAssessment());
 
-    }
+            DataQualityAssessment assessment = assessments.get(object).get(predicate);
 
-    /**
-     *
-     * @author Anderson Carlos Ferreira da Silva
-     */
-    private class EquivalencePropertyFilterSinkRDF extends StreamRDFBase {
+            assessment.setOccurrenceFrequency(assessment.getOccurrenceFrequency() + 1);
 
-        private final Collection<Node> properties;
-        private final Sink<Triple> sink;
-
-        private EquivalencePropertyFilterSinkRDF(Sink<Triple> sink, Collection<Property> properties) {
-            if (properties == null) {
-                throw new NullPointerException("Equivalence properties cannot be null");
-            }
-            this.sink = sink;
-            this.properties = properties.stream().map(RDFNode::asNode).collect(Collectors.toList());
         }
 
         /**
@@ -155,17 +122,34 @@ public class DataFusion {
          */
         @Override
         public void triple(Triple triple) {
-            if (properties.contains(triple.getPredicate())) {
-                sink.send(triple);
-            }
+            calculateScore(triple.getSubject(), triple.getPredicate(), triple.getObject());
         }
 
         /**
          *
-         * @see StreamRDFBase#finish()
+         * @see StreamRDFBase#quad(org.apache.jena.sparql.core.Quad)
          */
         @Override
-        public void finish() {
+        public void quad(Quad quad) {
+            calculateScore(quad.getSubject(), quad.getPredicate(), quad.getObject());
+        }
+
+        /**
+         *
+         * @return
+         */
+        public void X() {
+            for (Map.Entry<Node, Map<Node, DataQualityAssessment>> values : assessments.entrySet()) {
+                System.out.println("{");
+                System.out.println(" " + values.getKey() + " : { ");
+                for (Map.Entry<Node, DataQualityAssessment> assessment : values.getValue().entrySet()) {
+                    System.out.println("  " + assessment.getKey() + " : { ");
+                    System.out.println("   frequency : " + assessment.getValue().getOccurrenceFrequency());
+                    System.out.println("  }");
+                }
+                System.out.println(" }");
+                System.out.println("}");
+            }
         }
 
     }
@@ -174,26 +158,68 @@ public class DataFusion {
      *
      * @author Anderson Carlos Ferreira da Silva
      */
-    private class NodeFilterSinkRDF extends StreamRDFBase {
+    private class EquivalenceClasses extends DisjointSet<Node> implements StreamRDF {
 
-        private final Sink<Triple> sink;
+        private Collection<Node> equivalenceProperties;
 
-        private NodeFilterSinkRDF(Sink<Triple> sink) {
-            this.sink = sink;
+        /**
+         *
+         * @param subject
+         * @param predicate
+         * @param object
+         * @see DisjointSet#union(java.lang.Object, java.lang.Object)
+         */
+        public void union(Node subject, Node predicate, Node object) {
+            if (equivalenceProperties.contains(predicate)) {
+                super.union(subject, object);
+            }
         }
 
         /**
          *
-         * @see StreamRDFBase#triple(org.apache.jena.graph.Triple)
+         * @see StreamRDF#start()
+         */
+        @Override
+        public void start() {
+        }
+
+        /**
+         *
+         * @see StreamRDF#triple(org.apache.jena.graph.Triple)
          */
         @Override
         public void triple(Triple triple) {
-            sink.send(triple);
+            union(triple.getSubject(), triple.getPredicate(), triple.getObject());
         }
 
         /**
          *
-         * @see StreamRDFBase#finish()
+         * @see StreamRDF#quad(org.apache.jena.sparql.core.Quad)
+         */
+        @Override
+        public void quad(Quad quad) {
+            union(quad.getSubject(), quad.getPredicate(), quad.getObject());
+        }
+
+        /**
+         *
+         * @see StreamRDF#base(java.lang.String)
+         */
+        @Override
+        public void base(String base) {
+        }
+
+        /**
+         *
+         * @see StreamRDF#prefix(java.lang.String, java.lang.String)
+         */
+        @Override
+        public void prefix(String prefix, String iri) {
+        }
+
+        /**
+         *
+         * @see StreamRDF#finish()
          */
         @Override
         public void finish() {

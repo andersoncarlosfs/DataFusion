@@ -6,7 +6,6 @@
 package com.andersoncarlosfs.data.model;
 
 import java.io.Serializable;
-import javax.validation.constraints.Size;
 
 /**
  *
@@ -15,14 +14,10 @@ import javax.validation.constraints.Size;
 public class DataQualityAssessment implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @Size(min = 0)
-    private Integer occurrenceFrequency;
-    @Size(min = 0, max = 1)
-    private Float homogeneity;
-    @Size(min = 0, max = 1)
-    private Float reliability;
-    @Size(min = 0, max = 1)
-    private Float freshness;
+    private int occurrenceFrequency;
+    private float homogeneity;    
+    private float reliability;    
+    private int freshness;
 
     public DataQualityAssessment() {
     }
@@ -31,7 +26,7 @@ public class DataQualityAssessment implements Serializable {
      *
      * @return the occurrenceFrequency
      */
-    public Integer getOccurrenceFrequency() {
+    public int getOccurrenceFrequency() {
         return occurrenceFrequency;
     }
 
@@ -39,7 +34,7 @@ public class DataQualityAssessment implements Serializable {
      *
      * @param occurrenceFrequency the occurrenceFrequency to set
      */
-    public void setOccurrenceFrequency(Integer occurrenceFrequency) {
+    public void setOccurrenceFrequency(int occurrenceFrequency) {
         this.occurrenceFrequency = occurrenceFrequency;
     }
 
@@ -47,7 +42,7 @@ public class DataQualityAssessment implements Serializable {
      *
      * @return the homogeneity
      */
-    public Float getHomogeneity() {
+    public float getHomogeneity() {
         return homogeneity;
     }
 
@@ -55,7 +50,7 @@ public class DataQualityAssessment implements Serializable {
      *
      * @param homogeneity the homogeneity to set
      */
-    public void setHomogeneity(Float homogeneity) {
+    public void setHomogeneity(float homogeneity) {
         this.homogeneity = homogeneity;
     }
 
@@ -63,7 +58,7 @@ public class DataQualityAssessment implements Serializable {
      *
      * @return the reliability
      */
-    public Float getReliability() {
+    public float getReliability() {
         return reliability;
     }
 
@@ -71,7 +66,7 @@ public class DataQualityAssessment implements Serializable {
      *
      * @param reliability the reliability to set
      */
-    public void setReliability(Float reliability) {
+    public void setReliability(float reliability) {
         this.reliability = reliability;
     }
 
@@ -79,7 +74,7 @@ public class DataQualityAssessment implements Serializable {
      *
      * @return the freshness
      */
-    public Float getFreshness() {
+    public float getFreshness() {
         return freshness;
     }
 
@@ -87,7 +82,7 @@ public class DataQualityAssessment implements Serializable {
      *
      * @param freshness the freshness to set
      */
-    public void setFreshness(Float freshness) {
+    public void setFreshness(float freshness) {
         this.freshness = freshness;
     }
 
