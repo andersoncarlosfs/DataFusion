@@ -13,7 +13,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
@@ -40,10 +42,10 @@ public class DataFusion {
      *
      */
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
-
+    
     private final Collection<Dataset> datasets = new ArrayList<>();
     private final Collection<LinkedDataset> links = new ArrayList<>();
-
+    
     public DataFusion(Collection<Dataset> datasets) throws IOException {
         for (Dataset dataset : datasets) {
             if (dataset instanceof LinkedDataset) {
@@ -86,80 +88,8 @@ public class DataFusion {
      *
      * @author Anderson Carlos Ferreira da Silva
      */
-    private class DataQualityEvaluation extends StreamRDFBase {
-
-        private final DisjointSet<Node> equivalenceClasses;
-        private final Map<Node, Collection> nodes = new HashMap();
-        private final Map<Node, Map<Node, DataQualityAssessment>> assessments = new HashMap();
-
-        public DataQualityEvaluation(DisjointSet equivalenceClasses) {
-            this.equivalenceClasses = equivalenceClasses;
-        }
-
-        /**
-         *
-         * @param subject
-         * @param predicate
-         * @param object
-         */
-        public void calculateScore(Node subject, Node predicate, Node object) {
-
-            nodes.putIfAbsent(object, new ArrayList());
-            nodes.get(object).add(subject);
-
-            assessments.putIfAbsent(object, new HashMap<>());
-            assessments.get(object).putIfAbsent(predicate, new DataQualityAssessment());
-
-            DataQualityAssessment assessment = assessments.get(object).get(predicate);
-
-            assessment.setOccurrenceFrequency(assessment.getOccurrenceFrequency() + 1);
-
-        }
-
-        /**
-         *
-         * @see StreamRDFBase#triple(org.apache.jena.graph.Triple)
-         */
-        @Override
-        public void triple(Triple triple) {
-            calculateScore(triple.getSubject(), triple.getPredicate(), triple.getObject());
-        }
-
-        /**
-         *
-         * @see StreamRDFBase#quad(org.apache.jena.sparql.core.Quad)
-         */
-        @Override
-        public void quad(Quad quad) {
-            calculateScore(quad.getSubject(), quad.getPredicate(), quad.getObject());
-        }
-
-        /**
-         *
-         * @return
-         */
-        public void X() {
-            for (Map.Entry<Node, Map<Node, DataQualityAssessment>> values : assessments.entrySet()) {
-                System.out.println("{");
-                System.out.println(" " + values.getKey() + " : { ");
-                for (Map.Entry<Node, DataQualityAssessment> assessment : values.getValue().entrySet()) {
-                    System.out.println("  " + assessment.getKey() + " : { ");
-                    System.out.println("   frequency : " + assessment.getValue().getOccurrenceFrequency());
-                    System.out.println("  }");
-                }
-                System.out.println(" }");
-                System.out.println("}");
-            }
-        }
-
-    }
-
-    /**
-     *
-     * @author Anderson Carlos Ferreira da Silva
-     */
     private class EquivalenceClasses extends DisjointSet<Node> implements StreamRDF {
-
+        
         private Collection<Node> equivalenceProperties;
 
         /**
@@ -224,7 +154,123 @@ public class DataFusion {
         @Override
         public void finish() {
         }
-
+        
     }
 
+    /**
+     *
+     * @author Anderson Carlos Ferreira da Silva
+     */
+    private class DataQualityEvaluation extends StreamRDFBase {
+        
+        private final Collection<Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>>> computedStatements;
+        private final Map<Node, Map<Node, Map<Node, DataQualityAssessment>>> statements;
+        private final Map<Node, DataQualityAssessment> assessments;
+        
+        public DataQualityEvaluation(DisjointSet<Node> equivalenceClasses) {
+            computedStatements = new ArrayList();
+            for (Collection equivalenceClasse : equivalenceClasses.disjointValues()) {
+                Map assessment = new HashMap();
+                assessment.put(equivalenceClasse, null);
+                computedStatements.add(assessment);
+            }
+            statements = new HashMap();
+            assessments = new HashMap();
+        }
+
+        /**
+         *
+         * @param subject
+         * @param predicate
+         * @param object
+         */
+        private void parse(Node subject, Node predicate, Node object) {
+            //
+            assessments.putIfAbsent(object, new DataQualityAssessment(0, 1));
+            //
+            DataQualityAssessment assessment = assessments.get(object);
+            assessment.setFrequency(assessment.getFrequency() + 1);
+            //
+            statements.putIfAbsent(subject, new HashMap<>());
+            //
+            Map<Node, Map<Node, DataQualityAssessment>> properties = statements.get(subject);
+            properties.putIfAbsent(predicate, new HashMap<>());
+            //
+            Map<Node, DataQualityAssessment> objects = properties.get(predicate);
+            objects.put(object, assessment);
+            //  
+        }
+
+        /**
+         *
+         * @see StreamRDFBase#triple(org.apache.jena.graph.Triple)
+         */
+        @Override
+        public void triple(Triple triple) {
+            parse(triple.getSubject(), triple.getPredicate(), triple.getObject());
+        }
+
+        /**
+         *
+         * @see StreamRDFBase#quad(org.apache.jena.sparql.core.Quad)
+         */
+        @Override
+        public void quad(Quad quad) {
+            parse(quad.getSubject(), quad.getPredicate(), quad.getObject());
+        }
+
+        /**
+         *
+         * @return
+         */
+        public void X() {
+            for (Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> statements : computedStatements) {
+                for (Collection<Node> equivalenceClasse : statements.keySet()) {
+                    for (Node node : equivalenceClasse) {
+                        Map<Node, Map<Node, DataQualityAssessment>> properties = this.statements.get(node);
+                        if (properties == null) {
+                            continue;
+                        }
+                        if (statements.putIfAbsent(equivalenceClasse, properties) != null) {
+                            Map<Node, Map<Node, DataQualityAssessment>> computedProperties = statements.get(equivalenceClasse);
+                            for (Map.Entry<Node, Map<Node, DataQualityAssessment>> entryProperty : properties.entrySet()) {
+                                Node property = entryProperty.getKey();
+                                Map<Node, DataQualityAssessment> objects = entryProperty.getValue();
+                                if (computedProperties.putIfAbsent(property, objects) != null) {
+                                    System.out.println("com.andersoncarlosfs.data.integration.DataFusion.DataQualityEvaluation.X()");
+                                    Map<Node, DataQualityAssessment> computedObjects = computedProperties.get(property);
+                                    for (Map.Entry<Node, DataQualityAssessment> entryObject : objects.entrySet()) {
+                                        Node object = entryObject.getKey();
+                                        DataQualityAssessment assessment = entryObject.getValue();
+                                        if (computedObjects.putIfAbsent(object, assessment) != null) {
+                                            assessment = computedObjects.get(object);
+                                            assessment.setHomogeneity(assessment.getHomogeneity() + 1);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            for (Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> statements : computedStatements) {
+                for (Map.Entry<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> computedStatement : statements.entrySet()) {
+                    Collection<Node> equivalenceClasse = computedStatement.getKey();
+                    Map<Node, Map<Node, DataQualityAssessment>> computedProperties = computedStatement.getValue();
+                    System.out.println(equivalenceClasse.toString());
+                    for (Map.Entry<Node, Map<Node, DataQualityAssessment>> entry : computedProperties.entrySet()) {
+                        Node key = entry.getKey();
+                        Map<Node, DataQualityAssessment> value = entry.getValue();
+                        for (Map.Entry<Node, DataQualityAssessment> entry1 : value.entrySet()) {
+                            Node key1 = entry1.getKey();
+                            DataQualityAssessment value1 = entry1.getValue();
+                            System.out.println("    " + key + " " + key1 + "    " + value1.getFrequency() + "   " + value1.getHomogeneity());
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
+    
 }
