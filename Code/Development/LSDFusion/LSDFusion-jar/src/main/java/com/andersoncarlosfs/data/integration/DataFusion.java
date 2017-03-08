@@ -13,9 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
@@ -32,7 +30,7 @@ import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.SKOS;
 
 /**
- *
+ * http://algs4.cs.princeton.edu/42digraph/
  * @author Anderson Carlos Ferreira da Silva
  */
 @RequestScoped
