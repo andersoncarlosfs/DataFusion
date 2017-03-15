@@ -7,8 +7,10 @@ package com.andersoncarlosfs.data.model;
  */
 import java.io.File;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.UUID;
 import javax.enterprise.context.RequestScoped;
+import org.apache.jena.rdf.model.Property;
 import org.apache.jena.riot.Lang;
 
 /**
@@ -22,6 +24,7 @@ public class Dataset extends File {
     private final UUID uuid = UUID.randomUUID();
     private Lang syntax = Lang.RDFNULL;
     private Calendar freshness;
+    private Collection<Property> equivalenceProperties;
 
     public Dataset(String path) {
         super(path);
@@ -65,6 +68,22 @@ public class Dataset extends File {
      */
     public void setFreshness(Calendar freshness) {
         this.freshness = freshness;
+    }
+
+    /**
+     *
+     * @return the equivalenceProperties
+     */
+    public Collection<Property> getEquivalenceProperties() {
+        return equivalenceProperties;
+    }
+
+    /**
+     *
+     * @param equivalenceProperties the equivalenceProperties to set
+     */
+    public void setEquivalenceProperties(Collection<Property> equivalenceProperties) {
+        this.equivalenceProperties = equivalenceProperties;
     }
 
 }

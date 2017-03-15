@@ -6,6 +6,7 @@
 package com.andersoncarlosfs.data.model;
 
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.validation.constraints.Size;
 
 /**
@@ -16,20 +17,20 @@ public class DataQualityAssessment implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Size(min = 1)
-    private Integer frequency;
+    private AtomicInteger frequency;
     @Size(min = 1)
-    private Integer homogeneity;
+    private AtomicInteger homogeneity;
     @Size(min = 0, max = 1)
     private Float reliability;
     @Size(min = 0, max = 1)
     private Float freshness;
 
     public DataQualityAssessment() {
-        this.frequency = 0;
-        this.homogeneity = 0;
+        this.frequency = new AtomicInteger(0);
+        this.homogeneity = new AtomicInteger(0);
     }
 
-    public DataQualityAssessment(Integer frequency, Integer homogeneity) {
+    public DataQualityAssessment(AtomicInteger frequency, AtomicInteger homogeneity) {
         this.frequency = frequency;
         this.homogeneity = homogeneity;
     }
@@ -38,7 +39,7 @@ public class DataQualityAssessment implements Serializable {
      *
      * @return the frequency
      */
-    public Integer getFrequency() {
+    public AtomicInteger getFrequency() {
         return frequency;
     }
 
@@ -46,7 +47,7 @@ public class DataQualityAssessment implements Serializable {
      *
      * @param frequency the frequency to set
      */
-    public void setFrequency(Integer frequency) {
+    public void setFrequency(AtomicInteger frequency) {
         this.frequency = frequency;
     }
 
@@ -54,7 +55,7 @@ public class DataQualityAssessment implements Serializable {
      *
      * @return the homogeneity
      */
-    public Integer getHomogeneity() {
+    public AtomicInteger getHomogeneity() {
         return homogeneity;
     }
 
@@ -62,7 +63,7 @@ public class DataQualityAssessment implements Serializable {
      *
      * @param homogeneity the homogeneity to set
      */
-    public void setHomogeneity(Integer homogeneity) {
+    public void setHomogeneity(AtomicInteger homogeneity) {
         this.homogeneity = homogeneity;
     }
 
