@@ -7,8 +7,10 @@ package com.andersoncarlosfs.data.controller.services;
 
 import com.andersoncarlosfs.data.model.Dataset;
 import com.andersoncarlosfs.data.integration.DataFusion;
+import com.andersoncarlosfs.data.model.DataQualityAssessment;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 import javax.enterprise.context.RequestScoped;
 import org.apache.jena.graph.Node;
 
@@ -29,8 +31,14 @@ public class DataFusionService {
         return new DataFusion(datasets).findEquivalenceClasses();
     }
 
-    public void X(Collection<Dataset> datasets) throws IOException {
-        new DataFusion(datasets).calculateScore();
+    /**
+     *
+     * @param datasets
+     * @return
+     * @throws IOException
+     */
+    public Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> getDataQualityAssessment(Collection<Dataset> datasets) throws IOException {
+        return new DataFusion(datasets).getDataQualityAssessment();
     }
 
 }

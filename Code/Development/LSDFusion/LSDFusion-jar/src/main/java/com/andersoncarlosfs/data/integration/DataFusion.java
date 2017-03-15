@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
-import org.apache.jena.atlas.lib.Sink;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Property;
@@ -68,14 +67,13 @@ public class DataFusion {
      * @return the data fusion assessment
      * @throws java.io.IOException
      */
-    public Sink calculateScore() throws IOException {
+    public Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> getDataQualityAssessment() throws IOException {
         DataQualityEvaluation stream = new DataQualityEvaluation();
         for (Dataset dataset : datasets) {
             stream.setEquivalenceProperties(dataset.getEquivalenceProperties());
             RDFDataMgr.parse(stream, dataset.getCanonicalPath(), dataset.getSyntax());
         }
-        stream.X();
-        return null;
+        return stream.calculateDataQualityAssessment();
     }
 
     /**
@@ -160,7 +158,7 @@ public class DataFusion {
          *
          * @return
          */
-        public void X() {
+        public Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> calculateDataQualityAssessment() {
 
             //
             Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> computedStatements = new HashMap<>();
@@ -198,21 +196,8 @@ public class DataFusion {
                 }
             }
 
-            //
-            for (Map.Entry<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> computedStatement : computedStatements.entrySet()) {
-                Collection<Node> equivalenceClasse = computedStatement.getKey();
-                Map<Node, Map<Node, DataQualityAssessment>> computedProperties = computedStatement.getValue();
-                System.out.println(equivalenceClasse.toString());
-                for (Map.Entry<Node, Map<Node, DataQualityAssessment>> entry : computedProperties.entrySet()) {
-                    Node key = entry.getKey();
-                    Map<Node, DataQualityAssessment> value = entry.getValue();
-                    for (Map.Entry<Node, DataQualityAssessment> entry1 : value.entrySet()) {
-                        Node key1 = entry1.getKey();
-                        DataQualityAssessment value1 = entry1.getValue();
-                        System.out.println("    " + key + " " + key1 + "    " + value1.getFrequency() + "   " + value1.getHomogeneity());
-                    }
-                }
-            }
+            return computedStatements;
+
         }
 
     }
