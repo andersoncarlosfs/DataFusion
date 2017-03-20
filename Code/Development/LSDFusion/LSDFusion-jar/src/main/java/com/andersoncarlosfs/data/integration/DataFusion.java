@@ -50,20 +50,6 @@ public class DataFusion {
 
     /**
      *
-     * @return the equivalence classes
-     * @throws java.io.IOException
-     */
-    public Collection<Collection<Node>> findEquivalenceClasses() throws IOException {
-        DataQualityEvaluation stream = new DataQualityEvaluation();
-        for (Dataset dataset : datasets) {
-            stream.setEquivalenceProperties(dataset.getEquivalenceProperties());
-            RDFDataMgr.parse(stream, dataset.getCanonicalPath(), dataset.getSyntax());
-        }
-        return stream.equivalenceClasses.disjointValues();
-    }
-
-    /**
-     *
      * @return the data fusion assessment
      * @throws java.io.IOException
      */
@@ -118,14 +104,14 @@ public class DataFusion {
 
             // Map statements
             statements.putIfAbsent(subject, new HashMap<>());
-            //
+            // 
             Map<Node, Set<Node>> properties = statements.get(subject);
             properties.putIfAbsent(predicate, new HashSet<>());
             //
             Set<Node> objects = properties.get(predicate);
             objects.add(object);
 
-            // Calculate frequencies
+            // Compute frequencies
             frequencies.putIfAbsent(object, new AtomicInteger(0));
             frequencies.get(object).incrementAndGet();
 
@@ -160,35 +146,35 @@ public class DataFusion {
          */
         public Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> calculateDataQualityAssessment() {
 
-            //
+            // 
             Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> computedStatements = new HashMap<>();
 
-            //
-            for (Collection<Node> equivalenceClasse : equivalenceClasses.disjointValues()) {
-                //        
-                computedStatements.putIfAbsent(equivalenceClasse, new HashMap<>());
-                //
-                Map<Node, Map<Node, DataQualityAssessment>> computedProperties = computedStatements.get(equivalenceClasse);
-                //
-                for (Node node : equivalenceClasse) {
-                    //
-                    for (Map.Entry<Node, Set<Node>> propertyEntry : statements.get(node).entrySet()) {
+            // Loop equivalence classes
+            for (Collection<Node> equivalenceClass : equivalenceClasses.disjointValues()) {
+                // Map equivalence classes of statements      
+                computedStatements.putIfAbsent(equivalenceClass, new HashMap<>());
+                // Get properties of equivalence class
+                Map<Node, Map<Node, DataQualityAssessment>> computedProperties = computedStatements.get(equivalenceClass);
+                // Loop subjects of an equivalence class
+                for (Node subject : equivalenceClass) {
+                    // Loop properties of a subject
+                    for (Map.Entry<Node, Set<Node>> propertyEntry : statements.get(subject).entrySet()) {
                         //
                         Node property = propertyEntry.getKey();
                         Set<Node> objects = propertyEntry.getValue();
-                        //        
+                        // Map properties of equivalence class  
                         computedProperties.putIfAbsent(property, new HashMap<>());
-                        //
+                        // Get objects of equivalence class
                         Map<Node, DataQualityAssessment> computedObjects = computedProperties.get(property);
-                        //
+                        // Loop objects of a property
                         for (Node object : objects) {
-                            //
+                            // Compute frequency
                             DataQualityAssessment assessment = new DataQualityAssessment();
                             assessment.setFrequency(frequencies.get(object));
                             assessment.setHomogeneity(new AtomicInteger(0));
-                            //
+                            // Map objects
                             computedObjects.putIfAbsent(object, assessment);
-                            //                            
+                            // Compute homogeneity                            
                             assessment = computedObjects.get(object);
                             assessment.getHomogeneity().incrementAndGet();
                         }

@@ -74,7 +74,6 @@ public class DataFusionServiceTest {
         link.setEquivalenceProperties(DataFusion.EQUIVALENCE_PROPERTIES);
         DataFusionService service = new DataFusionService();
         Collection<Collection<Node>> equivalenceClasses = service.findEquivalenceClasses(Arrays.asList(dataset, link));
-        /*
         for (Collection<Node> classe : equivalenceClasses) {
             System.out.println("{");
             for (Node node : classe) {
@@ -82,7 +81,6 @@ public class DataFusionServiceTest {
             }
             System.out.println("}");
         }
-         */
         System.out.println("Total of equivalence classes: " + equivalenceClasses.size());
         System.out.println("end test getEquivalentClasses");
     }
@@ -112,21 +110,21 @@ public class DataFusionServiceTest {
         //link.setSyntax(Lang.TTL);  
         link.setEquivalenceProperties(DataFusion.EQUIVALENCE_PROPERTIES);
         DataFusionService service = new DataFusionService();
-        service.getDataQualityAssessment(Arrays.asList(dataset, link));
+        Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> computedStatements = service.getDataQualityAssessment(Arrays.asList(dataset, link));
         for (Map.Entry<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> computedStatement : computedStatements.entrySet()) {
-                Collection<Node> equivalenceClasse = computedStatement.getKey();
-                Map<Node, Map<Node, DataQualityAssessment>> computedProperties = computedStatement.getValue();
-                System.out.println(equivalenceClasse.toString());
-                for (Map.Entry<Node, Map<Node, DataQualityAssessment>> entry : computedProperties.entrySet()) {
-                    Node key = entry.getKey();
-                    Map<Node, DataQualityAssessment> value = entry.getValue();
-                    for (Map.Entry<Node, DataQualityAssessment> entry1 : value.entrySet()) {
-                        Node key1 = entry1.getKey();
-                        DataQualityAssessment value1 = entry1.getValue();
-                        System.out.println("    " + key + " " + key1 + "    " + value1.getFrequency() + "   " + value1.getHomogeneity());
-                    }
+            Collection<Node> equivalenceClasse = computedStatement.getKey();
+            Map<Node, Map<Node, DataQualityAssessment>> computedProperties = computedStatement.getValue();
+            System.out.println(equivalenceClasse.toString());
+            for (Map.Entry<Node, Map<Node, DataQualityAssessment>> entry : computedProperties.entrySet()) {
+                Node key = entry.getKey();
+                Map<Node, DataQualityAssessment> value = entry.getValue();
+                for (Map.Entry<Node, DataQualityAssessment> entry1 : value.entrySet()) {
+                    Node key1 = entry1.getKey();
+                    DataQualityAssessment value1 = entry1.getValue();
+                    System.out.println("    " + key + " " + key1 + "    " + value1.getFrequency() + "   " + value1.getHomogeneity());
                 }
             }
+        }
         System.out.println("end test getX");
     }
 
