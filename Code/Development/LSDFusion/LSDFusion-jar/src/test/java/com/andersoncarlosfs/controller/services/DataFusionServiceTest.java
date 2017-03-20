@@ -8,7 +8,7 @@ package com.andersoncarlosfs.controller.services;
 import com.andersoncarlosfs.data.controller.services.DataFusionService;
 import com.andersoncarlosfs.data.integration.DataFusion;
 import com.andersoncarlosfs.data.model.DataQualityAssessment;
-import com.andersoncarlosfs.data.model.Dataset;
+import com.andersoncarlosfs.data.model.DataSource;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,23 +57,23 @@ public class DataFusionServiceTest {
         System.out.println("begin test getEquivalentClasses");
         //https://www.w3.org/wiki/DataSetRDFDumps
         //http://data.bnf.fr/semanticweb        
-        //DataSource dataset = new DataSource("../../../../Datasets/BNF/dataset.tar.gz");
-        //Dataset dataset = new Dataset("../../../../Datasets/INA/dataset.ttl");
-        //dataset.setSyntax(Lang.TTL);
-        Dataset dataset = new Dataset("../../../../Datasets/Test/dataset.n3");
-        dataset.setSyntax(Lang.N3);
-        dataset.setEquivalenceProperties(Collections.EMPTY_LIST);
-        //DataSource link = new Dataset("../../../../Datasets/BNF/links.nt");
+        //DataSource dataSource = new DataSource("../../../../Datasets/BNF/dataset.tar.gz");
+        //Dataset dataSource = new DataSource("../../../../Datasets/INA/dataset.ttl");
+        //dataSource.setSyntax(Lang.TTL);
+        DataSource dataSource = new DataSource("../../../../Datasets/Test/dataset.n3");
+        dataSource.setSyntax(Lang.N3);
+        dataSource.setEquivalenceProperties(Collections.EMPTY_LIST);
+        //DataSource link = new DataSource("../../../../Datasets/BNF/links.nt");
         //link.setSyntax(Lang.N3);
-        //Dataset link = new Dataset("../../../../Datasets/INA/links.n3");
+        //Dataset link = new DataSource("../../../../Datasets/INA/links.n3");
         //link.setSyntax(Lang.N3);
-        Dataset link = new Dataset("../../../../Datasets/Test/links.n3");
+        DataSource link = new DataSource("../../../../Datasets/Test/links.n3");
         link.setSyntax(Lang.N3);
-        //DataSource link = new Dataset("../../../../Datasets/DBpedia/links/links.ttl");
+        //DataSource link = new DataSource("../../../../Datasets/DBpedia/links/links.ttl");
         //link.setSyntax(Lang.TTL);  
         link.setEquivalenceProperties(DataFusion.EQUIVALENCE_PROPERTIES);
         DataFusionService service = new DataFusionService();
-        Collection<Collection<Node>> equivalenceClasses = service.findEquivalenceClasses(Arrays.asList(dataset, link));
+        Collection<Collection<Node>> equivalenceClasses = service.findEquivalenceClasses(Arrays.asList(dataSource, link));
         for (Collection<Node> classe : equivalenceClasses) {
             System.out.println("{");
             for (Node node : classe) {
@@ -95,22 +95,22 @@ public class DataFusionServiceTest {
         System.out.println("begin test getX");
         //https://www.w3.org/wiki/DataSetRDFDumps
         //http://data.bnf.fr/semanticweb        
-        //DataSource dataset = new DataSource("../../../../Datasets/BNF/dataset.tar.gz");
-        //Dataset dataset = new Dataset("../../../../Datasets/INA/dataset.ttl");
-        //dataset.setSyntax(Lang.TTL);
-        Dataset dataset = new Dataset("../../../../Datasets/Test/dataset.n3");
-        dataset.setSyntax(Lang.N3);
-        //DataSource link = new Dataset("../../../../Datasets/BNF/links.nt");
+        //DataSource dataSource = new DataSource("../../../../Datasets/BNF/dataset.tar.gz");
+        //Dataset dataSource = new DataSource("../../../../Datasets/INA/dataset.ttl");
+        //dataSource.setSyntax(Lang.TTL);
+        DataSource dataSource = new DataSource("../../../../Datasets/Test/dataset.n3");
+        dataSource.setSyntax(Lang.N3);
+        //DataSource link = new DataSource("../../../../Datasets/BNF/links.nt");
         //link.setSyntax(Lang.N3);
-        //Dataset link = new Dataset("../../../../Datasets/INA/links.n3");
+        //Dataset link = new DataSource("../../../../Datasets/INA/links.n3");
         //link.setSyntax(Lang.N3);
-        Dataset link = new Dataset("../../../../Datasets/Test/links.n3");
+        DataSource link = new DataSource("../../../../Datasets/Test/links.n3");
         link.setSyntax(Lang.N3);
-        //DataSource link = new Dataset("../../../../Datasets/DBpedia/links/links.ttl");
+        //DataSource link = new DataSource("../../../../Datasets/DBpedia/links/links.ttl");
         //link.setSyntax(Lang.TTL);  
         link.setEquivalenceProperties(DataFusion.EQUIVALENCE_PROPERTIES);
         DataFusionService service = new DataFusionService();
-        Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> computedStatements = service.getDataQualityAssessment(Arrays.asList(dataset, link));
+        Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> computedStatements = service.getDataQualityAssessment(Arrays.asList(dataSource, link));
         for (Map.Entry<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> computedStatement : computedStatements.entrySet()) {
             Collection<Node> equivalenceClasse = computedStatement.getKey();
             Map<Node, Map<Node, DataQualityAssessment>> computedProperties = computedStatement.getValue();

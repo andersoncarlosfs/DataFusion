@@ -18,7 +18,7 @@ import org.apache.jena.riot.Lang;
  * @author Anderson Carlos Ferreira da Silva
  */
 @RequestScoped
-public class Dataset extends File {
+public class DataSource extends File {
 
     private static final long serialVersionUID = 1L;
     private final UUID uuid = UUID.randomUUID();
@@ -26,7 +26,7 @@ public class Dataset extends File {
     private Calendar freshness;
     private Collection<Property> equivalenceProperties;
 
-    public Dataset(String path) {
+    public DataSource(String path) {
         super(path);
     }
 

@@ -6,7 +6,7 @@
 package com.andersoncarlosfs.data.integration;
 
 import com.andersoncarlosfs.data.model.DataQualityAssessment;
-import com.andersoncarlosfs.data.model.Dataset;
+import com.andersoncarlosfs.data.model.DataSource;
 import com.andersoncarlosfs.util.DisjointSet;
 import java.io.IOException;
 import java.util.Arrays;
@@ -42,10 +42,10 @@ public class DataFusion {
      */
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
 
-    private final Collection<Dataset> datasets;
+    private final Collection<DataSource> dataSources;
 
-    public DataFusion(Collection<Dataset> datasets) throws IOException {
-        this.datasets = datasets;
+    public DataFusion(Collection<DataSource> dataSources) throws IOException {
+        this.dataSources = dataSources;
     }
 
     /**
@@ -55,9 +55,9 @@ public class DataFusion {
      */
     public Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> getDataQualityAssessment() throws IOException {
         DataQualityEvaluation stream = new DataQualityEvaluation();
-        for (Dataset dataset : datasets) {
-            stream.setEquivalenceProperties(dataset.getEquivalenceProperties());
-            RDFDataMgr.parse(stream, dataset.getCanonicalPath(), dataset.getSyntax());
+        for (DataSource dataSource : dataSources) {
+            stream.setEquivalenceProperties(dataSource.getEquivalenceProperties());
+            RDFDataMgr.parse(stream, dataSource.getCanonicalPath(), dataSource.getSyntax());
         }
         return stream.calculateDataQualityAssessment();
     }
