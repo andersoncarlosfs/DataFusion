@@ -5,9 +5,13 @@ package com.andersoncarlosfs.data.model;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+import com.andersoncarlosfs.data.integration.DataFusion;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import javax.enterprise.context.RequestScoped;
 import org.apache.jena.rdf.model.Property;
@@ -23,8 +27,9 @@ public class DataSource extends File {
     private static final long serialVersionUID = 1L;
     private final UUID uuid = UUID.randomUUID();
     private Lang syntax = Lang.RDFNULL;
-    private Calendar freshness;
-    private Collection<Property> equivalenceProperties;
+    private Calendar freshness = null;
+    private Collection<Property> equivalenceProperties = new ArrayList<>();
+    private Map<Property, DataFusion.ComparatorRules> comparatorRules = new HashMap<>();
 
     public DataSource(String path) {
         super(path);
@@ -84,6 +89,22 @@ public class DataSource extends File {
      */
     public void setEquivalenceProperties(Collection<Property> equivalenceProperties) {
         this.equivalenceProperties = equivalenceProperties;
+    }
+
+    /**
+     *
+     * @return the comparatorRules
+     */
+    public Map<Property, DataFusion.ComparatorRules> getComparatorRules() {
+        return comparatorRules;
+    }
+
+    /**
+     *
+     * @param comparatorRules the comparatorRules to set
+     */
+    public void setComparatorRules(Map<Property, DataFusion.ComparatorRules> comparatorRules) {
+        this.comparatorRules = comparatorRules;
     }
 
 }

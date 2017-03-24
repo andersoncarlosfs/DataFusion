@@ -42,6 +42,17 @@ public class DataFusion {
      */
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
 
+    /**
+     *
+     */
+    public static enum ComparatorRules {
+
+        NUMBER_MAX,
+        NUMBER_MIN,
+        TEXT_CONTAINS;
+
+    }
+
     private final Collection<DataSource> dataSources;
 
     public DataFusion(Collection<DataSource> dataSources) throws IOException {
@@ -56,7 +67,7 @@ public class DataFusion {
     public Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> getDataQualityAssessment() throws IOException {
         DataQualityEvaluation stream = new DataQualityEvaluation();
         for (DataSource dataSource : dataSources) {
-            stream.setEquivalenceProperties(dataSource.getEquivalenceProperties());
+            stream.setParameters(dataSource);
             RDFDataMgr.parse(stream, dataSource.getCanonicalPath(), dataSource.getSyntax());
         }
         return stream.calculateDataQualityAssessment();
@@ -72,6 +83,7 @@ public class DataFusion {
         private Map<Node, AtomicInteger> frequencies;
         private DisjointSet<Node> equivalenceClasses;
         private Collection<Node> equivalenceProperties;
+        private Map<Node, ComparatorRules> comparatorRules;
 
         public DataQualityEvaluation() {
             //
@@ -84,14 +96,11 @@ public class DataFusion {
 
         /**
          *
-         * @param equivalenceProperties the equivalenceProperties to set
+         * @param dataSource
          */
-        public void setEquivalenceProperties(Collection<Property> equivalenceProperties) {
-            if (equivalenceProperties != null) {
-                this.equivalenceProperties = equivalenceProperties.stream().map(RDFNode::asNode).collect(Collectors.toList());
-            } else {
-                this.equivalenceProperties = Collections.EMPTY_LIST;
-            }
+        public void setParameters(DataSource dataSource) {
+            this.equivalenceProperties = dataSource.getEquivalenceProperties().stream().map(RDFNode::asNode).collect(Collectors.toList());
+            this.comparatorRules = dataSource.getComparatorRules().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().asNode(), e -> e.getValue()));
         }
 
         /**
@@ -100,6 +109,7 @@ public class DataFusion {
          * @param predicate
          * @param object
          */
+
         private void parse(Node subject, Node predicate, Node object) {
 
             // Map statements

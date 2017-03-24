@@ -6,8 +6,11 @@
 package com.andersoncarlosfs.data.model;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.validation.constraints.Size;
+import org.apache.jena.graph.Node;
 
 /**
  *
@@ -24,15 +27,12 @@ public class DataQualityAssessment implements Serializable {
     private Float reliability;
     @Size(min = 0, max = 1)
     private Float freshness;
+    private Collection<Node> morePrecise;
 
     public DataQualityAssessment() {
         this.frequency = new AtomicInteger(0);
         this.homogeneity = new AtomicInteger(0);
-    }
-
-    public DataQualityAssessment(AtomicInteger frequency, AtomicInteger homogeneity) {
-        this.frequency = frequency;
-        this.homogeneity = homogeneity;
+        this.morePrecise = new HashSet<>();
     }
 
     /**
@@ -97,6 +97,22 @@ public class DataQualityAssessment implements Serializable {
      */
     public void setFreshness(Float freshness) {
         this.freshness = freshness;
+    }
+
+    /**
+     *
+     * @return the morePrecise
+     */
+    public Collection<Node> getMorePrecise() {
+        return morePrecise;
+    }
+
+    /**
+     *
+     * @param morePrecise the morePrecise to set
+     */
+    public void setMorePrecise(Collection<Node> morePrecise) {
+        this.morePrecise = morePrecise;
     }
 
 }
