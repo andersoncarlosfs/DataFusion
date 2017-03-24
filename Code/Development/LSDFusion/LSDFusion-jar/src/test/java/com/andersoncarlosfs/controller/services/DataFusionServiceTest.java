@@ -86,13 +86,13 @@ public class DataFusionServiceTest {
     }
 
     /**
-     * Test of X method, of class DataFusionService.
+     * Test of getDataQualityAssessment method, of class DataFusionService.
      *
      * @throws java.io.IOException
      */
     @Test
-    public void testX() throws IOException {
-        System.out.println("begin test getX");
+    public void testGetDataQualityAssessment() throws IOException {
+        System.out.println("begin test getDataQualityAssessment");
         //https://www.w3.org/wiki/DataSetRDFDumps
         //http://data.bnf.fr/semanticweb        
         //DataSource dataSource = new DataSource("../../../../Datasets/BNF/dataset.tar.gz");
@@ -125,7 +125,7 @@ public class DataFusionServiceTest {
                 }
             }
         }
-        System.out.println("end test getX");
+        System.out.println("end test getDataQualityAssessment");
     }
 
 }

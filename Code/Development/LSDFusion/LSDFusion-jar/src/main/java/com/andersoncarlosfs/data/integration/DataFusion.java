@@ -11,7 +11,6 @@ import com.andersoncarlosfs.util.DisjointSet;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -109,7 +108,6 @@ public class DataFusion {
          * @param predicate
          * @param object
          */
-
         private void parse(Node subject, Node predicate, Node object) {
 
             // Map statements
@@ -187,6 +185,31 @@ public class DataFusion {
                             // Compute homogeneity                            
                             assessment = computedObjects.get(object);
                             assessment.getHomogeneity().incrementAndGet();
+                            // Loop objects of a property
+                            for (Node node : objects) {
+                                //
+                                if (object.equals(node)) {
+                                    continue;
+                                }
+                                ComparatorRules comparatorRule = comparatorRules.get(property);
+                                //
+                                if (comparatorRule == null) {
+                                    break;
+                                }
+                                //
+                                try {
+                                    switch (comparatorRule) {
+                                        case NUMBER_MAX:
+                                            break;
+                                        case NUMBER_MIN:
+                                            break;
+                                        case TEXT_CONTAINS:
+                                            break;
+                                    }
+                                } catch (Exception exception) {
+                                    exception.printStackTrace();
+                                }
+                            }
                         }
                     }
                 }
