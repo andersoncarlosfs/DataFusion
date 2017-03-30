@@ -15,13 +15,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.system.StreamRDFBase;
 import org.apache.jena.sparql.core.Quad;
@@ -41,17 +40,6 @@ public class DataFusion {
      */
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
 
-    /**
-     *
-     */
-    public static enum ComparatorRules {
-
-        NUMBER_MAX,
-        NUMBER_MIN,
-        TEXT_CONTAINS;
-
-    }
-
     private final Collection<DataSource> dataSources;
 
     public DataFusion(Collection<DataSource> dataSources) throws IOException {
@@ -66,10 +54,9 @@ public class DataFusion {
     public Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> getDataQualityAssessment() throws IOException {
         DataQualityEvaluation stream = new DataQualityEvaluation();
         for (DataSource dataSource : dataSources) {
-            stream.setParameters(dataSource);
-            RDFDataMgr.parse(stream, dataSource.getCanonicalPath(), dataSource.getSyntax());
+            stream.parse(dataSource);
         }
-        return stream.calculateDataQualityAssessment();
+        return stream.computeDataQualityAssessment();
     }
 
     /**
@@ -82,24 +69,47 @@ public class DataFusion {
         private Map<Node, AtomicInteger> frequencies;
         private DisjointSet<Node> equivalenceClasses;
         private Collection<Node> equivalenceProperties;
-        private Map<Node, ComparatorRules> comparatorRules;
+        private Collection<Collection<TreeSet<Node>>> mappedEntries;
 
         public DataQualityEvaluation() {
             //
-            this.frequencies = new HashMap();
+            frequencies = new HashMap();
             //
-            this.statements = new HashMap();
+            statements = new HashMap();
             //            
-            this.equivalenceClasses = new DisjointSet<>();
+            equivalenceClasses = new DisjointSet();
+            //
+            mappedEntries = new HashSet();
         }
 
         /**
          *
          * @param dataSource
          */
-        public void setParameters(DataSource dataSource) {
-            this.equivalenceProperties = dataSource.getEquivalenceProperties().stream().map(RDFNode::asNode).collect(Collectors.toList());
-            this.comparatorRules = dataSource.getComparatorRules().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().asNode(), e -> e.getValue()));
+        public void parse(DataSource dataSource) throws IOException {
+            //
+            for (Property property : dataSource.getEquivalenceProperties()) {
+                equivalenceProperties.add(property.asNode());
+            }
+            //
+            for (Collection<TreeSet<Property>> mappedProperties : dataSource.getMappedEntries()) {
+                //
+                Collection mappedNodes = new HashSet();
+                //
+                for (Collection<Property> complexProperty : mappedProperties) {
+                    //
+                    Collection complexNode = new TreeSet();
+                    //
+                    for (Property node : complexProperty) {
+                        // 
+                        complexNode.add(node);
+                    }
+                    mappedNodes.add(complexNode);
+                }
+                mappedEntries.add(mappedNodes);
+            }
+            //            
+            RDFDataMgr.parse(this, dataSource.getCanonicalPath(), dataSource.getSyntax());
         }
 
         /**
@@ -152,7 +162,7 @@ public class DataFusion {
          *
          * @return
          */
-        public Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> calculateDataQualityAssessment() {
+        public Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> computeDataQualityAssessment() {
 
             // 
             Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> computedStatements = new HashMap<>();

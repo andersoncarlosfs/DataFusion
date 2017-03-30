@@ -5,14 +5,12 @@ package com.andersoncarlosfs.data.model;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-import com.andersoncarlosfs.data.integration.DataFusion;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.HashSet;
+import java.util.TreeSet;
 import javax.enterprise.context.RequestScoped;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.riot.Lang;
@@ -25,22 +23,16 @@ import org.apache.jena.riot.Lang;
 public class DataSource extends File {
 
     private static final long serialVersionUID = 1L;
-    private final UUID uuid = UUID.randomUUID();
+
+    //# These assignments need to be removed
     private Lang syntax = Lang.RDFNULL;
     private Calendar freshness = null;
     private Collection<Property> equivalenceProperties = new ArrayList<>();
-    private Map<Property, DataFusion.ComparatorRules> comparatorRules = new HashMap<>();
+    private Collection<Collection<TreeSet<Property>>> mappedEntries = new HashSet<>();
+    //#
 
     public DataSource(String path) {
         super(path);
-    }
-
-    /**
-     *
-     * @return the uuid
-     */
-    public UUID getUUID() {
-        return uuid;
     }
 
     /**
@@ -93,18 +85,18 @@ public class DataSource extends File {
 
     /**
      *
-     * @return the comparatorRules
+     * @return the mappedEntries
      */
-    public Map<Property, DataFusion.ComparatorRules> getComparatorRules() {
-        return comparatorRules;
+    public Collection<Collection<TreeSet<Property>>> getMappedEntries() {
+        return mappedEntries;
     }
 
     /**
      *
-     * @param comparatorRules the comparatorRules to set
+     * @param mappedEntries the mappedEntries to set
      */
-    public void setComparatorRules(Map<Property, DataFusion.ComparatorRules> comparatorRules) {
-        this.comparatorRules = comparatorRules;
+    public void setMappedEntries(Collection<Collection<TreeSet<Property>>> mappedEntries) {
+        this.mappedEntries = mappedEntries;
     }
 
 }
