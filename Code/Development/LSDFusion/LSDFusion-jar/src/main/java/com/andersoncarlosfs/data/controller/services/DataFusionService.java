@@ -11,6 +11,7 @@ import com.andersoncarlosfs.data.model.DataQualityAssessment;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
+import java.util.LinkedHashSet;
 import javax.enterprise.context.RequestScoped;
 import org.apache.jena.graph.Node;
 
@@ -37,7 +38,7 @@ public class DataFusionService {
      * @return
      * @throws IOException
      */
-    public Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> getDataQualityAssessment(Collection<DataSource> dataSources) throws IOException {
+    public Map<Collection<Node>, Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>>> getDataQualityAssessment(Collection<DataSource> dataSources) throws IOException {
         return new DataFusion(dataSources).getDataQualityAssessment();
     }
 
