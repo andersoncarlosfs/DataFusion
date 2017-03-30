@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.LinkedHashSet;
 import org.apache.jena.graph.Node;
 import org.apache.jena.riot.Lang;
 import org.junit.After;
@@ -110,20 +111,24 @@ public class DataFusionServiceTest {
         //link.setSyntax(Lang.TTL);  
         link.setEquivalenceProperties(DataFusion.EQUIVALENCE_PROPERTIES);
         DataFusionService service = new DataFusionService();
-        Map<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> computedStatements = service.getDataQualityAssessment(Arrays.asList(dataSource, link));
-        for (Map.Entry<Collection<Node>, Map<Node, Map<Node, DataQualityAssessment>>> computedStatement : computedStatements.entrySet()) {
-            Collection<Node> equivalenceClasse = computedStatement.getKey();
-            Map<Node, Map<Node, DataQualityAssessment>> computedProperties = computedStatement.getValue();
-            System.out.println(equivalenceClasse.toString());
-            for (Map.Entry<Node, Map<Node, DataQualityAssessment>> entry : computedProperties.entrySet()) {
-                Node property = entry.getKey();
-                Map<Node, DataQualityAssessment> value = entry.getValue();
-                for (Map.Entry<Node, DataQualityAssessment> computedObjects : value.entrySet()) {
-                    Node object = computedObjects.getKey();
-                    DataQualityAssessment assessment = computedObjects.getValue();
-                    System.out.println("    " + property + " " + object + "    " + assessment.getFrequency() + "   " + assessment.getHomogeneity() + " " + assessment.getMorePrecise().toString());
+        try {
+            Map<Collection<Node>, Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>>> computedStatements = service.getDataQualityAssessment(Arrays.asList(dataSource, link));
+            for (Map.Entry<Collection<Node>, Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>>> computedStatement : computedStatements.entrySet()) {
+                Collection<Node> equivalenceClasse = computedStatement.getKey();
+                Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>> computedProperties = computedStatement.getValue();
+                System.out.println(equivalenceClasse.toString());
+                for (Map.Entry<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>> entry : computedProperties.entrySet()) {
+                    LinkedHashSet<Node> complexProperty = entry.getKey();
+                    Map<Node, DataQualityAssessment> value = entry.getValue();
+                    for (Map.Entry<Node, DataQualityAssessment> computedObjects : value.entrySet()) {
+                        Node object = computedObjects.getKey();
+                        DataQualityAssessment assessment = computedObjects.getValue();
+                        System.out.println("    " + complexProperty + " " + object + "    " + assessment.getFrequency() + "   " + assessment.getHomogeneity() + " " + assessment.getMorePrecise().toString());
+                    }
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         System.out.println("end test getDataQualityAssessment");
     }
