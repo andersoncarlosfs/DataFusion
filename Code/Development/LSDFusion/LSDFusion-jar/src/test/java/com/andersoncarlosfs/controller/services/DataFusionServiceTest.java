@@ -116,12 +116,12 @@ public class DataFusionServiceTest {
             Map<Node, Map<Node, DataQualityAssessment>> computedProperties = computedStatement.getValue();
             System.out.println(equivalenceClasse.toString());
             for (Map.Entry<Node, Map<Node, DataQualityAssessment>> entry : computedProperties.entrySet()) {
-                Node key = entry.getKey();
+                Node property = entry.getKey();
                 Map<Node, DataQualityAssessment> value = entry.getValue();
-                for (Map.Entry<Node, DataQualityAssessment> entry1 : value.entrySet()) {
-                    Node key1 = entry1.getKey();
-                    DataQualityAssessment value1 = entry1.getValue();
-                    System.out.println("    " + key + " " + key1 + "    " + value1.getFrequency() + "   " + value1.getHomogeneity());
+                for (Map.Entry<Node, DataQualityAssessment> computedObjects : value.entrySet()) {
+                    Node object = computedObjects.getKey();
+                    DataQualityAssessment assessment = computedObjects.getValue();
+                    System.out.println("    " + property + " " + object + "    " + assessment.getFrequency() + "   " + assessment.getHomogeneity() + " " + assessment.getMorePrecise().toString());
                 }
             }
         }
