@@ -10,8 +10,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.TreeSet;
+import java.util.LinkedHashSet;
 import javax.enterprise.context.RequestScoped;
+import org.apache.jena.graph.FrontsNode;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.riot.Lang;
 
@@ -28,7 +29,7 @@ public class DataSource extends File {
     private Lang syntax = Lang.RDFNULL;
     private Calendar freshness = null;
     private Collection<Property> equivalenceProperties = new ArrayList<>();
-    private Collection<Collection<TreeSet<Property>>> mappedEntries = new HashSet<>();
+    private Collection<Collection<LinkedHashSet<FrontsNode>>> mappedProperties = new HashSet<>();
     //#
 
     public DataSource(String path) {
@@ -85,18 +86,18 @@ public class DataSource extends File {
 
     /**
      *
-     * @return the mappedEntries
+     * @return the mappedProperties
      */
-    public Collection<Collection<TreeSet<Property>>> getMappedEntries() {
-        return mappedEntries;
+    public Collection<Collection<LinkedHashSet<FrontsNode>>> getMappedProperties() {
+        return mappedProperties;
     }
 
     /**
      *
-     * @param mappedEntries the mappedEntries to set
+     * @param mappedProperties the mappedProperties to set
      */
-    public void setMappedEntries(Collection<Collection<TreeSet<Property>>> mappedEntries) {
-        this.mappedEntries = mappedEntries;
+    public void setMappedProperties(Collection<Collection<LinkedHashSet<FrontsNode>>> mappedProperties) {
+        this.mappedProperties = mappedProperties;
     }
 
 }
