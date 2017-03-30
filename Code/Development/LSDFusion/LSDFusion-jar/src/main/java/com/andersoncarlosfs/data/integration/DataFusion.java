@@ -185,29 +185,29 @@ public class DataFusion {
                             // Compute homogeneity                            
                             assessment = computedObjects.get(object);
                             assessment.getHomogeneity().incrementAndGet();
-                            // Loop objects of a property
-                            for (Node node : objects) {
+                            // 
+                            for (Map.Entry<Node, DataQualityAssessment> entry : computedObjects.entrySet()) {
+                                Node node = entry.getKey();
+                                DataQualityAssessment value = entry.getValue();
+                                //
+                                if (!object.isLiteral()) {
+                                    break;
+                                }
                                 //
                                 if (object.equals(node)) {
                                     continue;
                                 }
-                                ComparatorRules comparatorRule = comparatorRules.get(property);
                                 //
-                                if (comparatorRule == null) {
-                                    break;
+                                if (!node.isLiteral()) {
+                                    continue;
+                                }
+                                //                                
+                                if (object.getLiteralValue().toString().contains(node.getLiteralValue().toString())) {
+                                    assessment.getMorePrecise().add(node);
                                 }
                                 //
-                                try {
-                                    switch (comparatorRule) {
-                                        case NUMBER_MAX:
-                                            break;
-                                        case NUMBER_MIN:
-                                            break;
-                                        case TEXT_CONTAINS:
-                                            break;
-                                    }
-                                } catch (Exception exception) {
-                                    exception.printStackTrace();
+                                if (node.getLiteralValue().toString().contains(object.getLiteralValue().toString())) {
+                                    value.getMorePrecise().add(object);
                                 }
                             }
                         }
