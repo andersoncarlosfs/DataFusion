@@ -72,7 +72,7 @@ public class DataFusion {
         private Map<Node, AtomicInteger> frequencies;
         private Set<LocalDate> freshnesses;
         //# These variables need to be removed
-        //
+        // 
         private LocalDate freshness;
         //#
         private DisjointSet<Node> equivalenceClasses;
@@ -89,6 +89,8 @@ public class DataFusion {
             //            
             equivalenceClasses = new DisjointSet();
             //
+            equivalenceProperties = new HashSet();
+            //
             mappedProperties = new HashSet();
         }
 
@@ -97,14 +99,14 @@ public class DataFusion {
          * @param dataSource
          */
         public void parse(DataSource dataSource) throws IOException {
-            //            
+            // Add a freshness           
             freshnesses.add(dataSource.getFreshness());
             //# These variables need to be removed
-            //
+            // Asign the freshness
             freshness = dataSource.getFreshness();
             //#
-            //
-            equivalenceProperties = new HashSet();
+            // Clear
+            equivalenceProperties.clear();
             //
             for (Property property : dataSource.getEquivalenceProperties()) {
                 equivalenceProperties.add(property.asNode());
@@ -144,14 +146,17 @@ public class DataFusion {
             //
             Map<Node, LocalDate> objects = properties.get(predicate);
             //# These assignments need to be removed
-            //
+            // 
             objects.putIfAbsent(object, freshness);
             //
-            if ((freshness != null) && (freshness.isBefore(objects.putIfAbsent(object, freshness)))) {
-                objects.put(object, freshness);
+            if (freshness != null) {
+                // 
+                if (freshness.isBefore(objects.putIfAbsent(object, freshness))) {
+                    // Put the oldest date
+                    objects.put(object, freshness);
+                }
             }
             //#
-
             // Compute frequencies
             frequencies.putIfAbsent(object, new AtomicInteger(0));
             frequencies.get(object).incrementAndGet();
@@ -187,6 +192,13 @@ public class DataFusion {
          */
         public Map<Collection<Node>, Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>>> computeDataQualityAssessment() {
 
+            //
+            Map<LocalDate, Float> computedFreshness = new HashMap();
+            
+            for (LocalDate freshnesse : freshnesses) {
+                //
+            }
+            
             // 
             Map<Collection<Node>, Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>>> computedStatements = new HashMap();
 
@@ -209,7 +221,7 @@ public class DataFusion {
                         //
                         Collection<LinkedHashSet<Node>> mappedNodes = new HashSet();
                         mappedNodes.add(complexProperty);
-                        //       
+                        // Loop properties
                         for (Iterator<Collection<LinkedHashSet<Node>>> iterator = mappedProperties.iterator(); iterator.hasNext();) {
                             //
                             mappedNodes = iterator.next();
@@ -217,9 +229,6 @@ public class DataFusion {
                             if (mappedNodes.contains(complexProperty)) {
                                 //
                                 break;
-                            } else {
-                                //
-                                //                                
                             }
                             //
                             mappedNodes = new HashSet();
@@ -234,7 +243,7 @@ public class DataFusion {
                             // Loop objects of a property
                             for (Map.Entry<Node, LocalDate> objectEntry : objects.entrySet()) {
                                 //
-                                Node object = objectEntry.getKey();                               
+                                Node object = objectEntry.getKey();
                                 LocalDate freshness = objectEntry.getValue();
                                 // Compute frequency
                                 DataQualityAssessment assessment = new DataQualityAssessment();
@@ -278,7 +287,7 @@ public class DataFusion {
 
             return computedStatements;
 
-        }
+        }       
 
     }
 
