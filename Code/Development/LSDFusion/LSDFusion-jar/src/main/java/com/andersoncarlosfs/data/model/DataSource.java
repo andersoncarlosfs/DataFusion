@@ -6,8 +6,8 @@ package com.andersoncarlosfs.data.model;
  * and open the template in the editor.
  */
 import java.io.File;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -27,7 +27,7 @@ public class DataSource extends File {
 
     //# These assignments need to be removed
     private Lang syntax = Lang.RDFNULL;
-    private Calendar freshness = null;
+    private LocalDate freshness = null;
     private Collection<Property> equivalenceProperties = new ArrayList<>();
     private Collection<Collection<LinkedHashSet<FrontsNode>>> mappedProperties = new HashSet<>();
     //#
@@ -56,7 +56,7 @@ public class DataSource extends File {
      *
      * @return the freshness
      */
-    public Calendar getFreshness() {
+    public LocalDate getFreshness() {
         return freshness;
     }
 
@@ -64,7 +64,7 @@ public class DataSource extends File {
      *
      * @param freshness the freshness to set
      */
-    public void setFreshness(Calendar freshness) {
+    public void setFreshness(LocalDate freshness) {
         this.freshness = freshness;
     }
 

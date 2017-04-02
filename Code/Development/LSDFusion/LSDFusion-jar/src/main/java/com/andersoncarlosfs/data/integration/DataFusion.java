@@ -9,6 +9,7 @@ import com.andersoncarlosfs.data.model.DataQualityAssessment;
 import com.andersoncarlosfs.data.model.DataSource;
 import com.andersoncarlosfs.util.DisjointSet;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -67,8 +68,13 @@ public class DataFusion {
      */
     private class DataQualityEvaluation extends StreamRDFBase {
 
-        private Map<Node, Map<Node, Set<Node>>> statements;
+        private Map<Node, Map<Node, Map<Node, LocalDate>>> statements;
         private Map<Node, AtomicInteger> frequencies;
+        private Set<LocalDate> freshnesses;
+        //# These variables need to be removed
+        //
+        private LocalDate freshness;
+        //#
         private DisjointSet<Node> equivalenceClasses;
         private Collection<Node> equivalenceProperties;
         private Collection<Collection<LinkedHashSet<Node>>> mappedProperties;
@@ -76,6 +82,8 @@ public class DataFusion {
         public DataQualityEvaluation() {
             //
             frequencies = new HashMap();
+            //
+            freshnesses = new LinkedHashSet();
             //
             statements = new HashMap();
             //            
@@ -89,6 +97,12 @@ public class DataFusion {
          * @param dataSource
          */
         public void parse(DataSource dataSource) throws IOException {
+            //            
+            freshnesses.add(dataSource.getFreshness());
+            //# These variables need to be removed
+            //
+            freshness = dataSource.getFreshness();
+            //#
             //
             equivalenceProperties = new HashSet();
             //
@@ -125,11 +139,18 @@ public class DataFusion {
             // Map statements
             statements.putIfAbsent(subject, new HashMap());
             // 
-            Map<Node, Set<Node>> properties = statements.get(subject);
-            properties.putIfAbsent(predicate, new HashSet());
+            Map<Node, Map<Node, LocalDate>> properties = statements.get(subject);
+            properties.putIfAbsent(predicate, new HashMap());
             //
-            Set<Node> objects = properties.get(predicate);
-            objects.add(object);
+            Map<Node, LocalDate> objects = properties.get(predicate);
+            //# These assignments need to be removed
+            //
+            objects.putIfAbsent(object, freshness);
+            //
+            if ((freshness != null) && (freshness.isBefore(objects.putIfAbsent(object, freshness)))) {
+                objects.put(object, freshness);
+            }
+            //#
 
             // Compute frequencies
             frequencies.putIfAbsent(object, new AtomicInteger(0));
@@ -178,10 +199,10 @@ public class DataFusion {
                 // Loop subjects of an equivalence class
                 for (Node subject : equivalenceClass) {
                     // Loop properties of a subject
-                    for (Map.Entry<Node, Set<Node>> propertyEntry : statements.get(subject).entrySet()) {
+                    for (Map.Entry<Node, Map<Node, LocalDate>> propertyEntry : statements.get(subject).entrySet()) {
                         //
                         Node property = propertyEntry.getKey();
-                        Set<Node> objects = propertyEntry.getValue();
+                        Map<Node, LocalDate> objects = propertyEntry.getValue();
                         //
                         LinkedHashSet<Node> complexProperty = new LinkedHashSet();
                         complexProperty.add(property);
@@ -211,7 +232,10 @@ public class DataFusion {
                             // Get objects of equivalence class
                             Map<Node, DataQualityAssessment> computedObjects = computedProperties.get(complexNode);
                             // Loop objects of a property
-                            for (Node object : objects) {
+                            for (Map.Entry<Node, LocalDate> objectEntry : objects.entrySet()) {
+                                //
+                                Node object = objectEntry.getKey();                               
+                                LocalDate freshness = objectEntry.getValue();
                                 // Compute frequency
                                 DataQualityAssessment assessment = new DataQualityAssessment();
                                 assessment.setFrequency(frequencies.get(object));
@@ -222,9 +246,9 @@ public class DataFusion {
                                 assessment = computedObjects.get(object);
                                 assessment.getHomogeneity().incrementAndGet();
                                 // 
-                                for (Map.Entry<Node, DataQualityAssessment> entry : computedObjects.entrySet()) {
-                                    Node node = entry.getKey();
-                                    DataQualityAssessment value = entry.getValue();
+                                for (Map.Entry<Node, DataQualityAssessment> computedObjectEntry : computedObjects.entrySet()) {
+                                    Node node = computedObjectEntry.getKey();
+                                    DataQualityAssessment value = computedObjectEntry.getValue();
                                     //
                                     if (!object.isLiteral()) {
                                         break;
