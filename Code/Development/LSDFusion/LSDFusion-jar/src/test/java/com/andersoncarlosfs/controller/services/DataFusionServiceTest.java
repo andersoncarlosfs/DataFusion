@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.LinkedHashSet;
+import java.util.UUID;
 import org.apache.jena.graph.Node;
 import org.apache.jena.riot.Lang;
 import org.junit.After;
@@ -53,7 +54,7 @@ public class DataFusionServiceTest {
      *
      * @throws java.io.IOException
      */
-    @Test
+    //@Test
     public void testGetEquivalenceClasses() throws IOException {
         System.out.println("begin test getEquivalentClasses");
         //https://www.w3.org/wiki/DataSetRDFDumps
@@ -91,7 +92,7 @@ public class DataFusionServiceTest {
      *
      * @throws java.io.IOException
      */
-    @Test
+    //@Test
     public void testGetDataQualityAssessment() throws IOException {
         System.out.println("begin test getDataQualityAssessment");
         //https://www.w3.org/wiki/DataSetRDFDumps
@@ -131,6 +132,102 @@ public class DataFusionServiceTest {
             e.printStackTrace();
         }
         System.out.println("end test getDataQualityAssessment");
+    }
+
+    @Test
+    public void x() throws IOException {
+        System.out.println("begin test x");
+        //https://www.w3.org/wiki/DataSetRDFDumps
+        //http://data.bnf.fr/semanticweb        
+        //DataSource dataSource = new DataSource("../../../../Datasets/BNF/dataset.tar.gz");
+        //Dataset dataSource = new DataSource("../../../../Datasets/INA/dataset.ttl");
+        //dataSource.setSyntax(Lang.TTL);
+        DataSource dataSource = new DataSource("../../../../Datasets/Test/dataset.n3");
+        dataSource.setSyntax(Lang.N3);
+        //DataSource link = new DataSource("../../../../Datasets/BNF/links.nt");
+        //link.setSyntax(Lang.N3);
+        //Dataset link = new DataSource("../../../../Datasets/INA/links.n3");
+        //link.setSyntax(Lang.N3);
+        DataSource link = new DataSource("../../../../Datasets/Test/links.n3");
+        link.setSyntax(Lang.N3);
+        //DataSource link = new DataSource("../../../../Datasets/DBpedia/links/links.ttl");
+        //link.setSyntax(Lang.TTL);  
+        link.setEquivalenceProperties(DataFusion.EQUIVALENCE_PROPERTIES);
+        DataFusionService service = new DataFusionService();
+        try {
+
+            Map<Collection<Node>, Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>>> computedStatements = service.getDataQualityAssessment(Arrays.asList(dataSource, link));
+
+            for (Map.Entry<Collection<Node>, Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>>> computedStatement : computedStatements.entrySet()) {
+
+                Collection<Node> equivalenceClasse = computedStatement.getKey();
+                Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>> computedProperties = computedStatement.getValue();
+
+                for (Node subject : equivalenceClasse) {
+
+                    for (Map.Entry<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>> entry : computedProperties.entrySet()) {
+
+                        LinkedHashSet<Node> complexProperty = entry.getKey();
+                        Map<Node, DataQualityAssessment> value = entry.getValue();
+
+                        for (Map.Entry<Node, DataQualityAssessment> computedObjects : value.entrySet()) {
+
+                            Node object = computedObjects.getKey();
+                            DataQualityAssessment assessment = computedObjects.getValue();
+
+                            System.out.print("<" + subject + ">\t");
+
+                            int i = 0;
+
+                            for (Node property : complexProperty) {
+
+                                System.out.print("<" + property + ">\t");
+
+                                if (i > 2) {
+
+                                    System.out.println(".\n");
+
+                                    i = 0;
+
+                                }
+
+                                i++;
+
+                            }
+
+                            String o;
+                            
+                            String v = "";
+
+                            if (object.isLiteral()) {
+                                o = "<http://www.ina.fr/thesaurus/_" + UUID.randomUUID() + ">";
+                                v = o + "\t<http://www.ina.fr/thesaurus/#hasValue>\t" + object.toString() + ".\n";                                
+                            } else {
+                                o = "<" + object + ">";
+                            }                            
+
+                            System.out.print(o + ".\n");
+                            
+                            System.out.print(v);
+                            
+                            System.out.print(o + "\t<http://www.ina.fr/thesaurus/#hasFrequency>\t\"" + assessment.getFrequency() + "\".\n");
+
+                            System.out.print(o + "\t<http://www.ina.fr/thesaurus/#hasHomogeneity>\t\"" + assessment.getHomogeneity() + "\".\n");
+
+                            for (Node node : assessment.getMorePrecise()) {
+
+                                System.out.print(o + "\t<http://www.ina.fr/thesaurus/#hasMorePrecise>\t" + node + ".\n");
+
+                            }
+
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("end test x");
     }
 
 }
