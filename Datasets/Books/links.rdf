@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='utf-8' standalone='no'?>
+<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+         xmlns:xsd='http://www.w3.org/2001/XMLSchema#'
+         xmlns:owl=''>
+
+<?xml version="1.0"?>
+<!DOCTYPE rdf:RDF [
+<!ENTITY rdf  "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+<!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+<!ENTITY xsd  "http://www.w3.org/2001/XMLSchema#" >
+<!ENTITY owl  "http://www.w3.org/2002/07/owl#" >
+]>
+<rdf:RDF
+ xmlns     ="&owl;"
+ xmlns:owl ="&owl;"
+ xml:base  ="http://www.w3.org/2002/07/owl"
+ xmlns:rdf ="&rdf;"
+ xmlns:rdfs="&rdfs;"
+>
+<!- Book -->
+<rdf:Description rdf:about="http://www.books.org/test/books1-Book1">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Book2"/>
+</rdf:Description>
+<rdf:Description rdf:about="http://www.books.org/test/books1-Book1">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Book3"/>
+</rdf:Description>
+<rdf:Description rdf:about="http://www.books.org/test/books1-Book2">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Book3"/>
+</rdf:Description>
+<!- Publisher -->
+<rdf:Description rdf:about="http://www.books.org/test/books1-Publisher1">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Publisher2"/>
+</rdf:Description>
+<rdf:Description rdf:about="http://www.books.org/test/books1-Publisher1">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Publisher3"/>
+</rdf:Description>
+<rdf:Description rdf:about="http://www.books.org/test/books1-Publisher2">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Publisher3"/>
+</rdf:Description>
+<!- Author 1-->
+<rdf:Description rdf:about="http://www.books.org/test/books1-Author1-1">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Author2-1"/>
+</rdf:Description>
+<rdf:Description rdf:about="http://www.books.org/test/books1-Author1-1">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Author3-1"/>
+</rdf:Description>
+<rdf:Description rdf:about="http://www.books.org/test/books1-Author2-1">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Author3-1"/>
+</rdf:Description>
+<!- Author 2-->
+<rdf:Description rdf:about="http://www.books.org/test/books1-Author1-2">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Author2-2"/>
+</rdf:Description>
+<rdf:Description rdf:about="http://www.books.org/test/books1-Author1-2">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Author3-2"/>
+</rdf:Description>
+<rdf:Description rdf:about="http://www.books.org/test/books1-Author2-2">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Author3-2"/>
+</rdf:Description>
+<!- Author 3-->
+<rdf:Description rdf:about="http://www.books.org/test/books1-Author1-3">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Author2-3"/>
+</rdf:Description>
+<rdf:Description rdf:about="http://www.books.org/test/books1-Author1-3">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Author3-3"/>
+</rdf:Description>
+<rdf:Description rdf:about="http://www.books.org/test/books1-Author2-3">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Author3-3"/>
+</rdf:Description>
+<!- Author 4-->
+<rdf:Description rdf:about="http://www.books.org/test/books1-Author1-4">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Author2-4"/>
+</rdf:Description>
+<rdf:Description rdf:about="http://www.books.org/test/books1-Author1-4">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Author3-4"/>
+</rdf:Description>
+<rdf:Description rdf:about="http://www.books.org/test/books1-Author2-4">
+  <owl:sameAs rdf:resource="http://www.books.org/test/books1-Author3-4"/>
+</rdf:Description>
+</rdf:RDF>
