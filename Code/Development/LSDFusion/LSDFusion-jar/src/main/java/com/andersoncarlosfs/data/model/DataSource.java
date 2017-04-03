@@ -21,19 +21,39 @@ import org.apache.jena.riot.Lang;
  * @author Anderson Carlos Ferreira da Silva
  */
 @RequestScoped
-public class DataSource extends File {
+public class DataSource {
 
     private static final long serialVersionUID = 1L;
 
     //# These assignments need to be removed
+    private String path = "";
     private Lang syntax = Lang.RDFNULL;
     private LocalDate freshness = null;
     private Collection<Property> equivalenceProperties = new ArrayList<>();
     private Collection<Collection<LinkedHashSet<FrontsNode>>> mappedProperties = new HashSet<>();
     //#
 
+    public DataSource() {
+    }
+
     public DataSource(String path) {
-        super(path);
+        this.path = path;
+    }
+
+    /**
+     *
+     * @return the path
+     */
+    public String getPath() {
+        return path;
+    }
+
+    /**
+     *
+     * @param path the path to set
+     */
+    public void setPath(String path) {
+        this.path = path;
     }
 
     /**

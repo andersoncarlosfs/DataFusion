@@ -128,7 +128,7 @@ public class DataFusion {
                 }
             }
             //            
-            RDFDataMgr.parse(this, dataSource.getCanonicalPath(), dataSource.getSyntax());
+            RDFDataMgr.parse(this, dataSource.getPath(), dataSource.getSyntax());
         }
 
         /**
@@ -197,6 +197,11 @@ public class DataFusion {
             Float durations = new Float(0);            
             //
             for (LocalDate freshness : freshnesses) {
+                //
+                if (freshness == null) {
+                    continue;
+                }
+                //
                 durations += ChronoUnit.DAYS.between(LocalDate.now(), freshness);
             }
 
@@ -204,6 +209,10 @@ public class DataFusion {
             Map<LocalDate, Float> computedFreshness = new HashMap();
             //            
             for (LocalDate freshness : freshnesses) {
+                //
+                if (freshness == null) {
+                    continue;
+                }
                 //
                 computedFreshness.putIfAbsent(freshness, ChronoUnit.DAYS.between(LocalDate.now(), freshness) / durations);
             }
