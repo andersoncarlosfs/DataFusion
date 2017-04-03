@@ -142,14 +142,14 @@ public class DataFusionServiceTest {
         //DataSource dataSource = new DataSource("../../../../Datasets/BNF/dataset.tar.gz");
         //Dataset dataSource = new DataSource("../../../../Datasets/INA/dataset.ttl");
         //dataSource.setSyntax(Lang.TTL);
-        DataSource dataSource = new DataSource("../../../../Datasets/Test/dataset.n3");
-        dataSource.setSyntax(Lang.N3);
+        DataSource dataSource = new DataSource("../../../../Datasets/Books/dataset.rdf");
+        dataSource.setSyntax(Lang.RDFXML);
         //DataSource link = new DataSource("../../../../Datasets/BNF/links.nt");
         //link.setSyntax(Lang.N3);
         //Dataset link = new DataSource("../../../../Datasets/INA/links.n3");
         //link.setSyntax(Lang.N3);
-        DataSource link = new DataSource("../../../../Datasets/Test/links.n3");
-        link.setSyntax(Lang.N3);
+        DataSource link = new DataSource("../../../../Datasets/Books/links.rdf");
+        link.setSyntax(Lang.RDFXML);
         //DataSource link = new DataSource("../../../../Datasets/DBpedia/links/links.ttl");
         //link.setSyntax(Lang.TTL);  
         link.setEquivalenceProperties(DataFusion.EQUIVALENCE_PROPERTIES);

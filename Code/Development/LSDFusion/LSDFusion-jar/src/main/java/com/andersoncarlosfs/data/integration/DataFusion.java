@@ -228,6 +228,10 @@ public class DataFusion {
                 Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>> computedProperties = computedStatements.get(equivalenceClass);
                 // Loop subjects of an equivalence class
                 for (Node subject : equivalenceClass) {
+                    //
+                    if (statements.get(subject) == null) {
+                        continue;
+                    }
                     // Loop properties of a subject
                     for (Map.Entry<Node, Map<Node, LocalDate>> propertyEntry : statements.get(subject).entrySet()) {
                         //
