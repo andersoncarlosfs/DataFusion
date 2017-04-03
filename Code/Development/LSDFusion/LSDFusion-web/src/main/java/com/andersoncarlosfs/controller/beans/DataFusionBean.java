@@ -1,66 +1,66 @@
 package com.andersoncarlosfs.controller.beans;
 
 import com.andersoncarlosfs.annotations.scopes.ApplicationScope;
-import com.andersoncarlosfs.model.AbstractController;
-import com.andersoncarlosfs.model.requests.DataFusionRequest;
-import com.andersoncarlosfs.model.responses.DataFusionResponse;
+import com.andersoncarlosfs.data.model.DataSource;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import javax.faces.convert.FacesConverter;
+import java.util.HashSet;
 
 /**
  *
  * @author Anderson Carlos Ferreira da Silva
  */
 @ApplicationScope
-public class DataFusionBean extends AbstractController<DataFusionRequest> {
+public class DataFusionBean {
 
-    private final Collection<DataFusionResponse> dataFusionResponses = Collections.emptyList();
+    private Collection<DataSource> dataSources = new HashSet();
+    
+    private DataSource selected;
 
     public DataFusionBean() {
     }
 
     /**
      *
-     * @return the selected
+     * @return the dataSources
      */
-    public DataFusionResponse getResponse() {
-        for (DataFusionResponse dataFusionResponse : dataFusionResponses) {
-            if (dataFusionResponse.getUUID().equals(getSelected().getUUID())) {
-                return dataFusionResponse;
-            }
-        }
-        return null;
+    public Collection<DataSource> getDataSources() {
+        return dataSources;
     }
 
-    @Override
-    public DataFusionRequest prepareCreate() throws InstantiationException, IllegalAccessException {
-        return new DataFusionRequest((Collection) Collections.emptyList());
+    /**
+     *
+     * @param dataSources the dataSources to set
+     */
+    public void setDataSources(Collection<DataSource> dataSources) {
+        this.dataSources = dataSources;
     }
 
     /**
      *
      */
-    @Override
-    public void destroy() {
-        for (Iterator<DataFusionResponse> iterator = dataFusionResponses.iterator(); iterator.hasNext();) {
-            DataFusionResponse next = iterator.next();
-            if (next.getUUID().equals(getSelected().getUUID())) {
-                iterator.remove();
-            }
-        }
-        super.destroy();
+    public void newDataFusion() {
+        dataSources.clear();
     }
-
-    @Override
-    protected Class<DataFusionRequest> getClasse() {
-        return DataFusionRequest.class;
+     
+    /**
+     * 
+     */
+    public void newDataSource() {
+        selected = new DataSource();
     }
-
-    @FacesConverter(forClass = DataFusionBean.class)
-    public class DataFusionConverter extends AbstractConverter {
-
+    
+    /**
+     * 
+     */
+    public void removeDataSource() {
+        dataSources.remove(selected);
+    }
+    
+    /**
+     * 
+     */
+    public void fuseDataSources(){
+        
     }
 
 }
