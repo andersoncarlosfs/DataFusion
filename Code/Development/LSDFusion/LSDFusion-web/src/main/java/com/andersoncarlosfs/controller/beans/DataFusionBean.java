@@ -34,6 +34,22 @@ public class DataFusionBean {
     public void setDataSources(Collection<DataSource> dataSources) {
         this.dataSources = dataSources;
     }
+    
+    /**
+     * 
+     * @return the selected
+     */
+    public DataSource getSelected() {
+        return selected;
+    }
+
+    /**
+     * 
+     * @param selected the selected to set
+     */
+    public void setSelected(DataSource selected) {
+        this.selected = selected;
+    }
 
     /**
      *

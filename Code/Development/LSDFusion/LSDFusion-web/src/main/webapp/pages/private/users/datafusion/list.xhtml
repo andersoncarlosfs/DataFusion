@@ -15,13 +15,13 @@
         <ui:define name="body">
             <h:form id="DataFusionListForm">
                 <p:panel header="#{bundle.ListDataFusionTitle}">
-                    <p:dataTable id="datalist" value="#{dataFusionBean.items}" var="item"
+                    <p:dataTable id="datalist" value="#{dataFusionBean.dataSources}" var="item"
                                  emptyMessage="#{bundle.ListDataFusionEmptyMessage}"
                                  selectionMode="single" selection="#{dataFusionBean.selected}"
                                  sortMode="multiple"
                                  draggableColumns="true"
                                  paginator="true"
-                                 rowKey="#{item.UUID}"
+                                 rowKey="#{item.path}"
                                  rows="10"
                                  rowsPerPageTemplate="10,20,30,40,50"
                                  >
@@ -29,18 +29,16 @@
                         <p:ajax event="rowSelect"   update="addButton viewButton deleteButton" />
                         <p:ajax event="rowUnselect" update="addButton viewButton deleteButton" />
 
-                        <p:column sortBy="#{item.created}">
+                        <p:column sortBy="#{item.path}">
                             <f:facet name="header">
-                                <h:outputText value="#{bundle.ListDataFusionTitle_created}" />
+                                <h:outputText value="#{bundle.ListDataFusionTitle_file}" />
                             </f:facet>
-                            <h:outputText value="#{item.created}">
-                                <f:convertDateTime />
-                            </h:outputText>
+                            <h:outputText value="#{item.path}" />
                         </p:column>   
 
                         <f:facet name="footer">
                             <p:commandButton id="newButton"   icon="fa fa-plus" value="#{bundle.New}" actionListener="#{dataFusionBean.newDataFusion}" process="@this" update=":DataFusionViewForm" disabled="#{not empty dataFusionBean.dataSources}" />                           
-                            <p:commandButton id="addButton" icon="fa fa-fa-file-o" value="#{bundle.Add}" actionListener="#{dataFusionBean.newDataSource}" process="@this" update=":DataFusionCreateForm" oncomplete="PF('DataFusionCreateDialog').show()" />
+                            <p:commandButton id="addButton" icon="fa fa-file-o" value="#{bundle.Add}" actionListener="#{dataFusionBean.newDataSource}" process="@this" update=":DataFusionCreateForm" oncomplete="PF('DataFusionCreateDialog').show()" />
                             <p:commandButton id="viewButton"   icon="fa fa-search" value="#{bundle.View}" process="@this" update=":DataFusionViewForm" oncomplete="PF('DataFusionViewDialog').show()" disabled="#{empty dataFusionBean.selected}" />                           
                             <p:commandButton id="deleteButton" icon="fa fa-trash"  value="#{bundle.Remove}" actionListener="#{dataFusionBean.removeDataSource}" process="@this" update=":growl,datalist" disabled="#{empty dataFusionBean.selected}" />
                             <p:commandButton id="fuseButton" icon="fa fa-play"  value="#{bundle.Fuse}" actionListener="#{dataFusionBean.fuseDataSources}" process="@this" update=":growl" disabled="#{empty dataFusionBean.dataSources}" />
