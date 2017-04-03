@@ -10,6 +10,7 @@ import com.andersoncarlosfs.data.model.DataSource;
 import com.andersoncarlosfs.util.DisjointSet;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -191,12 +192,20 @@ public class DataFusion {
          * @return
          */
         public Map<Collection<Node>, Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>>> computeDataQualityAssessment() {
+            
+            //
+            Float durations = new Float(0);            
+            //
+            for (LocalDate freshness : freshnesses) {
+                durations += ChronoUnit.DAYS.between(LocalDate.now(), freshness);
+            }
 
             //
             Map<LocalDate, Float> computedFreshness = new HashMap();
-            
-            for (LocalDate freshnesse : freshnesses) {
+            //            
+            for (LocalDate freshness : freshnesses) {
                 //
+                computedFreshness.putIfAbsent(freshness, ChronoUnit.DAYS.between(LocalDate.now(), freshness) / durations);
             }
             
             // 
@@ -254,6 +263,8 @@ public class DataFusion {
                                 // Compute homogeneity                            
                                 assessment = computedObjects.get(object);
                                 assessment.getHomogeneity().incrementAndGet();
+                                // Compute freshness
+                                assessment.setFreshness(computedFreshness.get(freshness));
                                 // 
                                 for (Map.Entry<Node, DataQualityAssessment> computedObjectEntry : computedObjects.entrySet()) {
                                     Node node = computedObjectEntry.getKey();
