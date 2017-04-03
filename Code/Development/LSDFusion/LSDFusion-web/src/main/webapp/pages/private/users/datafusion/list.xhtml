@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition template="/pages/private/users/template/private.xhtml">
+
+        <ui:define name="title">
+            <h:outputText value="#{bundle.ListDataFusionTitle}"></h:outputText>
+        </ui:define>
+
+        <ui:define name="body">
+            <h:form id="DataFusionListForm">
+                <p:panel header="#{bundle.ListDataFusionTitle}">
+                    <p:dataTable id="datalist" value="#{dataFusionBean.items}" var="item"
+                                 emptyMessage="#{bundle.ListDataFusionEmptyMessage}"
+                                 selectionMode="single" selection="#{dataFusionBean.selected}"
+                                 sortMode="multiple"
+                                 draggableColumns="true"
+                                 paginator="true"
+                                 rowKey="#{item.UUID}"
+                                 rows="10"
+                                 rowsPerPageTemplate="10,20,30,40,50"
+                                 >
+
+                        <p:ajax event="rowSelect"   update="createButton viewButton deleteButton" />
+                        <p:ajax event="rowUnselect" update="createButton viewButton deleteButton" />
+
+                        <p:column sortBy="#{item.created}">
+                            <f:facet name="header">
+                                <h:outputText value="#{bundle.ListDataFusionTitle_created}" />
+                            </f:facet>
+                            <h:outputText value="#{item.created}">
+                                <f:convertDateTime />
+                            </h:outputText>
+                        </p:column>   
+
+                        <f:facet name="footer">
+                            <p:commandButton id="createButton" icon="fa fa-plus" value="#{bundle.Add}" actionListener="#{dataFusionBean.prepareCreate}" process="@this" update=":DataFusionCreateForm" oncomplete="PF('DataFusionCreateDialog').show()">
+                                <f:setPropertyActionListener target="#{dataFusionBean.selected}" value="#{dataFusionBean.prepareCreate()}" />
+                            </p:commandButton>
+                            <p:commandButton id="viewButton"   icon="fa fa-search" value="#{bundle.View}" actionListener="#{dataFusionBean.getSelected(true)}" process="@this" update=":DataFusionViewForm" oncomplete="PF('DataFusionViewDialog').show()" disabled="#{empty dataFusionBean.selected}" />                           
+                            <p:commandButton id="deleteButton" icon="fa fa-trash"  value="#{bundle.Remove}" actionListener="#{dataFusionBean.destroy}" process="@this" update=":growl,datalist" disabled="#{empty dataFusionBean.selected}" />
+                            <p:commandButton id="fuseButton" icon="fa fa-play"  value="#{bundle.Fuse}" process="@this" update=":growl" disabled="" />
+                        </f:facet>
+
+                    </p:dataTable>
+
+                </p:panel>
+            </h:form>
+
+            <p:socket channel="/push/DataFusion">
+                <p:ajax event="message" update=":DataFusionListForm:datalist,:growl" />
+            </p:socket>
+
+            <ui:include src="create.xhtml" />            
+            <ui:include src="view.xhtml" />  
+
+        </ui:define>
+    </ui:composition>
+
+</html>

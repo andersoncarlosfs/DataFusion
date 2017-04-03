@@ -17,15 +17,15 @@ import java.util.Collections;
  * @author AndersonCarlos
  */
 @RequestScope
-public class DataExtractionRequest extends AbstractRequest {
+public class DataFusionRequest extends AbstractRequest {
 
     private final Collection<File> files;
 
-    public DataExtractionRequest(Collection<File> files) {
+    public DataFusionRequest(Collection<File> files) {
         this.files = files;
     }
 
-    public DataExtractionRequest(File... files) {
+    public DataFusionRequest(File... files) {
         this.files = Arrays.asList(files);
     }
 

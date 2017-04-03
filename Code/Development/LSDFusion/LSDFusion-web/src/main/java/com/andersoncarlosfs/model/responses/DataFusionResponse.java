@@ -8,21 +8,21 @@ package com.andersoncarlosfs.model.responses;
 import com.andersoncarlosfs.annotations.scopes.RequestScope;
 import com.andersoncarlosfs.model.AbstractResponse;
 import com.andersoncarlosfs.model.enums.Status;
-import com.andersoncarlosfs.model.requests.DataExtractionRequest;
+import com.andersoncarlosfs.model.requests.DataFusionRequest;
 
 /**
  *
  * @author AndersonCarlos
  */
 @RequestScope
-public class DataExtractionResponse extends AbstractResponse {
+public class DataFusionResponse extends AbstractResponse {
 
-    public DataExtractionResponse(DataExtractionRequest dataExtractionRequest) {
-        super(dataExtractionRequest.getUUID());
+    public DataFusionResponse(DataFusionRequest dataFusionRequest) {
+        super(dataFusionRequest.getUUID());
     }
 
-    public DataExtractionResponse(DataExtractionRequest dataExtractionRequest, Status status) {
-        super(dataExtractionRequest.getUUID(), status);
+    public DataFusionResponse(DataFusionRequest dataFusionRequest, Status status) {
+        super(dataFusionRequest.getUUID(), status);
     }
 
 }
