@@ -11,7 +11,7 @@
         <p:dialog id="DataFusionViewDlg" widgetVar="DataFusionViewDialog" modal="true" resizable="false" appendTo="@(body)" closable="false" header="#{bundle.ViewDataFusionTitle}">
             <h:form id="DataFusionViewForm">
                 <h:panelGroup id="display">
-                    <p:panelGrid columns="2" rendered="#{dataFusionBean.selected != null}">
+                    <p:panelGrid columns="2" rendered="#{false and dataFusionBean.selected != null}">
                         <h:outputText value="#{bundle.ViewDataFusionLabel_naturalDataFusion_name}" />
                         <h:outputText value="#{dataFusionBean.selected.created}" title="#{bundle.ViewDataFusionTitle_naturalDataFusion_name}" />                        
                     </p:panelGrid>

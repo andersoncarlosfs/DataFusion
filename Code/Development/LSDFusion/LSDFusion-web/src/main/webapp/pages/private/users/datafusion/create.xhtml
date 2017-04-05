@@ -14,18 +14,22 @@
                 <p:panel id="panel">
 
                     <h:panelGroup id="display">                 
-                        <p:panelGrid rendered="#{dataFusionBean.selected != null}">
-                            <p:row rendered="false">
-                                <p:column>
-                                    <p:outputLabel value="#{bundle.CreateDataFusionLabel_created}" for="created" />
+                        <p:panelGrid rendered="#{dataFusionBean.selected != null}">                            
+                            <p:row>
+                                <p:column colspan="3">
+                                    <p:fileUpload value="#{dataFusionBean.file}" label="#{bundle.Choose}" uploadLabel="#{bundle.Upload}" cancelLabel="#{bundle.Cancel}" multiple="false" mode="simple" auto="true" dragDropSupport="true" skinSimple="true" />
                                 </p:column>
-                                <p:column>
-                                    <p:calendar id="created" value="#{dataFusionBean.selected.created.time}" title="#{bundle.CreateDataFusionTitle_created}" disabled="true" />
+                            </p:row>
+                             <p:row>
+                                <p:column colspan="3">
+                                    <p:pickList id="pickList" value="#{dataFusionBean.equivalenceProperties}" var="equivalenceProperty" itemLabel="#{equivalenceProperty}" itemValue="#{equivalenceProperty}" />
                                 </p:column>
                             </p:row>
                             <p:row>
-                                <p:column colspan="2">
-                                    <p:fileUpload id="files" label="#{bundle.Choose}" uploadLabel="#{bundle.Upload}" cancelLabel="#{bundle.Cancel}" multiple="false" mode="advanced" auto="true" dragDropSupport="true" />
+                                <p:column colspan="3">
+                                    <p:dataList value="#{dataFusionBean.selected.mappedProperties}" var="mappedProperty">                                       
+                                        #{mappedProperty}
+                                    </p:dataList>                                    
                                 </p:column>
                             </p:row>
                         </p:panelGrid>

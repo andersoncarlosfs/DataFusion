@@ -1,9 +1,15 @@
 package com.andersoncarlosfs.controller.beans;
 
 import com.andersoncarlosfs.annotations.scopes.ApplicationScope;
+import com.andersoncarlosfs.data.integration.DataFusion;
 import com.andersoncarlosfs.data.model.DataSource;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import org.apache.jena.rdf.model.Property;
+import org.primefaces.model.DualListModel;
+import org.primefaces.model.UploadedFile;
 
 /**
  *
@@ -15,6 +21,10 @@ public class DataFusionBean {
     private Collection<DataSource> dataSources;
 
     private DataSource selected;
+
+    private UploadedFile file;
+
+    private DualListModel<Property> equivalenceProperties;
 
     private String property;
 
@@ -55,16 +65,86 @@ public class DataFusionBean {
 
     /**
      *
+     * @return the file
+     */
+    public UploadedFile getFile() {
+        return file;
+    }
+
+    /**
+     *
+     * @param file the file to set
+     */
+    public void setFile(UploadedFile file) {
+        this.file = file;
+    }
+
+    /**
+     *
+     * @return the equivalenceProperties
+     */
+    public DualListModel<Property> getEquivalenceProperties() {
+        return equivalenceProperties;
+    }
+
+    /**
+     * @param equivalenceProperties the equivalenceProperties to set
+     */
+    public void setEquivalenceProperties(DualListModel<Property> equivalenceProperties) {
+        this.equivalenceProperties = equivalenceProperties;
+    }
+
+    /**
+     *
+     * @return the property
+     */
+    public String getProperty() {
+        return property;
+    }
+
+    /**
+     *
+     * @param property the property to set
+     */
+    public void setProperty(String property) {
+        this.property = property;
+    }
+
+    /**
+     *
      */
     public void newDataFusion() {
+        
         dataSources = new HashSet();
+        
+        selected = null;
+                
     }
 
     /**
      *
      */
     public void newDataSource() {
+
         selected = new DataSource();
+
+        List<Property> source = new ArrayList<Property>();
+        List<Property> target = new ArrayList<Property>();
+
+        source.addAll(DataFusion.EQUIVALENCE_PROPERTIES);
+
+        equivalenceProperties = new DualListModel(source, target);
+    }
+
+    /**
+     *
+     */
+    public void addDataSource() {
+
+        dataSources.add(selected);
+
+        selected = null;
+
     }
 
     /**
