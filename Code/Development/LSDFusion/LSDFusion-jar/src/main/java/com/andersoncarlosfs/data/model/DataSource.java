@@ -5,9 +5,13 @@ package com.andersoncarlosfs.data.model;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import javax.enterprise.context.RequestScoped;
@@ -84,6 +88,16 @@ public class DataSource {
      */
     public void setFreshness(LocalDate freshness) {
         this.freshness = freshness;
+    }
+
+    /**
+     *
+     * @param freshness the freshness to set
+     */
+    public void setFreshness(Date freshness) {
+        Instant instant = freshness.toInstant();
+        ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());
+        this.freshness = zonedDateTime.toLocalDate();
     }
 
     /**
