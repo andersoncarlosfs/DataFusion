@@ -102,7 +102,7 @@ public class DataFusionBean {
      * @return the mappedProperties
      */
     public DualListModel<Property> getMappedProperties() {
-        return equivalenceProperties;
+        return mappedProperties;
     }
 
     /**
@@ -184,18 +184,11 @@ public class DataFusionBean {
     /**
      *
      */
-    public void addDataSource() {
-
-        dataSources.add(selected);
-
-        selected = null;
-
-    }
-
-    /**
-     *
-     */
     public void addEequivalenceProperty() {
+
+        if (property.trim().isEmpty()) {
+            return;
+        }
 
         Property node = ResourceFactory.createProperty(property);
 
@@ -210,10 +203,27 @@ public class DataFusionBean {
      */
     public void addMappedProperty() {
 
+        if (property.trim().isEmpty()) {
+            return;
+        }
+
         Property node = ResourceFactory.createProperty(property);
 
         //selected.getMappedProperties().add(node);
         property = new String();
+
+    }
+    
+     /**
+     *
+     */
+    public void addDataSource() {
+        
+        //selected.setPath(file.);
+
+        dataSources.add(selected);
+
+        selected = null;
 
     }
 

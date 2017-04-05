@@ -16,8 +16,19 @@
                     <h:panelGroup id="display">                 
                         <p:panelGrid rendered="#{dataFusionBean.selected != null}">                            
                             <p:row>
-                                <p:column colspan="2">
-                                    <p:fileUpload value="#{dataFusionBean.file}" label="#{bundle.Choose}" uploadLabel="#{bundle.Upload}" cancelLabel="#{bundle.Cancel}" multiple="false" mode="simple" auto="true" dragDropSupport="true" skinSimple="true" />
+                                <p:column>
+                                    <p:outputLabel for="file" value="#{bundle.CreateDataFusionLabel_file}" />
+                                </p:column>
+                                <p:column>
+                                    <p:fileUpload id="file" value="#{dataFusionBean.file}" label="#{bundle.Choose}" uploadLabel="#{bundle.Upload}" cancelLabel="#{bundle.Cancel}" multiple="false" mode="simple" auto="true" dragDropSupport="true" skinSimple="true" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <p:outputLabel for="freshness" value="#{bundle.CreateDataFusionLabel_freshness}" />
+                                </p:column>
+                                <p:column>
+                                    <p:calendar id="freshness" value="#{dataFusionBean.selected.freshness}" navigator="true" showOn="button" /> 
                                 </p:column>
                             </p:row>
                             <p:row>
@@ -25,7 +36,7 @@
                                     <p:outputLabel for="equivalenceProperty" value="#{bundle.CreateDataFusionLabel_equivalenceProperty}" />
                                 </p:column>
                                 <p:column>
-                                    <p:inputText id="equivalenceProperty" value="#{dataFusionBean.property}"/> <p:commandButton icon="fa fa-plus" actionListener="#{dataFusionBean.addEequivalenceProperty}" process="@this" update="equivalenceProperty,equivalenceProperties" />
+                                    <p:inputText id="equivalenceProperty" value="#{dataFusionBean.property}"/> <p:commandButton icon="fa fa-plus" actionListener="#{dataFusionBean.addEequivalenceProperty}" partialSubmit="true" process="equivalenceProperty,@this" update="equivalenceProperty,equivalenceProperties" />
                                 </p:column>
                             </p:row>
                             <p:row>
@@ -38,7 +49,7 @@
                                     <p:outputLabel for="mappedProperty" value="#{bundle.CreateDataFusionLabel_mappedProperty}" />
                                 </p:column>
                                 <p:column>
-                                    <p:inputText id="mappedProperty" value="#{dataFusionBean.property}"/> <p:commandButton icon="fa fa-plus" actionListener="#{dataFusionBean.addMappedProperty}" process="@this" update="mappedProperty,mappedPropertties" />
+                                    <p:inputText id="mappedProperty" value="#{dataFusionBean.property}"/> <p:commandButton icon="fa fa-plus" actionListener="#{dataFusionBean.addMappedProperty}" partialSubmit="true" process="mappedProperty,@this" update="mappedProperty,mappedPropertties" />
                                 </p:column>
                             </p:row>
                             <p:row>
