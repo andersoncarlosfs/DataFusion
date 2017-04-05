@@ -7,13 +7,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.riot.Lang;
 import org.primefaces.model.DualListModel;
 import org.primefaces.model.UploadedFile;
 
@@ -25,6 +28,8 @@ import org.primefaces.model.UploadedFile;
 public class DataFusionBean implements AutoCloseable {
 
     private Path path;
+
+    private final Set<Lang> syntaxes;
 
     private Collection<DataSource> dataSources;
 
@@ -39,6 +44,15 @@ public class DataFusionBean implements AutoCloseable {
     private String property;
 
     public DataFusionBean() {
+        syntaxes = new HashSet(Arrays.asList(Lang.CSV, Lang.JSONLD, Lang.N3, Lang.NQ, Lang.NQUADS, Lang.NT, Lang.NTRIPLES, Lang.RDFJSON, Lang.RDFNULL, Lang.RDFTHRIFT, Lang.RDFXML, Lang.TRIG, Lang.TTL, Lang.TURTLE));
+    }
+
+    /**
+     *
+     * @return the syntaxes
+     */
+    public Set<Lang> getSyntaxes() {
+        return syntaxes;
     }
 
     /**
@@ -143,17 +157,17 @@ public class DataFusionBean implements AutoCloseable {
         try {
 
             deleteFiles();
-            
+
             dataSources = new HashSet();
 
             selected = null;
-            
+
             path = Files.createTempDirectory(UUID.randomUUID().toString());
 
         } catch (Exception exception) {
 
             NotificationBean.addErrorMessage(exception, exception.getStackTrace().toString());
-            
+
         }
 
     }
@@ -244,11 +258,11 @@ public class DataFusionBean implements AutoCloseable {
             Path p = Files.createTempDirectory(path, file.getFileName());
 
             Path f = Files.createTempFile(p, file.getFileName(), null);
-            
-            Files.copy(file.getInputstream(),f);
+
+            Files.copy(file.getInputstream(), f);
 
             selected.setPath(f.toFile().getCanonicalPath());
-            
+
             dataSources.add(selected);
 
             selected = null;

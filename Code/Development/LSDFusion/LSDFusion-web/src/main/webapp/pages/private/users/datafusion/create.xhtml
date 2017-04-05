@@ -36,7 +36,9 @@
                                     <p:outputLabel for="syntax" value="#{bundle.CreateDataFusionLabel_syntax}" />
                                 </p:column>
                                 <p:column>
-                                    <p:calendar id="syntax" value="#{dataFusionBean.selected.syntax}" navigator="true" showOn="button" /> 
+                                    <p:selectOneMenu id="syntax" value="#{dataFusionBean.selected.syntax}">
+                                        <f:selectItems value="#{dataFusionBean.syntaxes}" />
+                                    </p:selectOneMenu>
                                 </p:column>
                             </p:row>
                             <p:row>
