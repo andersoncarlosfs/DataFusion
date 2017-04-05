@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.ResourceFactory;
 import org.primefaces.model.DualListModel;
 import org.primefaces.model.UploadedFile;
 
@@ -25,6 +26,8 @@ public class DataFusionBean {
     private UploadedFile file;
 
     private DualListModel<Property> equivalenceProperties;
+
+    private DualListModel<Property> mappedProperties;
 
     private String property;
 
@@ -96,6 +99,21 @@ public class DataFusionBean {
 
     /**
      *
+     * @return the mappedProperties
+     */
+    public DualListModel<Property> getMappedProperties() {
+        return equivalenceProperties;
+    }
+
+    /**
+     * @param mappedProperties the mappedProperties to set
+     */
+    public void setMappedProperties(DualListModel<Property> mappedProperties) {
+        this.mappedProperties = mappedProperties;
+    }
+
+    /**
+     *
      * @return the property
      */
     public String getProperty() {
@@ -114,11 +132,11 @@ public class DataFusionBean {
      *
      */
     public void newDataFusion() {
-        
+
         dataSources = new HashSet();
-        
+
         selected = null;
-                
+
     }
 
     /**
@@ -126,14 +144,41 @@ public class DataFusionBean {
      */
     public void newDataSource() {
 
+        List<Property> source;
+        List<Property> target;
+
         selected = new DataSource();
 
-        List<Property> source = new ArrayList<Property>();
-        List<Property> target = new ArrayList<Property>();
+        source = new ArrayList<Property>();
+        target = new ArrayList<Property>();
 
         source.addAll(DataFusion.EQUIVALENCE_PROPERTIES);
 
         equivalenceProperties = new DualListModel(source, target);
+
+        source = new ArrayList<Property>();
+        target = new ArrayList<Property>();
+
+        mappedProperties = new DualListModel(source, target);
+
+    }
+
+    /**
+     *
+     */
+    public void removeDataSource() {
+
+        dataSources.remove(selected);
+
+        selected = null;
+
+    }
+
+    /**
+     *
+     */
+    public void fuseDataSources() {
+
     }
 
     /**
@@ -150,21 +195,25 @@ public class DataFusionBean {
     /**
      *
      */
-    public void newProperty() {
+    public void addEequivalenceProperty() {
+
+        Property node = ResourceFactory.createProperty(property);
+
+        equivalenceProperties.getSource().add(node);
+
         property = new String();
+
     }
 
     /**
      *
      */
-    public void removeDataSource() {
-        dataSources.remove(selected);
-    }
+    public void addMappedProperty() {
 
-    /**
-     *
-     */
-    public void fuseDataSources() {
+        Property node = ResourceFactory.createProperty(property);
+
+        //selected.getMappedProperties().add(node);
+        property = new String();
 
     }
 

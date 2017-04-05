@@ -8,28 +8,42 @@
 
     <ui:composition>
 
-        <p:dialog id="DataFusionCreateDlg" widgetVar="DataFusionCreateDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.CreateDataFusionTitle}">
+        <p:dialog id="DataFusionCreateDlg" widgetVar="DataFusionCreateDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.CreateDataFusionTitle}" height="300">
             <p:ajax event="close" update=":DataFusionCreateForm:display" resetValues="true"/>
             <h:form id="DataFusionCreateForm">
-                <p:panel id="panel">
+                <p:panel id="panel" style="border: none;">
 
                     <h:panelGroup id="display">                 
                         <p:panelGrid rendered="#{dataFusionBean.selected != null}">                            
                             <p:row>
-                                <p:column colspan="3">
+                                <p:column colspan="2">
                                     <p:fileUpload value="#{dataFusionBean.file}" label="#{bundle.Choose}" uploadLabel="#{bundle.Upload}" cancelLabel="#{bundle.Cancel}" multiple="false" mode="simple" auto="true" dragDropSupport="true" skinSimple="true" />
                                 </p:column>
                             </p:row>
-                             <p:row>
-                                <p:column colspan="3">
-                                    <p:pickList id="pickList" value="#{dataFusionBean.equivalenceProperties}" var="equivalenceProperty" itemLabel="#{equivalenceProperty}" itemValue="#{equivalenceProperty}" />
+                            <p:row>
+                                <p:column>
+                                    <p:outputLabel for="equivalenceProperty" value="#{bundle.CreateDataFusionLabel_equivalenceProperty}" />
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="equivalenceProperty" value="#{dataFusionBean.property}"/> <p:commandButton icon="fa fa-plus" actionListener="#{dataFusionBean.addEequivalenceProperty}" process="@this" update="equivalenceProperty,equivalenceProperties" />
                                 </p:column>
                             </p:row>
                             <p:row>
-                                <p:column colspan="3">
-                                    <p:dataList value="#{dataFusionBean.selected.mappedProperties}" var="mappedProperty">                                       
-                                        #{mappedProperty}
-                                    </p:dataList>                                    
+                                <p:column colspan="2">
+                                    <p:pickList id="equivalenceProperties" value="#{dataFusionBean.equivalenceProperties}" var="equivalenceProperty" itemLabel="#{equivalenceProperty}" itemValue="#{equivalenceProperty}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <p:outputLabel for="mappedProperty" value="#{bundle.CreateDataFusionLabel_mappedProperty}" />
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="mappedProperty" value="#{dataFusionBean.property}"/> <p:commandButton icon="fa fa-plus" actionListener="#{dataFusionBean.addMappedProperty}" process="@this" update="mappedProperty,mappedPropertties" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column colspan="2">
+                                    <p:pickList id="mappedPropertties" value="#{dataFusionBean.mappedProperties}" var="mappedProperty" itemLabel="#{mappedProperty}" itemValue="#{mappedProperty}" />
                                 </p:column>
                             </p:row>
                         </p:panelGrid>
