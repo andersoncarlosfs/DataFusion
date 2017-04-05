@@ -9,9 +9,7 @@
             <var>bundle</var>
         </resource-bundle>
         <locale-config>
-            <default-locale>en_UK</default-locale>   
-            <supported-locale>pt_BR</supported-locale> 
-            <supported-locale>fr_FR</supported-locale>      
+            <default-locale>en_UK</default-locale>    
         </locale-config>
     </application>
 </faces-config>

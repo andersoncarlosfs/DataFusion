@@ -20,7 +20,7 @@
                                     <p:outputLabel for="file" value="#{bundle.CreateDataFusionLabel_file}" />
                                 </p:column>
                                 <p:column>
-                                    <p:fileUpload id="file" value="#{dataFusionBean.file}" label="#{bundle.Choose}" uploadLabel="#{bundle.Upload}" cancelLabel="#{bundle.Cancel}" multiple="false" mode="simple" auto="true" dragDropSupport="true" skinSimple="true" />
+                                    <p:fileUpload id="file" value="#{dataFusionBean.file}" label="#{bundle.Choose}" uploadLabel="#{bundle.Upload}" cancelLabel="#{bundle.Cancel}" multiple="false" mode="simple" auto="true" dragDropSupport="true" skinSimple="true" required="true" />
                                 </p:column>
                             </p:row>
                             <p:row>
@@ -36,8 +36,8 @@
                                     <p:outputLabel for="syntax" value="#{bundle.CreateDataFusionLabel_syntax}" />
                                 </p:column>
                                 <p:column>
-                                    <p:selectOneMenu id="syntax" value="#{dataFusionBean.selected.syntax}">
-                                        <f:selectItems value="#{dataFusionBean.syntaxes}" />
+                                    <p:selectOneMenu id="syntax" value="#{dataFusionBean.selected.syntax}" converter="langConverter" required="true">
+                                        <f:selectItems value="#{dataFusionBean.syntaxes}" var="syntax" itemLabel="#{syntax.name}" itemValue="#{syntax}" />
                                     </p:selectOneMenu>
                                 </p:column>
                             </p:row>
@@ -51,7 +51,7 @@
                             </p:row>
                             <p:row>
                                 <p:column colspan="2">
-                                    <p:pickList id="equivalenceProperties" value="#{dataFusionBean.equivalenceProperties}" var="equivalenceProperty" itemLabel="#{equivalenceProperty}" itemValue="#{equivalenceProperty}" />
+                                    <p:pickList id="equivalenceProperties" value="#{dataFusionBean.equivalenceProperties}" var="equivalenceProperty" itemLabel="#{equivalenceProperty}" itemValue="#{equivalenceProperty}" required="true" />
                                 </p:column>
                             </p:row>
                             <p:row>
@@ -71,7 +71,7 @@
                     </h:panelGroup>
 
                     <f:facet name="footer">
-                        <p:commandButton actionListener="#{dataFusionBean.create}" value="#{bundle.Save}" update="display,:DataFusionListForm:datalist,:growl" oncomplete="handleSubmit(args,'DataFusionCreateDialog');" />
+                        <p:commandButton actionListener="#{dataFusionBean.addDataSource}" value="#{bundle.Save}" update="display,:DataFusionListForm:datalist,:growl" oncomplete="handleSubmit(args,'DataFusionCreateDialog');" />
                         <p:commandButton value="#{bundle.Cancel}" type="button" onclick="PF('DataFusionCreateDialog').hide();" />
                     </f:facet>
 
