@@ -3,7 +3,6 @@ package com.andersoncarlosfs.controller.beans;
 import com.andersoncarlosfs.annotations.scopes.ApplicationScope;
 import com.andersoncarlosfs.data.model.DataSource;
 import java.util.Collection;
-import java.util.HashSet;
 
 /**
  *
@@ -12,7 +11,7 @@ import java.util.HashSet;
 @ApplicationScope
 public class DataFusionBean {
 
-    private Collection<DataSource> dataSources = new HashSet();
+    private Collection<DataSource> dataSources;
     
     private DataSource selected;
 

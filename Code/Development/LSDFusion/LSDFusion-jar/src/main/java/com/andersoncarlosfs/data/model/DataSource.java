@@ -5,14 +5,12 @@ package com.andersoncarlosfs.data.model;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import javax.enterprise.context.RequestScoped;
-import org.apache.jena.graph.FrontsNode;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.riot.Lang;
 
@@ -30,7 +28,7 @@ public class DataSource {
     private Lang syntax = Lang.RDFNULL;
     private LocalDate freshness = null;
     private Collection<Property> equivalenceProperties = new ArrayList<>();
-    private Collection<Collection<LinkedHashSet<FrontsNode>>> mappedProperties = new HashSet<>();
+    private Collection<Collection<LinkedHashSet<Property>>> mappedProperties = new HashSet<>();
     //#
 
     public DataSource() {
@@ -108,7 +106,7 @@ public class DataSource {
      *
      * @return the mappedProperties
      */
-    public Collection<Collection<LinkedHashSet<FrontsNode>>> getMappedProperties() {
+    public Collection<Collection<LinkedHashSet<Property>>> getMappedProperties() {
         return mappedProperties;
     }
 
@@ -116,7 +114,7 @@ public class DataSource {
      *
      * @param mappedProperties the mappedProperties to set
      */
-    public void setMappedProperties(Collection<Collection<LinkedHashSet<FrontsNode>>> mappedProperties) {
+    public void setMappedProperties(Collection<Collection<LinkedHashSet<Property>>> mappedProperties) {
         this.mappedProperties = mappedProperties;
     }
 
