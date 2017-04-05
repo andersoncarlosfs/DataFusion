@@ -29,7 +29,7 @@ public class DataFusionBean implements AutoCloseable {
 
     private Path path;
 
-    private final Set<Lang> syntaxes;
+    private static final Set<Lang> syntaxes = new HashSet(Arrays.asList(Lang.CSV, Lang.JSONLD, Lang.N3, Lang.NQ, Lang.NQUADS, Lang.NT, Lang.NTRIPLES, Lang.RDFJSON, Lang.RDFNULL, Lang.RDFTHRIFT, Lang.RDFXML, Lang.TRIG, Lang.TTL, Lang.TURTLE));
 
     private Collection<DataSource> dataSources;
 
@@ -44,7 +44,6 @@ public class DataFusionBean implements AutoCloseable {
     private String property;
 
     public DataFusionBean() {
-        syntaxes = new HashSet(Arrays.asList(Lang.CSV, Lang.JSONLD, Lang.N3, Lang.NQ, Lang.NQUADS, Lang.NT, Lang.NTRIPLES, Lang.RDFJSON, Lang.RDFNULL, Lang.RDFTHRIFT, Lang.RDFXML, Lang.TRIG, Lang.TTL, Lang.TURTLE));
     }
 
     /**
@@ -156,7 +155,9 @@ public class DataFusionBean implements AutoCloseable {
 
         try {
 
-            deleteFiles();
+            if (path != null) {
+                deleteFiles();
+            }
 
             dataSources = new HashSet();
 
