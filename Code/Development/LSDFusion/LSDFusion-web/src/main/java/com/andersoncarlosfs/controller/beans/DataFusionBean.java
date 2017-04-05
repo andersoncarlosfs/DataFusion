@@ -3,6 +3,7 @@ package com.andersoncarlosfs.controller.beans;
 import com.andersoncarlosfs.annotations.scopes.ApplicationScope;
 import com.andersoncarlosfs.data.model.DataSource;
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  *
@@ -12,8 +13,10 @@ import java.util.Collection;
 public class DataFusionBean {
 
     private Collection<DataSource> dataSources;
-    
+
     private DataSource selected;
+
+    private String property;
 
     public DataFusionBean() {
     }
@@ -33,9 +36,9 @@ public class DataFusionBean {
     public void setDataSources(Collection<DataSource> dataSources) {
         this.dataSources = dataSources;
     }
-    
+
     /**
-     * 
+     *
      * @return the selected
      */
     public DataSource getSelected() {
@@ -43,7 +46,7 @@ public class DataFusionBean {
     }
 
     /**
-     * 
+     *
      * @param selected the selected to set
      */
     public void setSelected(DataSource selected) {
@@ -54,28 +57,35 @@ public class DataFusionBean {
      *
      */
     public void newDataFusion() {
-        dataSources.clear();
+        dataSources = new HashSet();
     }
-     
+
     /**
-     * 
+     *
      */
     public void newDataSource() {
         selected = new DataSource();
     }
-    
+
     /**
-     * 
+     *
+     */
+    public void newProperty() {
+        property = new String();
+    }
+
+    /**
+     *
      */
     public void removeDataSource() {
         dataSources.remove(selected);
     }
-    
+
     /**
-     * 
+     *
      */
-    public void fuseDataSources(){
-        
+    public void fuseDataSources() {
+
     }
 
 }

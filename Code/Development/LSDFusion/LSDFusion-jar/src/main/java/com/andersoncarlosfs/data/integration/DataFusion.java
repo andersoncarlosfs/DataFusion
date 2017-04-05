@@ -113,9 +113,9 @@ public class DataFusion {
                 equivalenceProperties.add(property.asNode());
             }
             //
-            for (Collection<LinkedHashSet<FrontsNode>> mappedNodes : dataSource.getMappedProperties()) {
+            for (Collection<LinkedHashSet<Property>> mappedNodes : dataSource.getMappedProperties()) {
                 //
-                for (Collection<FrontsNode> complexProperty : mappedNodes) {
+                for (Collection<Property> complexProperty : mappedNodes) {
                     //
                     Collection complexNode = new LinkedHashSet();
                     //
