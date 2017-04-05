@@ -33,6 +33,14 @@
                             </p:row>
                             <p:row>
                                 <p:column>
+                                    <p:outputLabel for="syntax" value="#{bundle.CreateDataFusionLabel_syntax}" />
+                                </p:column>
+                                <p:column>
+                                    <p:calendar id="syntax" value="#{dataFusionBean.selected.syntax}" navigator="true" showOn="button" /> 
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
                                     <p:outputLabel for="equivalenceProperty" value="#{bundle.CreateDataFusionLabel_equivalenceProperty}" />
                                 </p:column>
                                 <p:column>

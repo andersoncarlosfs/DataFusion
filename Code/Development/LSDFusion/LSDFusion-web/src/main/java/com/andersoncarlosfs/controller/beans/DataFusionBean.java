@@ -3,10 +3,15 @@ package com.andersoncarlosfs.controller.beans;
 import com.andersoncarlosfs.annotations.scopes.ApplicationScope;
 import com.andersoncarlosfs.data.integration.DataFusion;
 import com.andersoncarlosfs.data.model.DataSource;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
+import org.apache.commons.io.FileUtils;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.primefaces.model.DualListModel;
@@ -17,7 +22,9 @@ import org.primefaces.model.UploadedFile;
  * @author Anderson Carlos Ferreira da Silva
  */
 @ApplicationScope
-public class DataFusionBean {
+public class DataFusionBean implements AutoCloseable {
+
+    private Path path;
 
     private Collection<DataSource> dataSources;
 
@@ -133,9 +140,21 @@ public class DataFusionBean {
      */
     public void newDataFusion() {
 
-        dataSources = new HashSet();
+        try {
 
-        selected = null;
+            deleteFiles();
+            
+            dataSources = new HashSet();
+
+            selected = null;
+            
+            path = Files.createTempDirectory(UUID.randomUUID().toString());
+
+        } catch (Exception exception) {
+
+            NotificationBean.addErrorMessage(exception, exception.getStackTrace().toString());
+            
+        }
 
     }
 
@@ -213,18 +232,50 @@ public class DataFusionBean {
         property = new String();
 
     }
-    
-     /**
+
+    /**
      *
      */
     public void addDataSource() {
-        
-        //selected.setPath(file.);
 
-        dataSources.add(selected);
+        //# 
+        try {
 
-        selected = null;
+            Path p = Files.createTempDirectory(path, file.getFileName());
 
+            Path f = Files.createTempFile(p, file.getFileName(), null);
+            
+            Files.copy(file.getInputstream(),f);
+
+            selected.setPath(f.toFile().getCanonicalPath());
+            
+            dataSources.add(selected);
+
+            selected = null;
+
+        } catch (Exception exception) {
+
+            NotificationBean.addErrorMessage(exception, exception.getStackTrace().toString());
+
+        }
+
+    }
+
+    /**
+     *
+     * @throws IOException
+     */
+    private void deleteFiles() throws IOException {
+        FileUtils.deleteDirectory(path.toFile());
+    }
+
+    /**
+     *
+     * @throws Exception
+     */
+    @Override
+    public void close() throws Exception {
+        deleteFiles();
     }
 
 }
