@@ -10,13 +10,56 @@
 
         <p:dialog id="DataFusionViewDlg" widgetVar="DataFusionViewDialog" modal="true" resizable="false" appendTo="@(body)" closable="false" header="#{bundle.ViewDataFusionTitle}">
             <h:form id="DataFusionViewForm">
-                <h:panelGroup id="display">
-                    <p:panelGrid columns="2" rendered="#{false and dataFusionBean.selected != null}">
-                        <h:outputText value="#{bundle.ViewDataFusionLabel_naturalDataFusion_name}" />
-                        <h:outputText value="#{dataFusionBean.selected.created}" title="#{bundle.ViewDataFusionTitle_naturalDataFusion_name}" />                        
-                    </p:panelGrid>
-                    <p:commandButton type="button" value="#{bundle.Close}" icon="fa fa-close" onclick="PF('DataFusionViewDialog').hide()" />
-                </h:panelGroup>
+                <p:panel id="panel" style="border: none;">
+
+                    <h:panelGroup id="display">                 
+                        <p:panelGrid rendered="#{not empty dataFusionBean.selected}">                            
+                            <p:row>
+                                <p:column>
+                                    <p:outputLabel value="#{bundle.ViewDataFusionLabel_file}" />
+                                </p:column>
+                                <p:column>                                   
+                                    <h:outputText value="#{dataFusionBean.selected.path}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <p:outputLabel for="freshness" value="#{bundle.ViewDataFusionLabel_freshness}" />
+                                </p:column>
+                                <p:column>
+                                    <p:calendar id="freshness" value="#{dataFusionBean.selected.freshness}" navigator="true" readonly="true" /> 
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <p:outputLabel value="#{bundle.ViewDataFusionLabel_syntax}" />
+                                </p:column>
+                                <p:column>                                   
+                                    <h:outputText value="#{dataFusionBean.selected.syntax}" />
+                                </p:column>
+                            </p:row>                           
+                            <p:row>
+                                <p:column colspan="2">
+                                    <p:dataList value="#{dataFusionBean.selected.equivalenceProperties}" var="equivalenceProperty">
+                                        #{equivalenceProperty}
+                                    </p:dataList>
+                                </p:column>
+                            </p:row>                            
+                            <p:row>
+                                <p:column colspan="2">
+                                    <p:dataList value="#{dataFusionBean.selected.mappedProperties}" var="mappedProperties">
+                                        #{mappedProperties}
+                                    </p:dataList>
+                                </p:column>
+                            </p:row>
+                        </p:panelGrid>
+                    </h:panelGroup>
+
+                    <f:facet name="footer">
+                        <p:commandButton type="button" value="#{bundle.Close}" icon="fa fa-close" onclick="PF('DataFusionViewDialog').hide()" />
+                    </f:facet>
+
+                </p:panel>
             </h:form>
         </p:dialog>
 

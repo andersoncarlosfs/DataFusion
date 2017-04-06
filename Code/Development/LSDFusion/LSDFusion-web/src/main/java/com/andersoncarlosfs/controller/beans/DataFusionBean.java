@@ -222,11 +222,13 @@ public class DataFusionBean implements AutoCloseable {
         List<Collection<Property>> sourceMappedProperties = new ArrayList();
         List<Collection<Property>> targetMappedProperties = new ArrayList();
 
-        mappedProperties = new DualListModel(sourceMappedProperties, targetMappedProperties);
-
-        property = new String();
+        mappedProperties = new DualListModel(sourceMappedProperties, targetMappedProperties);        
 
         selected = new DataSource();
+        
+        property = null;
+        
+        syntax = null;
 
     }
 
@@ -254,8 +256,6 @@ public class DataFusionBean implements AutoCloseable {
      */
     public void handleFileUpload(FileUploadEvent event) {
 
-        System.out.println(event.getFile().getFileName());
-
         try {
 
             File file = new File(path.toFile(), event.getFile().getFileName());
@@ -270,16 +270,14 @@ public class DataFusionBean implements AutoCloseable {
 
         }
 
-        System.out.println(selected.getPath());
-
     }
 
     /**
      *
      */
-    public void addEequivalenceProperty() {
+    public void addEquivalenceProperty() {
 
-        if (property.trim().isEmpty()) {
+        if (property == null) {
             return;
         }
 
@@ -287,7 +285,7 @@ public class DataFusionBean implements AutoCloseable {
 
         equivalenceProperties.getTarget().add(node);
 
-        property = new String();
+        property = null;
 
     }
 
@@ -305,7 +303,7 @@ public class DataFusionBean implements AutoCloseable {
      */
     public void onPropertyUnselect(UnselectEvent event) {
         mappedProperty = null;
-        property = new String();
+        property = null;
     }
 
     /**
@@ -314,7 +312,7 @@ public class DataFusionBean implements AutoCloseable {
      */
     public void onPropertyTransfer(TransferEvent event) {
         mappedProperty = null;
-        property = new String();
+        property = null;
     }
 
     /**
@@ -322,7 +320,7 @@ public class DataFusionBean implements AutoCloseable {
      */
     public void addMappedProperty() {
 
-        if (property.trim().isEmpty()) {
+        if (property == null) {
             return;
         }
 
@@ -338,21 +336,20 @@ public class DataFusionBean implements AutoCloseable {
             complexProperties.add(complexProperty);
 
         } else {
-            
+
             mappedProperties.getSource().remove(mappedProperty);
-            
+
             mappedProperties.getTarget().remove(mappedProperty);
 
             mappedProperty.add(node);
-            
+
             mappedProperties.getTarget().add(mappedProperty);
 
             mappedProperty = null;
 
         }
 
-        //;
-        property = new String();
+        property = null;
 
     }
 
@@ -377,27 +374,25 @@ public class DataFusionBean implements AutoCloseable {
                 break;
             }
         }
-        
-       selected.setEquivalenceProperties(equivalenceProperties.getTarget());
-               
+
+        selected.setEquivalenceProperties(equivalenceProperties.getTarget());
+
         for (Collection<Property> properties : mappedProperties.getTarget()) {
 
             for (Property p : properties) {
-                
+
                 LinkedHashSet<Property> complexProperty = new LinkedHashSet();
                 complexProperty.add(p);
-                        
-                Collection<LinkedHashSet<Property>> c = new  HashSet();
+
+                Collection<LinkedHashSet<Property>> c = new HashSet();
                 c.add(complexProperty);
-                
+
                 selected.getMappedProperties().add(c);
-                        
+
             }
-            
+
         }
-       
-       
-       
+
         dataSources.add(selected);
 
         selected = null;
@@ -428,16 +423,16 @@ public class DataFusionBean implements AutoCloseable {
     public static class MappedPropertiesConverter implements Converter {
 
         @Override
-        public Object getAsObject(FacesContext context, UIComponent component, String value) {            
-            
+        public Object getAsObject(FacesContext context, UIComponent component, String value) {
+
             for (LinkedHashSet<Property> complexProperty : complexProperties) {
-                
+
                 if (complexProperty.toString().equals(value)) {
                     return complexProperty;
                 }
-                
+
             }
-            
+
             return null;
 
         }

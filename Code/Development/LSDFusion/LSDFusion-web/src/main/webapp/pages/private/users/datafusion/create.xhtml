@@ -14,7 +14,7 @@
                 <p:panel id="panel" style="border: none;">
 
                     <h:panelGroup id="display">                 
-                        <p:panelGrid rendered="#{dataFusionBean.selected != null}">                            
+                        <p:panelGrid rendered="#{not empty dataFusionBean.selected}">                            
                             <p:row>
                                 <p:column>
                                     <p:outputLabel for="file" value="#{bundle.CreateDataFusionLabel_file}" />
@@ -47,7 +47,7 @@
                                     <p:outputLabel for="equivalenceProperty" value="#{bundle.CreateDataFusionLabel_equivalenceProperty}" />
                                 </p:column>
                                 <p:column>
-                                    <p:inputText id="equivalenceProperty" value="#{dataFusionBean.property}"/> <p:commandButton icon="fa fa-plus" actionListener="#{dataFusionBean.addEequivalenceProperty}" partialSubmit="true" process="equivalenceProperty,@this" update="equivalenceProperty,equivalenceProperties" />
+                                    <p:inputText id="equivalenceProperty" value="#{dataFusionBean.property}"/> <p:commandButton icon="fa fa-plus" actionListener="#{dataFusionBean.addEquivalenceProperty}" partialSubmit="true" process="equivalenceProperty,@this" update="equivalenceProperty,equivalenceProperties" />
                                 </p:column>
                             </p:row>
                             <p:row>
