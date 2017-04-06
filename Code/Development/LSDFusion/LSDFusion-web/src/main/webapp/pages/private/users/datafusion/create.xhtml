@@ -65,7 +65,11 @@
                             </p:row>
                             <p:row>
                                 <p:column colspan="2">
-                                    <p:pickList id="mappedPropertties" value="#{dataFusionBean.mappedProperties}" var="mappedProperty" itemLabel="#{mappedProperty}" itemValue="#{mappedProperty}" />
+                                    <p:pickList id="mappedPropertties" value="#{dataFusionBean.mappedProperties}" converter="mappedPropertiesConverter" var="mappedProperty" itemLabel="#{mappedProperty}" itemValue="#{mappedProperty}">
+                                        <p:ajax event="select" listener="#{dataFusionBean.onPropertySelect}" />
+                                        <p:ajax event="unselect" listener="#{dataFusionBean.onPropertyUnselect}" update="mappedProperty" />
+                                        <p:ajax event="transfer" listener="#{dataFusionBean.onPropertyTransfer}" update="mappedProperty" />
+                                    </p:pickList>
                                 </p:column>
                             </p:row>
                         </p:panelGrid>
