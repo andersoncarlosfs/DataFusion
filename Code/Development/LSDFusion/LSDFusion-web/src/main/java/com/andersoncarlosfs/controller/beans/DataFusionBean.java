@@ -5,12 +5,14 @@ import com.andersoncarlosfs.data.integration.DataFusion;
 import com.andersoncarlosfs.data.model.DataSource;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -28,11 +30,11 @@ import org.primefaces.model.DualListModel;
  */
 @ApplicationScope
 public class DataFusionBean implements AutoCloseable {
-
-    private Path path;
-
+    
     private static final Set<Lang> syntaxes = new HashSet(Arrays.asList(Lang.CSV, Lang.JSONLD, Lang.N3, Lang.NQ, Lang.NQUADS, Lang.NT, Lang.NTRIPLES, Lang.RDFJSON, Lang.RDFNULL, Lang.RDFTHRIFT, Lang.RDFXML, Lang.TRIG, Lang.TTL, Lang.TURTLE));
 
+    private Path path;
+    
     private Collection<DataSource> dataSources;
 
     private DataSource selected;
@@ -54,6 +56,22 @@ public class DataFusionBean implements AutoCloseable {
      */
     public Set<Lang> getSyntaxes() {
         return syntaxes;
+    }
+    
+    /**
+     * 
+     * @return the path
+     */
+    public Path getPath() {
+        return path;
+    }
+
+    /**
+     * 
+     * @param path the path to set
+     */
+    public void setPath(Path path) {
+        this.path = path;
     }
 
     /**
@@ -183,15 +201,15 @@ public class DataFusionBean implements AutoCloseable {
         List<Property> source;
         List<Property> target;
 
-        source = new ArrayList<Property>();
-        target = new ArrayList<Property>();
+        source = new ArrayList();
+        target = new ArrayList();
 
         source.addAll(DataFusion.EQUIVALENCE_PROPERTIES);
 
         equivalenceProperties = new DualListModel(source, target);
 
-        source = new ArrayList<Property>();
-        target = new ArrayList<Property>();
+        source = new ArrayList();
+        target = new ArrayList();
 
         mappedProperties = new DualListModel(source, target);
 
@@ -273,7 +291,11 @@ public class DataFusionBean implements AutoCloseable {
 
         Property node = ResourceFactory.createProperty(property);
 
-        //selected.getMappedProperties().add(node);
+        Set<Property> complexProperty = new LinkedHashSet();
+        complexProperty.add(node);
+        
+        //selected.getMappedProperties().add();
+        
         property = new String();
 
     }

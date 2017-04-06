@@ -38,7 +38,7 @@
 
                         <f:facet name="footer">
                             <p:commandButton id="newButton"   icon="fa fa-plus" value="#{bundle.New}" actionListener="#{dataFusionBean.newDataFusion}" process="@this" update=":growl,datalist" />                           
-                            <p:commandButton id="addButton" icon="fa fa-file-o" value="#{bundle.Add}" actionListener="#{dataFusionBean.newDataSource}" process="@this" update=":DataFusionCreateForm" oncomplete="PF('DataFusionCreateDialog').show()" disabled="#{dataFusionBean.dataSources eq null}" />
+                            <p:commandButton id="addButton" icon="fa fa-file-o" value="#{bundle.Add}" actionListener="#{dataFusionBean.newDataSource}" process="@this" update=":DataFusionCreateForm" oncomplete="PF('DataFusionCreateDialog').show()" disabled="#{empty dataFusionBean.path}" />
                             <p:commandButton id="viewButton"   icon="fa fa-search" value="#{bundle.View}" process="@this" update=":DataFusionViewForm" oncomplete="PF('DataFusionViewDialog').show()" disabled="#{empty dataFusionBean.selected}" />                           
                             <p:commandButton id="deleteButton" icon="fa fa-trash"  value="#{bundle.Remove}" actionListener="#{dataFusionBean.removeDataSource}" process="@this" update=":growl,datalist" disabled="#{empty dataFusionBean.selected}" />
                             <p:commandButton id="fuseButton" icon="fa fa-play"  value="#{bundle.Fuse}" actionListener="#{dataFusionBean.fuseDataSources}" process="@this" update=":growl" disabled="#{empty dataFusionBean.dataSources}" />

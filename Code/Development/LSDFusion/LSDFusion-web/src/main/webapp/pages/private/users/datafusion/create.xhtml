@@ -21,6 +21,7 @@
                                 </p:column>
                                 <p:column>
                                     <p:fileUpload id="file" fileUploadListener="#{dataFusionBean.handleFileUpload}" label="#{bundle.Choose}" mode="advanced" auto="true" update="display" rendered="#{empty dataFusionBean.selected.path}" />
+                                    <h:outputText value="#{dataFusionBean.selected.path}" rendered="#{not empty dataFusionBean.selected.path}" />
                                 </p:column>
                             </p:row>
                             <p:row>
