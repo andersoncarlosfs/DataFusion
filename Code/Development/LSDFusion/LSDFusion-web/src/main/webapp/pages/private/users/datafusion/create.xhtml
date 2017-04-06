@@ -10,7 +10,7 @@
 
         <p:dialog id="DataFusionCreateDlg" widgetVar="DataFusionCreateDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.CreateDataFusionTitle}" height="300">
             <p:ajax event="close" update=":DataFusionCreateForm:display" resetValues="true"/>
-            <h:form id="DataFusionCreateForm">
+            <h:form id="DataFusionCreateForm" enctype="multipart/form-data">
                 <p:panel id="panel" style="border: none;">
 
                     <h:panelGroup id="display">                 
@@ -20,7 +20,7 @@
                                     <p:outputLabel for="file" value="#{bundle.CreateDataFusionLabel_file}" />
                                 </p:column>
                                 <p:column>
-                                    <p:fileUpload id="file" value="#{dataFusionBean.file}" label="#{bundle.Choose}" uploadLabel="#{bundle.Upload}" cancelLabel="#{bundle.Cancel}" multiple="false" mode="simple" auto="true" dragDropSupport="true" skinSimple="true" required="true" />
+                                    <p:fileUpload id="file" fileUploadListener="#{dataFusionBean.handleFileUpload}" label="#{bundle.Choose}" mode="advanced" auto="true" update="display" rendered="#{empty dataFusionBean.selected.path}" />
                                 </p:column>
                             </p:row>
                             <p:row>
@@ -36,8 +36,8 @@
                                     <p:outputLabel for="syntax" value="#{bundle.CreateDataFusionLabel_syntax}" />
                                 </p:column>
                                 <p:column>
-                                    <p:selectOneMenu id="syntax" value="#{dataFusionBean.selected.syntax}" converter="langConverter" required="true">
-                                        <f:selectItems value="#{dataFusionBean.syntaxes}" var="syntax" itemLabel="#{syntax.name}" itemValue="#{syntax}" />
+                                    <p:selectOneMenu id="syntax" value="#{dataFusionBean.syntax}" required="true">
+                                        <f:selectItems value="#{dataFusionBean.syntaxes}" var="syntax" itemLabel="#{syntax.name}" itemValue="#{syntax.name}" />
                                     </p:selectOneMenu>
                                 </p:column>
                             </p:row>

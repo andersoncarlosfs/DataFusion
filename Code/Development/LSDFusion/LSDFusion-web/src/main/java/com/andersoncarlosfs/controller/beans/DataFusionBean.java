@@ -3,6 +3,7 @@ package com.andersoncarlosfs.controller.beans;
 import com.andersoncarlosfs.annotations.scopes.ApplicationScope;
 import com.andersoncarlosfs.data.integration.DataFusion;
 import com.andersoncarlosfs.data.model.DataSource;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,17 +14,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.convert.Converter;
-import javax.faces.convert.FacesConverter;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.lang.LangBase;
+import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.DualListModel;
-import org.primefaces.model.UploadedFile;
 
 /**
  *
@@ -40,13 +37,13 @@ public class DataFusionBean implements AutoCloseable {
 
     private DataSource selected;
 
-    private UploadedFile file;
-
     private DualListModel<Property> equivalenceProperties;
 
     private DualListModel<Property> mappedProperties;
 
     private String property;
+
+    private String syntax;
 
     public DataFusionBean() {
     }
@@ -93,22 +90,6 @@ public class DataFusionBean implements AutoCloseable {
 
     /**
      *
-     * @return the file
-     */
-    public UploadedFile getFile() {
-        return file;
-    }
-
-    /**
-     *
-     * @param file the file to set
-     */
-    public void setFile(UploadedFile file) {
-        this.file = file;
-    }
-
-    /**
-     *
      * @return the equivalenceProperties
      */
     public DualListModel<Property> getEquivalenceProperties() {
@@ -151,6 +132,22 @@ public class DataFusionBean implements AutoCloseable {
      */
     public void setProperty(String property) {
         this.property = property;
+    }
+
+    /**
+     *
+     * @return the syntax
+     */
+    public String getSyntax() {
+        return syntax;
+    }
+
+    /**
+     *
+     * @param syntax the syntax to set
+     */
+    public void setSyntax(String syntax) {
+        this.syntax = syntax;
     }
 
     /**
@@ -224,6 +221,32 @@ public class DataFusionBean implements AutoCloseable {
 
     /**
      *
+     * @param event
+     */
+    public void handleFileUpload(FileUploadEvent event) {
+
+        System.out.println(event.getFile().getFileName());
+
+        try {
+            
+           File file = new File(path.toFile(), event.getFile().getFileName());
+           
+           Files.copy(event.getFile().getInputstream(), file.toPath());
+           
+           selected.setPath(file.getCanonicalPath());
+
+        } catch (Exception exception) {
+
+            NotificationBean.addErrorMessage(exception, null);
+
+        }
+
+        System.out.println(selected.getPath());
+
+    }
+
+    /**
+     *
      */
     public void addEequivalenceProperty() {
 
@@ -259,38 +282,24 @@ public class DataFusionBean implements AutoCloseable {
     /**
      *
      */
-    public void addDataSource() {
+    public void addDataSource() throws Exception {
+
+        if (selected.getPath().trim().isEmpty()) {
+            FacesContext.getCurrentInstance().validationFailed();
+            NotificationBean.addErrorMessage(new Exception(""), "");
+        }
 
         if (FacesContext.getCurrentInstance().isValidationFailed()) {
             return;
         }
-       
-        try {
 
-            Path p = Files.createTempDirectory(path, file.getFileName());
-
-            Path f = Files.createTempFile(p, file.getFileName(), null);
-
-            Files.copy(file.getInputstream(), f);
-
-            selected.setPath(f.toFile().getCanonicalPath());
-
-        } catch (Exception exception) {
-
-            NotificationBean.addErrorMessage(exception, exception.getStackTrace().toString());
-
+        for (Lang l : syntaxes) {
+            if (l.getName().equals(syntax)) {
+                selected.setSyntax(l);
+                break;
+            }
         }
 
-        if (selected.getPath() == null) {
-            return;
-        }
-                
-        if (selected.getPath().trim().isEmpty()) {
-            return;
-        }
-        
- 
-        
         dataSources.add(selected);
 
         selected = null;
@@ -312,29 +321,6 @@ public class DataFusionBean implements AutoCloseable {
     @Override
     public void close() throws Exception {
         deleteFiles();
-    }
-
-    /**
-     *
-     */
-    @FacesConverter(forClass = Lang.class, value = "langConverter")
-    public static class LangConverter implements Converter {
-
-        @Override
-        public Object getAsObject(FacesContext context, UIComponent component, String value) {
-            for (Lang syntax : syntaxes) {
-                if (value.equals(syntax.getName())) {
-                    return syntax;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        public String getAsString(FacesContext context, UIComponent component, Object value) {
-            return ((Lang) value).getName();
-        }
-
     }
 
 }
