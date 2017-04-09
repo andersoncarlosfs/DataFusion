@@ -272,7 +272,7 @@ public class DataFusionBean implements AutoCloseable {
 
         DataFusionService service = new DataFusionService();
         
-        File result = service.getFusedDataSet(dataSources);
+        File result = service.getFusedDataSet(path, dataSources);
 
     }
 
