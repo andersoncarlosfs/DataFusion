@@ -70,7 +70,6 @@ public class DataFusion {
     private class DataQualityEvaluation extends StreamRDFBase {
 
         private Map<Node, Map<Node, Map<Node, LocalDate>>> statements;
-        private Map<Node, AtomicInteger> frequencies;
         private Set<LocalDate> freshnesses;
         //# These variables need to be removed
         // 
@@ -81,8 +80,6 @@ public class DataFusion {
         private Collection<Collection<LinkedHashSet<Node>>> mappedProperties;
 
         public DataQualityEvaluation() {
-            //
-            frequencies = new HashMap();
             //
             freshnesses = new LinkedHashSet();
             //
@@ -158,9 +155,6 @@ public class DataFusion {
                 }
             }
             //#
-            // Compute frequencies
-            frequencies.putIfAbsent(object, new AtomicInteger(0));
-            frequencies.get(object).incrementAndGet();
 
             // Find equivalence classes
             if (equivalenceProperties.contains(predicate)) {
@@ -192,9 +186,9 @@ public class DataFusion {
          * @return
          */
         public Map<Collection<Node>, Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>>> computeDataQualityAssessment() {
-            
+
             //
-            Float durations = new Float(0);            
+            Float durations = new Float(0);
             //
             for (LocalDate freshness : freshnesses) {
                 //
@@ -216,12 +210,15 @@ public class DataFusion {
                 //
                 computedFreshness.putIfAbsent(freshness, ChronoUnit.DAYS.between(LocalDate.now(), freshness) / durations);
             }
-            
+
             // 
             Map<Collection<Node>, Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>>> computedStatements = new HashMap();
 
+            //
+            Collection<Collection<Node>> equivalenceClasses = this.equivalenceClasses.disjointValues();
+
             // Loop equivalence classes
-            for (Collection<Node> equivalenceClass : equivalenceClasses.disjointValues()) {
+            for (Collection<Node> equivalenceClass : equivalenceClasses) {
                 // Map equivalence classes of statements      
                 computedStatements.putIfAbsent(equivalenceClass, new HashMap());
                 // Get properties of equivalence class
@@ -267,17 +264,46 @@ public class DataFusion {
                                 //
                                 Node object = objectEntry.getKey();
                                 LocalDate freshness = objectEntry.getValue();
-                                // Compute frequency
+                                //
                                 DataQualityAssessment assessment = new DataQualityAssessment();
-                                assessment.setFrequency(frequencies.get(object));
-                                assessment.setHomogeneity(new AtomicInteger(0));
                                 // Map objects
                                 computedObjects.putIfAbsent(object, assessment);
-                                // Compute homogeneity                            
+                                //                         
                                 assessment = computedObjects.get(object);
-                                assessment.getHomogeneity().incrementAndGet();
-                                // Compute freshness
-                                assessment.setFreshness(computedFreshness.get(freshness));
+                                //
+                                if (assessment.getFrequency() == null) {
+                                    // Compute frequency
+                                    Float frequency = 0.f;
+                                    //
+                                    for (Map<Node, Map<Node, LocalDate>> properties : statements.values()) {
+                                        //
+                                        for (Map.Entry<Node, Map<Node, LocalDate>> entry : properties.entrySet()) {
+                                            //
+                                            Node node = entry.getKey();
+                                            Map<Node, LocalDate> values = entry.getValue();
+                                            //
+                                            if (node.equals(property)) {
+                                                //
+                                                for (Node value : values.keySet()) {
+                                                    //
+                                                    if (value.equals(object)) {
+                                                        //
+                                                        frequency = (((frequency * values.size()) + 1) / values.size());
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    //                                
+                                    assessment.setFrequency(frequency);
+                                }
+                                // Compute homogeneity                                
+                                Float homogeneity = assessment.getHomogeneity();
+                                if(homogeneity == null) {
+                                    homogeneity = 0.f;
+                                }
+                                homogeneity = (((homogeneity * equivalenceClasses.size()) + 1) / equivalenceClasses.size());
+                                assessment.setHomogeneity(homogeneity);
                                 // 
                                 for (Map.Entry<Node, DataQualityAssessment> computedObjectEntry : computedObjects.entrySet()) {
                                     Node node = computedObjectEntry.getKey();
@@ -311,7 +337,7 @@ public class DataFusion {
 
             return computedStatements;
 
-        }       
+        }
 
     }
 

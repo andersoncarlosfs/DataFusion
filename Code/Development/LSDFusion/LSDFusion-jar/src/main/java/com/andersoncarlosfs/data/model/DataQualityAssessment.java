@@ -8,7 +8,6 @@ package com.andersoncarlosfs.data.model;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.validation.constraints.Size;
 import org.apache.jena.graph.Node;
 
@@ -20,9 +19,9 @@ public class DataQualityAssessment implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Size(min = 1)
-    private AtomicInteger frequency;
+    private Float frequency;
     @Size(min = 1)
-    private AtomicInteger homogeneity;
+    private Float homogeneity;
     @Size(min = 0, max = 1)
     private Float reliability;
     @Size(min = 0, max = 1)
@@ -30,8 +29,6 @@ public class DataQualityAssessment implements Serializable {
     private Collection<Node> morePrecise;
 
     public DataQualityAssessment() {
-        this.frequency = new AtomicInteger(0);
-        this.homogeneity = new AtomicInteger(0);
         this.morePrecise = new HashSet<>();
     }
 
@@ -39,7 +36,7 @@ public class DataQualityAssessment implements Serializable {
      *
      * @return the frequency
      */
-    public AtomicInteger getFrequency() {
+    public Float getFrequency() {
         return frequency;
     }
 
@@ -47,7 +44,7 @@ public class DataQualityAssessment implements Serializable {
      *
      * @param frequency the frequency to set
      */
-    public void setFrequency(AtomicInteger frequency) {
+    public void setFrequency(Float frequency) {
         this.frequency = frequency;
     }
 
@@ -55,7 +52,7 @@ public class DataQualityAssessment implements Serializable {
      *
      * @return the homogeneity
      */
-    public AtomicInteger getHomogeneity() {
+    public Float getHomogeneity() {
         return homogeneity;
     }
 
@@ -63,7 +60,7 @@ public class DataQualityAssessment implements Serializable {
      *
      * @param homogeneity the homogeneity to set
      */
-    public void setHomogeneity(AtomicInteger homogeneity) {
+    public void setHomogeneity(Float homogeneity) {
         this.homogeneity = homogeneity;
     }
 
