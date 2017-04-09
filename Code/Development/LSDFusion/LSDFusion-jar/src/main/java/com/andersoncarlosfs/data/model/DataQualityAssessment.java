@@ -7,7 +7,7 @@ package com.andersoncarlosfs.data.model;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashSet;
+import javax.enterprise.context.RequestScoped;
 import javax.validation.constraints.Size;
 import org.apache.jena.graph.Node;
 
@@ -15,12 +15,14 @@ import org.apache.jena.graph.Node;
  *
  * @author Anderson Carlos Ferreira da Silva
  */
+@RequestScoped
 public class DataQualityAssessment implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @Size(min = 1)
+
+    @Size(min = 0, max = 1)
     private Float frequency;
-    @Size(min = 1)
+    @Size(min = 0, max = 1)
     private Float homogeneity;
     @Size(min = 0, max = 1)
     private Float reliability;
@@ -29,7 +31,6 @@ public class DataQualityAssessment implements Serializable {
     private Collection<Node> morePrecise;
 
     public DataQualityAssessment() {
-        this.morePrecise = new HashSet<>();
     }
 
     /**

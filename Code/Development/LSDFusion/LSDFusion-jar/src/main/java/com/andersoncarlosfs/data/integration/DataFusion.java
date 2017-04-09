@@ -19,7 +19,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.enterprise.context.RequestScoped;
 import org.apache.jena.graph.FrontsNode;
 import org.apache.jena.graph.Node;
@@ -320,6 +319,10 @@ public class DataFusion {
                                     if (!node.isLiteral()) {
                                         continue;
                                     }
+                                    //
+                                    if(assessment.getMorePrecise() == null){
+                                        assessment.setMorePrecise(new HashSet());
+                                    }                                            
                                     //                                
                                     if (object.getLiteralValue().toString().contains(node.getLiteralValue().toString())) {
                                         assessment.getMorePrecise().add(node);
