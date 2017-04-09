@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -51,6 +52,8 @@ public class DataFusionBean implements AutoCloseable {
     private DualListModel<Collection<Property>> mappedProperties;
 
     private Collection<Property> mappedProperty;
+
+    private Date freshness;
 
     private String property;
 
@@ -113,6 +116,22 @@ public class DataFusionBean implements AutoCloseable {
      */
     public void setSelected(DataSource selected) {
         this.selected = selected;
+    }
+    
+    /**
+     * 
+     * @return the freshness
+     */
+    public Date getFreshness() {
+        return freshness;
+    }
+
+    /**
+     * 
+     * @param freshness the freshness to set
+     */
+    public void setFreshness(Date freshness) {
+        this.freshness = freshness;
     }
 
     /**
@@ -222,12 +241,12 @@ public class DataFusionBean implements AutoCloseable {
         List<Collection<Property>> sourceMappedProperties = new ArrayList();
         List<Collection<Property>> targetMappedProperties = new ArrayList();
 
-        mappedProperties = new DualListModel(sourceMappedProperties, targetMappedProperties);        
+        mappedProperties = new DualListModel(sourceMappedProperties, targetMappedProperties);
 
         selected = new DataSource();
-        
+
         property = null;
-        
+
         syntax = null;
 
     }
@@ -248,6 +267,8 @@ public class DataFusionBean implements AutoCloseable {
      */
     public void fuseDataSources() {
 
+        System.out.println("fuse");
+        
     }
 
     /**
@@ -358,6 +379,10 @@ public class DataFusionBean implements AutoCloseable {
      *
      */
     public void addDataSource() throws Exception {
+        
+        if (freshness != null) {            
+            selected.setFreshness(freshness);
+        }
 
         if (selected.getPath().trim().isEmpty()) {
             FacesContext.getCurrentInstance().validationFailed();
@@ -419,6 +444,7 @@ public class DataFusionBean implements AutoCloseable {
     /**
      *
      */
+    @ApplicationScope
     @FacesConverter(value = "mappedPropertiesConverter")
     public static class MappedPropertiesConverter implements Converter {
 

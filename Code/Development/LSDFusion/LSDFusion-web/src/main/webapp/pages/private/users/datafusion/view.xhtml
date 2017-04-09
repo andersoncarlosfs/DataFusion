@@ -27,7 +27,7 @@
                                     <p:outputLabel for="freshness" value="#{bundle.ViewDataFusionLabel_freshness}" />
                                 </p:column>
                                 <p:column>
-                                    <p:calendar id="freshness" value="#{dataFusionBean.selected.freshness}" navigator="true" readonly="true" /> 
+                                    <h:outputText value="#{dataFusionBean.selected.freshness}" /> 
                                 </p:column>
                             </p:row>
                             <p:row>
@@ -39,16 +39,22 @@
                                 </p:column>
                             </p:row>                           
                             <p:row>
-                                <p:column colspan="2">
+                                <p:column>
+                                    <p:outputLabel value="#{bundle.ViewDataFusionLabel_equivalenceProperties}" />
+                                </p:column>
+                                <p:column>  
                                     <p:dataList value="#{dataFusionBean.selected.equivalenceProperties}" var="equivalenceProperty">
                                         #{equivalenceProperty}
                                     </p:dataList>
                                 </p:column>
                             </p:row>                            
                             <p:row>
-                                <p:column colspan="2">
-                                    <p:dataList value="#{dataFusionBean.selected.mappedProperties}" var="mappedProperties">
-                                        #{mappedProperties}
+                                <p:column>
+                                    <p:outputLabel value="#{bundle.ViewDataFusionLabel_mappedProperties}" />
+                                </p:column>
+                                <p:column>  
+                                    <p:dataList value="#{dataFusionBean.selected.mappedProperties}" var="mappedProperty">
+                                        #{mappedProperty}
                                     </p:dataList>
                                 </p:column>
                             </p:row>
