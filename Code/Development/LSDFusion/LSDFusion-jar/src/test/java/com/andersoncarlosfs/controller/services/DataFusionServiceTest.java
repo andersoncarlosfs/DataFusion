@@ -9,13 +9,17 @@ import com.andersoncarlosfs.data.controller.services.DataFusionService;
 import com.andersoncarlosfs.data.integration.DataFusion;
 import com.andersoncarlosfs.data.model.DataQualityAssessment;
 import com.andersoncarlosfs.data.model.DataSource;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.LinkedHashSet;
-import java.util.UUID;
+import java.util.stream.Stream;
 import org.apache.jena.graph.Node;
 import org.apache.jena.riot.Lang;
 import org.junit.After;
@@ -135,8 +139,8 @@ public class DataFusionServiceTest {
     }
 
     @Test
-    public void x() throws IOException {
-        System.out.println("begin test x");
+    public void testGetFusedDataSet() throws IOException {
+        System.out.println("begin test getFusedDataSet");
         //https://www.w3.org/wiki/DataSetRDFDumps
         //http://data.bnf.fr/semanticweb        
         //DataSource dataSource = new DataSource("../../../../Datasets/BNF/dataset.tar.gz");
@@ -156,78 +160,22 @@ public class DataFusionServiceTest {
         DataFusionService service = new DataFusionService();
         try {
 
-            Map<Collection<Node>, Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>>> computedStatements = service.getDataQualityAssessment(Arrays.asList(dataSource, link));
+            Path path = Files.createTempDirectory(null);
 
-            for (Map.Entry<Collection<Node>, Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>>> computedStatement : computedStatements.entrySet()) {
+            File file = service.getFusedDataSet(path, Arrays.asList(dataSource, link));
 
-                Collection<Node> equivalenceClasse = computedStatement.getKey();
-                Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>> computedProperties = computedStatement.getValue();
+            Stream<String> stream = Files.lines(file.toPath());
 
-                for (Node subject : equivalenceClasse) {
+            stream.forEach(System.out::println);
+            
+            stream.close();
+            
+            file.deleteOnExit();
 
-                    for (Map.Entry<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>> entry : computedProperties.entrySet()) {
-
-                        LinkedHashSet<Node> complexProperty = entry.getKey();
-                        Map<Node, DataQualityAssessment> value = entry.getValue();
-
-                        for (Map.Entry<Node, DataQualityAssessment> computedObjects : value.entrySet()) {
-
-                            Node object = computedObjects.getKey();
-                            DataQualityAssessment assessment = computedObjects.getValue();
-
-                            System.out.print("<" + subject + ">\t");
-
-                            int i = 0;
-
-                            for (Node property : complexProperty) {
-
-                                System.out.print("<" + property + ">\t");
-
-                                if (i > 2) {
-
-                                    System.out.println(".\n");
-
-                                    i = 0;
-
-                                }
-
-                                i++;
-
-                            }
-
-                            String o;
-                            
-                            String v = "";
-
-                            if (object.isLiteral()) {
-                                o = "<http://www.ina.fr/thesaurus/_" + UUID.randomUUID() + ">";
-                                v = o + "\t<http://www.ina.fr/thesaurus/#hasValue>\t" + object.toString() + ".\n";                                
-                            } else {
-                                o = "<" + object + ">";
-                            }                            
-
-                            System.out.print(o + ".\n");
-                            
-                            System.out.print(v);
-                            
-                            System.out.print(o + "\t<http://www.ina.fr/thesaurus/#hasFrequency>\t\"" + assessment.getFrequency() + "\".\n");
-
-                            System.out.print(o + "\t<http://www.ina.fr/thesaurus/#hasHomogeneity>\t\"" + assessment.getHomogeneity() + "\".\n");
-
-                            for (Node node : assessment.getMorePrecise()) {
-
-                                System.out.print(o + "\t<http://www.ina.fr/thesaurus/#hasMorePrecise>\t" + node + ".\n");
-
-                            }
-
-                        }
-                    }
-                }
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("end test x");
+        System.out.println("end test getFusedDataSet");
     }
 
 }

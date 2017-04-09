@@ -8,12 +8,19 @@ package com.andersoncarlosfs.data.controller.services;
 import com.andersoncarlosfs.data.model.DataSource;
 import com.andersoncarlosfs.data.integration.DataFusion;
 import com.andersoncarlosfs.data.model.DataQualityAssessment;
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.LinkedHashSet;
+import java.util.UUID;
 import javax.enterprise.context.RequestScoped;
 import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 
 /**
  *
@@ -42,4 +49,90 @@ public class DataFusionService {
         return new DataFusion(dataSources).getDataQualityAssessment();
     }
 
+    /**
+     *
+     * @param path
+     * @param dataSources
+     * @return
+     * @throws IOException
+     */
+    public File getFusedDataSet(Path path, Collection<DataSource> dataSources) throws IOException {
+        File file = Files.createTempFile(path, null, null).toFile();
+
+        PrintWriter writer = new PrintWriter(file);
+
+        Map<Collection<Node>, Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>>> computedStatements = getDataQualityAssessment(dataSources);
+
+        for (Map.Entry<Collection<Node>, Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>>> computedStatement : computedStatements.entrySet()) {
+
+            Collection<Node> equivalenceClasse = computedStatement.getKey();
+            Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>> computedProperties = computedStatement.getValue();
+
+            for (Node subject : equivalenceClasse) {
+
+                for (Map.Entry<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>> entry : computedProperties.entrySet()) {
+
+                    LinkedHashSet<Node> complexProperty = entry.getKey();
+                    Map<Node, DataQualityAssessment> value = entry.getValue();
+
+                    for (Map.Entry<Node, DataQualityAssessment> computedObjects : value.entrySet()) {
+
+                        Node object = computedObjects.getKey();
+                        DataQualityAssessment assessment = computedObjects.getValue();
+
+                        writer.append("<" + subject + "> ");
+
+                        int i = 0;
+
+                        for (Node property : complexProperty) {
+
+                            writer.append("<" + property + "> ");
+
+                            if (i > 2) {
+
+                                writer.println(".");
+
+                                i = 0;
+
+                            }
+
+                            i++;
+
+                        }
+
+                        String blank = "<" + NodeFactory.createBlankNode("http://www.result.com/" + UUID.randomUUID()).toString() + ">";
+
+                        String v = "";
+
+                        if (object.isLiteral()) {
+                            v = blank + " <http://www.result.com/#hasValue> " + object + " .";
+                        } else {
+                            blank = "<" + object + "> ";
+                        }
+
+                        writer.append(blank + " ");
+
+                        writer.println(".");
+
+                        writer.println(v);
+
+                        writer.println(blank + " <http://www.result.com/#hasFrequency> \"" + assessment.getFrequency() + "\" .");
+
+                        writer.println(blank + " <http://www.result.com/#hasHomogeneity> \"" + assessment.getHomogeneity() + "\" .");
+
+                        for (Node node : assessment.getMorePrecise()) {
+
+                            writer.println(blank + " <http://www.result.com/#hasMorePrecise> " + "<" + node + ">" + " .");
+
+                        }
+
+                    }
+                }
+            }
+        }
+
+        writer.close();
+
+        return file;
+    }
 }
