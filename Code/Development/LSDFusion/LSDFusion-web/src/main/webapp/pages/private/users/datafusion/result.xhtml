@@ -8,7 +8,7 @@
 
     <ui:composition>
 
-        <p:dialog id="DataFusionResultDlg" widgetVar="DataFusionResultDialog" modal="true" resizable="false" appendTo="@(body)" closable="false" header="#{bundle.ResultDataFusionTitle}">
+        <p:dialog id="DataFusionResultDlg" widgetVar="DataFusionResultDialog" modal="true" resizable="false" appendTo="@(body)" closable="false" header="#{bundle.ResultDataFusionTitle}" height="300">
             <h:form id="DataFusionResultForm">
                 <h:panelGroup id="display">
                     <p:panelGrid columns="2" rendered="#{false and dataFusionBean.selected != null}">

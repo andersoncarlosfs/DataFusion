@@ -1,6 +1,7 @@
 package com.andersoncarlosfs.controller.beans;
 
 import com.andersoncarlosfs.annotations.scopes.ApplicationScope;
+import com.andersoncarlosfs.data.controller.services.DataFusionService;
 import com.andersoncarlosfs.data.integration.DataFusion;
 import com.andersoncarlosfs.data.model.DataSource;
 import java.io.File;
@@ -58,6 +59,8 @@ public class DataFusionBean implements AutoCloseable {
     private String property;
 
     private String syntax;
+    
+    private File result;
 
     public DataFusionBean() {
     }
@@ -117,9 +120,9 @@ public class DataFusionBean implements AutoCloseable {
     public void setSelected(DataSource selected) {
         this.selected = selected;
     }
-    
+
     /**
-     * 
+     *
      * @return the freshness
      */
     public Date getFreshness() {
@@ -127,7 +130,7 @@ public class DataFusionBean implements AutoCloseable {
     }
 
     /**
-     * 
+     *
      * @param freshness the freshness to set
      */
     public void setFreshness(Date freshness) {
@@ -267,8 +270,10 @@ public class DataFusionBean implements AutoCloseable {
      */
     public void fuseDataSources() {
 
-        System.out.println("fuse");
+        DataFusionService service = new DataFusionService();
         
+        File result = service.getFusedDataSet(dataSources);
+
     }
 
     /**
@@ -278,6 +283,8 @@ public class DataFusionBean implements AutoCloseable {
     public void handleFileUpload(FileUploadEvent event) {
 
         try {
+
+            Path path = Files.createTempDirectory(this.path, UUID.randomUUID().toString());
 
             File file = new File(path.toFile(), event.getFile().getFileName());
 
@@ -379,8 +386,8 @@ public class DataFusionBean implements AutoCloseable {
      *
      */
     public void addDataSource() throws Exception {
-        
-        if (freshness != null) {            
+
+        if (freshness != null) {
             selected.setFreshness(freshness);
         }
 

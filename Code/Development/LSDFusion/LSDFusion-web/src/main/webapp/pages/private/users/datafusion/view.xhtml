@@ -8,7 +8,7 @@
 
     <ui:composition>
 
-        <p:dialog id="DataFusionViewDlg" widgetVar="DataFusionViewDialog" modal="true" resizable="false" appendTo="@(body)" closable="false" header="#{bundle.ViewDataFusionTitle}">
+        <p:dialog id="DataFusionViewDlg" widgetVar="DataFusionViewDialog" modal="true" resizable="false" appendTo="@(body)" closable="false" header="#{bundle.ViewDataFusionTitle}" height="300">
             <h:form id="DataFusionViewForm">
                 <p:panel id="panel" style="border: none;">
 
@@ -24,7 +24,7 @@
                             </p:row>
                             <p:row>
                                 <p:column>
-                                    <p:outputLabel for="freshness" value="#{bundle.ViewDataFusionLabel_freshness}" />
+                                    <p:outputLabel value="#{bundle.ViewDataFusionLabel_freshness}" />
                                 </p:column>
                                 <p:column>
                                     <h:outputText value="#{dataFusionBean.selected.freshness}" /> 
@@ -35,7 +35,7 @@
                                     <p:outputLabel value="#{bundle.ViewDataFusionLabel_syntax}" />
                                 </p:column>
                                 <p:column>                                   
-                                    <h:outputText value="#{dataFusionBean.selected.syntax}" />
+                                    <h:outputText value="#{dataFusionBean.selected.syntax.name}" />
                                 </p:column>
                             </p:row>                           
                             <p:row>
