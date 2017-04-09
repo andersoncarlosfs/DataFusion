@@ -298,11 +298,15 @@ public class DataFusion {
                                 }
                                 // Compute homogeneity                                
                                 Float homogeneity = assessment.getHomogeneity();
-                                if(homogeneity == null) {
+                                if (homogeneity == null) {
                                     homogeneity = 0.f;
                                 }
                                 homogeneity = (((homogeneity * equivalenceClasses.size()) + 1) / equivalenceClasses.size());
                                 assessment.setHomogeneity(homogeneity);
+                                //
+                                if (assessment.getMorePrecise() == null) {
+                                    assessment.setMorePrecise(new HashSet());
+                                }
                                 // 
                                 for (Map.Entry<Node, DataQualityAssessment> computedObjectEntry : computedObjects.entrySet()) {
                                     Node node = computedObjectEntry.getKey();
@@ -319,10 +323,6 @@ public class DataFusion {
                                     if (!node.isLiteral()) {
                                         continue;
                                     }
-                                    //
-                                    if(assessment.getMorePrecise() == null){
-                                        assessment.setMorePrecise(new HashSet());
-                                    }                                            
                                     //                                
                                     if (object.getLiteralValue().toString().contains(node.getLiteralValue().toString())) {
                                         assessment.getMorePrecise().add(node);
