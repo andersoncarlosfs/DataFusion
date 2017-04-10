@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.LinkedHashSet;
@@ -68,7 +67,11 @@ public class DataFusionService {
             Collection<Node> equivalenceClasse = computedStatement.getKey();
             Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>> computedProperties = computedStatement.getValue();
 
+            String equivalence = "<" + NodeFactory.createBlankNode("http://www.result.com/" + UUID.randomUUID()).toString() + ">";
+            
             for (Node subject : equivalenceClasse) {
+                
+                writer.println("<" + subject + "> " + "<http://www.result.com/#hasEquivalence> " + equivalence + " .");
 
                 for (Map.Entry<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>> entry : computedProperties.entrySet()) {
 
@@ -116,13 +119,17 @@ public class DataFusionService {
 
                         writer.println(v);
 
-                        writer.println(blank + " <http://www.result.com/#hasFrequency> \"" + assessment.getFrequency() + "\" .");
+                        if (assessment != null) {
 
-                        writer.println(blank + " <http://www.result.com/#hasHomogeneity> \"" + assessment.getHomogeneity() + "\" .");
+                            writer.println(blank + " <http://www.result.com/#hasFrequency> \"" + assessment.getFrequency() + "\" .");
 
-                        for (Node node : assessment.getMorePrecise()) {
+                            writer.println(blank + " <http://www.result.com/#hasHomogeneity> \"" + assessment.getHomogeneity() + "\" .");
 
-                            writer.println(blank + " <http://www.result.com/#hasMorePrecise> " + "<" + node + ">" + " .");
+                            for (Node node : assessment.getMorePrecise()) {
+
+                                writer.println(blank + " <http://www.result.com/#hasMorePrecise> " + "<" + node + ">" + " .");
+
+                            }
 
                         }
 

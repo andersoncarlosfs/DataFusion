@@ -135,6 +135,14 @@ public class DataFusion {
          */
         private void parse(Node subject, Node predicate, Node object) {
 
+            // Find equivalence classes
+            if (equivalenceProperties.contains(predicate)) {
+                //
+                equivalenceClasses.union(subject, object);
+                //
+                return;
+            }
+
             // Map statements
             statements.putIfAbsent(subject, new HashMap());
             // 
@@ -153,12 +161,7 @@ public class DataFusion {
                     objects.put(object, freshness);
                 }
             }
-            //#
-
-            // Find equivalence classes
-            if (equivalenceProperties.contains(predicate)) {
-                equivalenceClasses.union(subject, object);
-            }
+            //#           
 
         }
 
