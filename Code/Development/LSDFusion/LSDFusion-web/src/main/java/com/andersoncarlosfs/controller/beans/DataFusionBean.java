@@ -59,7 +59,7 @@ public class DataFusionBean implements AutoCloseable {
     private String property;
 
     private String syntax;
-    
+
     private File result;
 
     public DataFusionBean() {
@@ -201,6 +201,22 @@ public class DataFusionBean implements AutoCloseable {
 
     /**
      *
+     * @return the result
+     */
+    public File getResult() {
+        return result;
+    }
+
+    /**
+     *
+     * @param result the result to set
+     */
+    public void setResult(File result) {
+        this.result = result;
+    }
+
+    /**
+     *
      */
     public void newDataFusion() {
 
@@ -215,6 +231,8 @@ public class DataFusionBean implements AutoCloseable {
             selected = null;
 
             path = Files.createTempDirectory(UUID.randomUUID().toString());
+            
+            result = null;
 
         } catch (Exception exception) {
 
@@ -251,6 +269,8 @@ public class DataFusionBean implements AutoCloseable {
         property = null;
 
         syntax = null;
+        
+        result = null;
 
     }
 
@@ -262,6 +282,8 @@ public class DataFusionBean implements AutoCloseable {
         dataSources.remove(selected);
 
         selected = null;
+        
+        result = null;
 
     }
 
@@ -270,9 +292,17 @@ public class DataFusionBean implements AutoCloseable {
      */
     public void fuseDataSources() {
 
-        DataFusionService service = new DataFusionService();
-        
-        File result = service.getFusedDataSet(path, dataSources);
+        try {
+
+            DataFusionService service = new DataFusionService();
+
+            File result = service.getFusedDataSet(path, dataSources);
+
+        } catch (Exception exception) {
+
+            NotificationBean.addErrorMessage(exception, null);
+
+        }
 
     }
 
