@@ -68,9 +68,9 @@ public class DataFusionService {
             Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>> computedProperties = computedStatement.getValue();
 
             String equivalence = "<" + NodeFactory.createBlankNode("http://www.result.com/" + UUID.randomUUID()).toString() + ">";
-            
+
             for (Node subject : equivalenceClasse) {
-                
+
                 writer.println("<" + subject + "> " + "<http://www.result.com/#hasEquivalence> " + equivalence + " .");
 
                 for (Map.Entry<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>> entry : computedProperties.entrySet()) {
@@ -127,7 +127,11 @@ public class DataFusionService {
 
                             for (Node node : assessment.getMorePrecise()) {
 
-                                writer.println(blank + " <http://www.result.com/#hasMorePrecise> " + "<" + node + ">" + " .");
+                                if (object.isLiteral()) {
+                                    writer.println(blank + " <http://www.result.com/#hasMorePrecise> " + node + " .");
+                                } else {
+                                    writer.println(blank + " <http://www.result.com/#hasMorePrecise> " + "<" + node + ">" + " .");
+                                }
 
                             }
 
