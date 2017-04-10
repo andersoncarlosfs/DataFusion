@@ -127,7 +127,7 @@ public class DataFusionService {
 
                             for (Node node : assessment.getMorePrecise()) {
 
-                                if (object.isLiteral()) {
+                                if (node.isLiteral()) {
                                     writer.println(blank + " <http://www.result.com/#hasMorePrecise> " + node + " .");
                                 } else {
                                     writer.println(blank + " <http://www.result.com/#hasMorePrecise> " + "<" + node + ">" + " .");
