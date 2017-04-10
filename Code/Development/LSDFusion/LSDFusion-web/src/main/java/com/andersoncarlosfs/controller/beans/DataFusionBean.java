@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,14 +23,19 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import org.apache.commons.io.FileUtils;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.TransferEvent;
 import org.primefaces.event.UnselectEvent;
+import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.DualListModel;
+import org.primefaces.model.TreeNode;
 
 /**
  *
@@ -61,6 +67,8 @@ public class DataFusionBean implements AutoCloseable {
     private String syntax;
 
     private File result;
+
+    private TreeNode root;
 
     public DataFusionBean() {
     }
@@ -231,7 +239,7 @@ public class DataFusionBean implements AutoCloseable {
             selected = null;
 
             path = Files.createTempDirectory(UUID.randomUUID().toString());
-            
+
             result = null;
 
         } catch (Exception exception) {
@@ -269,7 +277,7 @@ public class DataFusionBean implements AutoCloseable {
         property = null;
 
         syntax = null;
-        
+
         result = null;
 
     }
@@ -282,7 +290,7 @@ public class DataFusionBean implements AutoCloseable {
         dataSources.remove(selected);
 
         selected = null;
-        
+
         result = null;
 
     }
@@ -296,7 +304,64 @@ public class DataFusionBean implements AutoCloseable {
 
             DataFusionService service = new DataFusionService();
 
-            File result = service.getFusedDataSet(path, dataSources);
+            result = service.getFusedDataSet(path, dataSources);
+
+            Model model = RDFDataMgr.loadModel(result.getCanonicalPath());
+
+            root = new DefaultTreeNode(result.getName(), null);
+
+            List<TreeNode> list = new ArrayList();
+
+            list.add(root);
+
+            for (Iterator<Statement> iterator = model.listStatements(); iterator.hasNext();) {
+
+                Statement statement = iterator.next();
+
+                TreeNode r = new DefaultTreeNode(statement.getResource().toString());
+                TreeNode p = new DefaultTreeNode(statement.getPredicate().toString());
+                TreeNode o = new DefaultTreeNode(statement.getObject().toString());
+
+                r.getChildren().add(p);
+                p.getChildren().add(o);
+
+                for (TreeNode t : list) {
+
+                    if (t.getData().equals(r.getData())) {
+
+                        t.getChildren().add(p);
+
+                        r = null;
+
+                    }
+
+                    if (t.getData().equals(p.getData())) {
+
+                        p = null;
+
+                    }
+
+                    if (t.getData().equals(o.getData())) {
+
+                        o = null;
+
+                    }
+
+                }
+
+                if (r != null) {
+                    list.add(r);
+                }
+
+                if (p != null) {
+                    list.add(p);
+                }
+
+                if (o != null) {
+                    list.add(o);
+                }
+
+            }
 
         } catch (Exception exception) {
 

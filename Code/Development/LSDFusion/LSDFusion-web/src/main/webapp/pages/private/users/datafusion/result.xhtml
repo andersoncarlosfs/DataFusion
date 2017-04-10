@@ -8,13 +8,21 @@
 
     <ui:composition>
 
-        <p:dialog id="DataFusionResultDlg" widgetVar="DataFusionResultDialog" modal="true" resizable="false" appendTo="@(body)" closable="false" header="#{bundle.ResultDataFusionTitle}" height="300">
+        <p:dialog id="DataFusionResultDlg" widgetVar="DataFusionResultDialog" modal="true" resizable="false" appendTo="@(body)" closable="false" header="#{bundle.ResultDataFusionTitle}">
             <h:form id="DataFusionResultForm">
-                <h:panelGroup id="display">
-                    <p:panelGrid columns="2" rendered="#{not empty dataFusionBean.file}">
-                    </p:panelGrid>
-                    <p:commandButton type="button" value="#{bundle.Close}" icon="fa fa-close" onclick="PF('DataFusionResultDialog').hide()" />
-                </h:panelGroup>
+                <p:panel id="panel" style="border: none;">
+
+                    <p:tree value="#{dataFusionBean.root}" var="node" rendered="#{not empty dataFusionBean.file}">
+                        <p:treeNode>
+                            <h:outputText value="#{node}" />
+                        </p:treeNode>
+                    </p:tree>
+
+                    <f:facet name="footer">
+                        <p:commandButton type="button" value="#{bundle.Close}" icon="fa fa-close" onclick="PF('DataFusionResultDialog').hide()" />
+                    </f:facet>
+
+                </p:panel>
             </h:form>
         </p:dialog>
 
