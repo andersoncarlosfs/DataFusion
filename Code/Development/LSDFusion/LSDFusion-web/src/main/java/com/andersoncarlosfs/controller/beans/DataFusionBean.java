@@ -6,7 +6,9 @@ import com.andersoncarlosfs.data.integration.DataFusion;
 import com.andersoncarlosfs.data.model.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -19,10 +21,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.component.UIComponent;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
+import javax.servlet.ServletContext;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
@@ -49,7 +55,7 @@ public class DataFusionBean implements AutoCloseable {
 
     private static final Set<Lang> syntaxes = new HashSet(Arrays.asList(Lang.CSV, Lang.JSONLD, Lang.N3, Lang.NQ, Lang.NQUADS, Lang.NT, Lang.NTRIPLES, Lang.RDFJSON, Lang.RDFNULL, Lang.RDFTHRIFT, Lang.RDFXML, Lang.TRIG, Lang.TTL, Lang.TURTLE));
 
-    private static Collection<LinkedHashSet<Property>> complexProperties;
+    private static Collection<LinkedHashSet<String>> complexProperties;
 
     private Path path;
 
@@ -57,11 +63,11 @@ public class DataFusionBean implements AutoCloseable {
 
     private DataSource selected;
 
-    private DualListModel<Property> equivalenceProperties;
+    private DualListModel<String> equivalenceProperties;
 
-    private DualListModel<Collection<Property>> mappedProperties;
+    private DualListModel<Collection<String>> mappedProperties;
 
-    private Collection<Property> mappedProperty;
+    private Collection<String> mappedProperty;
 
     private Date freshness;
 
@@ -69,9 +75,11 @@ public class DataFusionBean implements AutoCloseable {
 
     private String syntax;
 
-    private StreamedContent result;
+    private File result;
 
     private TreeNode root;
+
+    private StreamedContent file;
 
     public DataFusionBean() {
     }
@@ -152,14 +160,14 @@ public class DataFusionBean implements AutoCloseable {
      *
      * @return the equivalenceProperties
      */
-    public DualListModel<Property> getEquivalenceProperties() {
+    public DualListModel<String> getEquivalenceProperties() {
         return equivalenceProperties;
     }
 
     /**
      * @param equivalenceProperties the equivalenceProperties to set
      */
-    public void setEquivalenceProperties(DualListModel<Property> equivalenceProperties) {
+    public void setEquivalenceProperties(DualListModel<String> equivalenceProperties) {
         this.equivalenceProperties = equivalenceProperties;
     }
 
@@ -167,14 +175,14 @@ public class DataFusionBean implements AutoCloseable {
      *
      * @return the mappedProperties
      */
-    public DualListModel<Collection<Property>> getMappedProperties() {
+    public DualListModel<Collection<String>> getMappedProperties() {
         return mappedProperties;
     }
 
     /**
      * @param mappedProperties the mappedProperties to set
      */
-    public void setMappedProperties(DualListModel<Collection<Property>> mappedProperties) {
+    public void setMappedProperties(DualListModel<Collection<String>> mappedProperties) {
         this.mappedProperties = mappedProperties;
     }
 
@@ -214,7 +222,7 @@ public class DataFusionBean implements AutoCloseable {
      *
      * @return the result
      */
-    public StreamedContent getResult() {
+    public File getResult() {
         return result;
     }
 
@@ -222,7 +230,7 @@ public class DataFusionBean implements AutoCloseable {
      *
      * @param result the result to set
      */
-    public void setResult(StreamedContent result) {
+    public void setResult(File result) {
         this.result = result;
     }
 
@@ -240,6 +248,22 @@ public class DataFusionBean implements AutoCloseable {
      */
     public void setRoot(TreeNode root) {
         this.root = root;
+    }
+
+    /**
+     *
+     * @return the file
+     */
+    public StreamedContent getFile() {
+        return file;
+    }
+
+    /**
+     *
+     * @param file the file to set
+     */
+    public void setFile(StreamedContent file) {
+        this.file = file;
     }
 
     /**
@@ -317,7 +341,7 @@ public class DataFusionBean implements AutoCloseable {
     /**
      *
      */
-    public void fuseDataSources() {
+    public void fuseDataSources() throws Exception {
 
         try {
 
@@ -325,68 +349,32 @@ public class DataFusionBean implements AutoCloseable {
 
             File file = service.getFusedDataSet(path, dataSources);
 
-            Model model = RDFDataMgr.loadModel(file.getCanonicalPath());
+            Model model = RDFDataMgr.loadModel(file.getCanonicalPath(), Lang.N3);
 
             root = new DefaultTreeNode(file.getName(), null);
-
-            List<TreeNode> list = new ArrayList();
-
-            list.add(root);
 
             for (Iterator<Statement> iterator = model.listStatements(); iterator.hasNext();) {
 
                 Statement statement = iterator.next();
 
-                TreeNode r = new DefaultTreeNode(statement.getResource().toString());
+                TreeNode r = new DefaultTreeNode(statement.getSubject().toString());
                 TreeNode p = new DefaultTreeNode(statement.getPredicate().toString());
                 TreeNode o = new DefaultTreeNode(statement.getObject().toString());
 
                 r.getChildren().add(p);
                 p.getChildren().add(o);
 
-                for (TreeNode t : list) {
-
-                    if (t.getData().equals(r.getData())) {
-
-                        t.getChildren().add(p);
-
-                        r = null;
-
-                    }
-
-                    if (t.getData().equals(p.getData())) {
-
-                        p = null;
-
-                    }
-
-                    if (t.getData().equals(o.getData())) {
-
-                        o = null;
-
-                    }
-
-                }
-
-                if (r != null) {
-                    list.add(r);
-                }
-
-                if (p != null) {
-                    list.add(p);
-                }
-
-                if (o != null) {
-                    list.add(o);
-                }
+                root.getChildren().add(r);
 
             }
 
-            result = new DefaultStreamedContent(new FileInputStream(file));
+            result = file;
 
         } catch (Exception exception) {
 
-            NotificationBean.addErrorMessage(exception, null);
+            NotificationBean.addErrorMessage(exception, exception.getStackTrace().toString());
+            
+            throw exception;
 
         }
 
@@ -410,7 +398,7 @@ public class DataFusionBean implements AutoCloseable {
 
         } catch (Exception exception) {
 
-            NotificationBean.addErrorMessage(exception, null);
+            NotificationBean.addErrorMessage(exception, exception.getStackTrace().toString());
 
         }
 
@@ -425,9 +413,7 @@ public class DataFusionBean implements AutoCloseable {
             return;
         }
 
-        Property node = ResourceFactory.createProperty(property);
-
-        equivalenceProperties.getTarget().add(node);
+        equivalenceProperties.getTarget().add(property);
 
         property = null;
 
@@ -438,7 +424,7 @@ public class DataFusionBean implements AutoCloseable {
      * @param event
      */
     public void onPropertySelect(SelectEvent event) {
-        mappedProperty = (Collection<Property>) event.getObject();
+        mappedProperty = (Collection<String>) event.getObject();
     }
 
     /**
@@ -468,12 +454,10 @@ public class DataFusionBean implements AutoCloseable {
             return;
         }
 
-        Property node = ResourceFactory.createProperty(property);
-
         if (mappedProperty == null) {
 
-            LinkedHashSet<Property> complexProperty = new LinkedHashSet();
-            complexProperty.add(node);
+            LinkedHashSet<String> complexProperty = new LinkedHashSet();
+            complexProperty.add(property);
 
             mappedProperties.getTarget().add(complexProperty);
 
@@ -485,7 +469,7 @@ public class DataFusionBean implements AutoCloseable {
 
             mappedProperties.getTarget().remove(mappedProperty);
 
-            mappedProperty.add(node);
+            mappedProperty.add(property);
 
             mappedProperties.getTarget().add(mappedProperty);
 
@@ -523,14 +507,20 @@ public class DataFusionBean implements AutoCloseable {
             }
         }
 
-        selected.setEquivalenceProperties(equivalenceProperties.getTarget());
+        selected.setEquivalenceProperties(new HashSet<Property>());
 
-        for (Collection<Property> properties : mappedProperties.getTarget()) {
+        for (String p : equivalenceProperties.getTarget()) {
 
-            for (Property p : properties) {
+            selected.getEquivalenceProperties().add(ResourceFactory.createProperty(p));
+
+        }
+
+        for (Collection<String> properties : mappedProperties.getTarget()) {
+
+            for (String p : properties) {
 
                 LinkedHashSet<Property> complexProperty = new LinkedHashSet();
-                complexProperty.add(p);
+                complexProperty.add(ResourceFactory.createProperty(p));
 
                 Collection<LinkedHashSet<Property>> c = new HashSet();
                 c.add(complexProperty);
@@ -544,6 +534,22 @@ public class DataFusionBean implements AutoCloseable {
         dataSources.add(selected);
 
         selected = null;
+
+    }
+
+    public void downloadFile() throws Exception {
+
+        try {
+
+            file = new DefaultStreamedContent(new FileInputStream(result), "", "result");
+
+        } catch (Exception exception) {
+
+            NotificationBean.addErrorMessage(exception, exception.getStackTrace().toString());
+
+            throw exception;
+
+        }
 
     }
 
@@ -574,7 +580,7 @@ public class DataFusionBean implements AutoCloseable {
         @Override
         public Object getAsObject(FacesContext context, UIComponent component, String value) {
 
-            for (LinkedHashSet<Property> complexProperty : complexProperties) {
+            for (LinkedHashSet<String> complexProperty : complexProperties) {
 
                 if (complexProperty.toString().equals(value)) {
                     return complexProperty;

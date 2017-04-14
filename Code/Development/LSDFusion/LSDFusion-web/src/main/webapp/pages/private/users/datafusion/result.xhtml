@@ -10,9 +10,9 @@
 
         <p:dialog id="DataFusionResultDlg" widgetVar="DataFusionResultDialog" modal="true" resizable="false" appendTo="@(body)" closable="false" header="#{bundle.ResultDataFusionTitle}">
             <h:form id="DataFusionResultForm">
-                <p:panel id="panel" style="border: none;">
+                <p:panel id="panel" style="border: none; max-height: 600px;">
 
-                    <p:tree value="#{dataFusionBean.root}" var="node" rendered="#{not empty dataFusionBean.result}">
+                    <p:tree value="#{dataFusionBean.root}" var="node" rendered="#{not empty dataFusionBean.result}" >
                         <p:treeNode>
                             <h:outputText value="#{node}" />
                         </p:treeNode>
@@ -21,10 +21,10 @@
                     <f:facet name="footer">
                         <p:commandButton type="button" value="#{bundle.Close}" icon="fa fa-close" onclick="PF('DataFusionResultDialog').hide()" />
                     </f:facet>
-                    
+
                     <f:facet name="footer">
-                        <p:commandButton type="button" value="#{bundle.Download}" ajax="false" icon="ui-icon-arrowthick-1-s" onclick="PrimeFaces.monitorDownload(start, stop);">
-                            <p:fileDownload value="#{dataFusionBean.result}" />
+                        <p:commandButton value="#{bundle.Download}" ajax="false" icon="ui-icon-arrowthick-1-s" onclick="PrimeFaces.monitorDownload(start, stop);" disabled="#{empty dataFusionBean.result}">
+                            <p:fileDownload value="#{dataFusionBean.file}" />
                         </p:commandButton>
                     </f:facet>
 
