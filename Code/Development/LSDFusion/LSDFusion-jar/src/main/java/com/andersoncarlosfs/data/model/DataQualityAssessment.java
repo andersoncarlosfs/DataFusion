@@ -7,7 +7,6 @@ package com.andersoncarlosfs.data.model;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashSet;
 import javax.enterprise.context.RequestScoped;
 import javax.validation.constraints.Size;
 import org.apache.jena.graph.Node;
@@ -32,11 +31,6 @@ public class DataQualityAssessment implements Serializable {
     private Collection<Node> morePrecise;
 
     public DataQualityAssessment() {
-        frequency = 0.0f;
-        homogeneity = 0.0f;
-        reliability = 0.0f;
-        freshness = 0.0f;
-        morePrecise = new HashSet<>();
     }
 
     /**

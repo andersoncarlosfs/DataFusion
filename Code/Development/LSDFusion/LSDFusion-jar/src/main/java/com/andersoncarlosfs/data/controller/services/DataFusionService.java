@@ -117,8 +117,10 @@ public class DataFusionService {
 
                         writer.println(".");
 
-                        writer.println(v);
-
+                        if(!v.isEmpty()){
+                            writer.println(v);
+                        }
+                        
                         if (assessment == null) {
                             continue;
                         }
@@ -137,7 +139,7 @@ public class DataFusionService {
 
                         }
 
-                        Float mark = (assessment.getFreshness() + assessment.getFrequency() + assessment.getHomogeneity() + assessment.getReliability() + (1 * assessment.getMorePrecise().size())) / (4 * assessment.getMorePrecise().size());
+                        Float mark = (assessment.getFreshness() + assessment.getFrequency() + assessment.getHomogeneity() + assessment.getReliability() + (1 * assessment.getMorePrecise().size())) / (4 + assessment.getMorePrecise().size());
 
                         writer.println("<" + subject + "> " + " <http://www.result.com/#hasMark> \"" + mark + "\" .");
 

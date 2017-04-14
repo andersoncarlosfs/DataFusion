@@ -207,10 +207,12 @@ public class DataFusion {
             for (LocalDate freshness : freshnesses) {
                 //
                 if (freshness == null) {
-                    continue;
+                    //
+                    computedFreshness.putIfAbsent(freshness, 0.0f);
+                } else {
+                    //
+                    computedFreshness.putIfAbsent(freshness, ChronoUnit.DAYS.between(LocalDate.now(), freshness) / durations);
                 }
-                //
-                computedFreshness.putIfAbsent(freshness, ChronoUnit.DAYS.between(LocalDate.now(), freshness) / durations);
             }
 
             // 
@@ -272,10 +274,16 @@ public class DataFusion {
                                 computedObjects.putIfAbsent(object, assessment);
                                 //                         
                                 assessment = computedObjects.get(object);
+                                // 
+                                if (assessment.getReliability() == null) {
+                                    assessment.setReliability(0.0f);
+                                }
+                                // Compute freshness
+                                assessment.setFreshness(computedFreshness.get(freshness));
                                 //
                                 if (assessment.getFrequency() == null) {
                                     // Compute frequency
-                                    Float frequency = 0.f;
+                                    Float frequency = 0.0f;
                                     //
                                     for (Map<Node, Map<Node, LocalDate>> properties : statements.values()) {
                                         //
@@ -302,7 +310,7 @@ public class DataFusion {
                                 // Compute homogeneity                                
                                 Float homogeneity = assessment.getHomogeneity();
                                 if (homogeneity == null) {
-                                    homogeneity = 0.f;
+                                    homogeneity = 0.0f;
                                 }
                                 homogeneity = (((homogeneity * equivalenceClasses.size()) + 1) / equivalenceClasses.size());
                                 assessment.setHomogeneity(homogeneity);
