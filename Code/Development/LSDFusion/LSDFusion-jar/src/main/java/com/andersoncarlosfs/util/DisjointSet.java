@@ -8,7 +8,7 @@ package com.andersoncarlosfs.util;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 
 /**
@@ -66,7 +66,7 @@ public class DisjointSet<T> {
     public void union(T subject, T object) {
         T subjectParent = subject;
         T objectParent = object;
-        if (map.putIfAbsent(subject, new HashSet<>(Arrays.asList(subject))) != map.putIfAbsent(object, new HashSet<>(Arrays.asList(object)))) {
+        if (map.putIfAbsent(subject, new LinkedHashSet<>(Arrays.asList(subject))) != map.putIfAbsent(object, new LinkedHashSet<>(Arrays.asList(object)))) {
             subjectParent = representative(subject);
             objectParent = representative(object);
         }
@@ -77,11 +77,34 @@ public class DisjointSet<T> {
         Collection objectCollection = map.get(objectParent);
         if (subjectCollection.size() < objectCollection.size()) {
             objectCollection.addAll(subjectCollection);
-            map.put(subjectParent, new HashSet<>(Arrays.asList(objectParent)));
+            map.put(subjectParent, new LinkedHashSet<>(Arrays.asList(objectParent)));
         } else {
             subjectCollection.addAll(objectCollection);
-            map.put(objectParent, new HashSet<>(Arrays.asList(subjectParent)));
+            map.put(objectParent, new LinkedHashSet<>(Arrays.asList(subjectParent)));
         }
+    }
+
+    /**
+     * Separation
+     *
+     * @param subject
+     * @param object
+     */
+    public void separation(T subject, T object) {
+        if (subject.equals(object)) {
+            return;
+        }
+        T subjectParent = representative(subject);
+        T objectParent = representative(object);
+        if (!subjectParent.equals(objectParent)) {
+            return;
+        }
+        Collection subjectCollection = map.get(subjectParent);
+        Collection objectCollection = map.get(objectParent);
+        subjectCollection.remove(object);
+        subjectCollection.add(subject);
+        objectCollection.remove(subject);
+        objectCollection.add(object);
     }
 
     /**
@@ -99,6 +122,14 @@ public class DisjointSet<T> {
      */
     public Collection<T> values() {
         return map.keySet();
+    }
+
+    /**
+     * Removes all of the elements from this disjoint set. The disjoint set will
+     * be empty after this call returns.
+     */
+    public void clear() {
+        map.clear();
     }
 
 }

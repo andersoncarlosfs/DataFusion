@@ -119,23 +119,27 @@ public class DataFusionService {
 
                         writer.println(v);
 
-                        if (assessment != null) {
+                        if (assessment == null) {
+                            continue;
+                        }
 
-                            writer.println(blank + " <http://www.result.com/#hasFrequency> \"" + assessment.getFrequency() + "\" .");
+                        writer.println(blank + " <http://www.result.com/#hasFrequency> \"" + assessment.getFrequency() + "\" .");
 
-                            writer.println(blank + " <http://www.result.com/#hasHomogeneity> \"" + assessment.getHomogeneity() + "\" .");
+                        writer.println(blank + " <http://www.result.com/#hasHomogeneity> \"" + assessment.getHomogeneity() + "\" .");
 
-                            for (Node node : assessment.getMorePrecise()) {
+                        for (Node node : assessment.getMorePrecise()) {
 
-                                if (node.isLiteral()) {
-                                    writer.println(blank + " <http://www.result.com/#hasMorePrecise> " + node + " .");
-                                } else {
-                                    writer.println(blank + " <http://www.result.com/#hasMorePrecise> " + "<" + node + ">" + " .");
-                                }
-
+                            if (node.isLiteral()) {
+                                writer.println(blank + " <http://www.result.com/#hasMorePrecise> " + node + " .");
+                            } else {
+                                writer.println(blank + " <http://www.result.com/#hasMorePrecise> " + "<" + node + ">" + " .");
                             }
 
                         }
+
+                        Float mark = (assessment.getFreshness() + assessment.getFrequency() + assessment.getHomogeneity() + assessment.getReliability() + (1 * assessment.getMorePrecise().size())) / (4 * assessment.getMorePrecise().size());
+
+                        writer.println("<" + subject + "> " + " <http://www.result.com/#hasMark> \"" + mark + "\" .");
 
                     }
                 }
