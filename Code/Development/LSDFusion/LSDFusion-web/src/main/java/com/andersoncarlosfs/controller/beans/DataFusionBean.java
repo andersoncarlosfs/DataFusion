@@ -5,6 +5,7 @@ import com.andersoncarlosfs.data.controller.services.DataFusionService;
 import com.andersoncarlosfs.data.integration.DataFusion;
 import com.andersoncarlosfs.data.model.DataSource;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,8 +34,10 @@ import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.TransferEvent;
 import org.primefaces.event.UnselectEvent;
+import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.DualListModel;
+import org.primefaces.model.StreamedContent;
 import org.primefaces.model.TreeNode;
 
 /**
@@ -66,7 +69,7 @@ public class DataFusionBean implements AutoCloseable {
 
     private String syntax;
 
-    private File result;
+    private StreamedContent result;
 
     private TreeNode root;
 
@@ -211,7 +214,7 @@ public class DataFusionBean implements AutoCloseable {
      *
      * @return the result
      */
-    public File getResult() {
+    public StreamedContent getResult() {
         return result;
     }
 
@@ -219,7 +222,7 @@ public class DataFusionBean implements AutoCloseable {
      *
      * @param result the result to set
      */
-    public void setResult(File result) {
+    public void setResult(StreamedContent result) {
         this.result = result;
     }
 
@@ -304,11 +307,11 @@ public class DataFusionBean implements AutoCloseable {
 
             DataFusionService service = new DataFusionService();
 
-            result = service.getFusedDataSet(path, dataSources);
+            File file = service.getFusedDataSet(path, dataSources);
 
-            Model model = RDFDataMgr.loadModel(result.getCanonicalPath());
+            Model model = RDFDataMgr.loadModel(file.getCanonicalPath());
 
-            root = new DefaultTreeNode(result.getName(), null);
+            root = new DefaultTreeNode(file.getName(), null);
 
             List<TreeNode> list = new ArrayList();
 
@@ -362,6 +365,8 @@ public class DataFusionBean implements AutoCloseable {
                 }
 
             }
+            
+            result = new DefaultStreamedContent(new FileInputStream(file));
 
         } catch (Exception exception) {
 
