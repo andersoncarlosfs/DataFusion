@@ -228,6 +228,22 @@ public class DataFusionBean implements AutoCloseable {
 
     /**
      *
+     * @return the root
+     */
+    public TreeNode getRoot() {
+        return root;
+    }
+
+    /**
+     *
+     * @param root the root to set
+     */
+    public void setRoot(TreeNode root) {
+        this.root = root;
+    }
+
+    /**
+     *
      */
     public void newDataFusion() {
 
@@ -365,7 +381,7 @@ public class DataFusionBean implements AutoCloseable {
                 }
 
             }
-            
+
             result = new DefaultStreamedContent(new FileInputStream(file));
 
         } catch (Exception exception) {

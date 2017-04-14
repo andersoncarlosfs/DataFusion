@@ -12,7 +12,7 @@
             <h:form id="DataFusionResultForm">
                 <p:panel id="panel" style="border: none;">
 
-                    <p:tree value="#{dataFusionBean.root}" var="node" rendered="#{not empty dataFusionBean.file}">
+                    <p:tree value="#{dataFusionBean.root}" var="node" rendered="#{not empty dataFusionBean.result}">
                         <p:treeNode>
                             <h:outputText value="#{node}" />
                         </p:treeNode>
