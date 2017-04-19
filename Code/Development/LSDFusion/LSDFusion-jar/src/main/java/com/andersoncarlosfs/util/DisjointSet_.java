@@ -23,11 +23,11 @@ import java.util.Set;
  *
  * @author Anderson Carlos Ferreira da Silva
  */
-public class DisjointSet<T> {
+public class DisjointSet_<T> {
 
     private final HashMap<T, T> map = new HashMap<>();
 
-    public DisjointSet() {
+    public DisjointSet_() {
     }
 
     /**
