@@ -19,12 +19,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.enterprise.context.RequestScoped;
 import org.apache.jena.graph.FrontsNode;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFBase;
 import org.apache.jena.sparql.core.Quad;
 import org.apache.jena.vocabulary.OWL;
@@ -66,13 +68,16 @@ public class DataFusion {
      *
      * @author Anderson Carlos Ferreira da Silva
      */
-    private class DataQualityEvaluation extends StreamRDFBase {
+    private class DataQualityEvaluation implements StreamRDF {
 
         private Map<Node, Map<Node, Map<Node, LocalDate>>> statements;
         private Set<LocalDate> freshnesses;
         //# These variables need to be removed
         // 
+        //
+        private AtomicInteger count;
         private LocalDate freshness;
+        private Map<Node, AtomicInteger> frequencies;
         //#
         private DisjointSet<Node> equivalenceClasses;
         private Collection<Node> equivalenceProperties;
@@ -80,7 +85,11 @@ public class DataFusion {
 
         public DataQualityEvaluation() {
             //
+            count = new AtomicInteger(0);
+            //
             freshnesses = new LinkedHashSet();
+            //
+            frequencies = new HashMap();
             //
             statements = new HashMap();
             //            
@@ -134,7 +143,14 @@ public class DataFusion {
          * @param object
          */
         private void parse(Node subject, Node predicate, Node object) {
+            //
+            count.incrementAndGet();
 
+            // Compute frequencies
+            frequencies.putIfAbsent(object, new AtomicInteger(0));
+            frequencies.get(object).incrementAndGet();
+
+            //frequency = (((frequency * size()) + 1) / size());
             // Find equivalence classes
             if (equivalenceProperties.contains(predicate)) {
                 //
@@ -165,6 +181,10 @@ public class DataFusion {
 
         }
 
+        @Override
+        public void start() {
+        }
+
         /**
          *
          * @see StreamRDFBase#triple(org.apache.jena.graph.Triple)
@@ -181,6 +201,18 @@ public class DataFusion {
         @Override
         public void quad(Quad quad) {
             parse(quad.getSubject(), quad.getPredicate(), quad.getObject());
+        }
+
+        @Override
+        public void base(String base) {
+        }
+
+        @Override
+        public void prefix(String prefix, String iri) {
+        }
+
+        @Override
+        public void finish() {
         }
 
         /**
@@ -280,32 +312,9 @@ public class DataFusion {
                                 }
                                 // Compute freshness
                                 assessment.setFreshness(computedFreshness.get(freshness));
-                                //
+                                // Compute frenquency
                                 if (assessment.getFrequency() == null) {
-                                    // Compute frequency
-                                    Float frequency = 0.0f;
-                                    //
-                                    for (Map<Node, Map<Node, LocalDate>> properties : statements.values()) {
-                                        //
-                                        for (Map.Entry<Node, Map<Node, LocalDate>> entry : properties.entrySet()) {
-                                            //
-                                            Node node = entry.getKey();
-                                            Map<Node, LocalDate> values = entry.getValue();
-                                            //
-                                            if (node.equals(property)) {
-                                                //
-                                                for (Node value : values.keySet()) {
-                                                    //
-                                                    if (value.equals(object)) {
-                                                        //
-                                                        frequency = (((frequency * values.size()) + 1) / values.size());
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    //                                
-                                    assessment.setFrequency(frequency);
+                                    assessment.setFrequency(frequencies.get(object).floatValue() / frequencies.size());
                                 }
                                 // Compute homogeneity                                
                                 Float homogeneity = assessment.getHomogeneity();

@@ -67,11 +67,11 @@ public class DataFusionService {
             Collection<Node> equivalenceClasse = computedStatement.getKey();
             Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>> computedProperties = computedStatement.getValue();
 
-            String equivalence = "<" + NodeFactory.createBlankNode("http://www.result.com/" + UUID.randomUUID()).toString() + ">";
+            String equivalence = "<" + NodeFactory.createBlankNode("http://fusion-result/" + UUID.randomUUID()).toString() + ">";
 
             for (Node subject : equivalenceClasse) {
 
-                writer.println("<" + subject + "> " + "<http://www.result.com/#hasEquivalence> " + equivalence + " .");
+                writer.println("<" + subject + "> " + "<http://fusion-result/rdf/hasEquivalent> " + equivalence + " .");
 
                 for (Map.Entry<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>> entry : computedProperties.entrySet()) {
 
@@ -103,12 +103,12 @@ public class DataFusionService {
 
                         }
 
-                        String blank = "<" + NodeFactory.createBlankNode("http://www.result.com/" + UUID.randomUUID()).toString() + ">";
+                        String blank = "<" + NodeFactory.createBlankNode("http://fusion-result/" + UUID.randomUUID()).toString() + ">";
 
                         String v = "";
 
                         if (object.isLiteral()) {
-                            v = blank + " <http://www.result.com/#hasValue> " + object + " .";
+                            v = blank + " <http://fusion-result/hasValue> " + object + " .";
                         } else {
                             blank = "<" + object + "> ";
                         }
@@ -125,23 +125,23 @@ public class DataFusionService {
                             continue;
                         }
 
-                        writer.println(blank + " <http://www.result.com/#hasFrequency> \"" + assessment.getFrequency() + "\" .");
+                        writer.println(blank + " <http://fusion-result/hasFrequency> \"" + assessment.getFrequency() + "\" .");
 
-                        writer.println(blank + " <http://www.result.com/#hasHomogeneity> \"" + assessment.getHomogeneity() + "\" .");
+                        writer.println(blank + " <http://fusion-result/hasHomogeneity> \"" + assessment.getHomogeneity() + "\" .");
 
                         for (Node node : assessment.getMorePrecise()) {
 
                             if (node.isLiteral()) {
-                                writer.println(blank + " <http://www.result.com/#hasMorePrecise> " + node + " .");
+                                writer.println(blank + " <http://fusion-result/hasMorePrecise> " + node + " .");
                             } else {
-                                writer.println(blank + " <http://www.result.com/#hasMorePrecise> " + "<" + node + ">" + " .");
+                                writer.println(blank + " <http://fusion-result/hasMorePrecise> " + "<" + node + ">" + " .");
                             }
 
                         }
 
                         Float mark = (assessment.getFreshness() + assessment.getFrequency() + assessment.getHomogeneity() + assessment.getReliability() + (1 * assessment.getMorePrecise().size())) / (4 + assessment.getMorePrecise().size());
 
-                        writer.println("<" + subject + "> " + " <http://www.result.com/#hasMark> \"" + mark + "\" .");
+                        writer.println("<" + subject + "> " + " <http://fusion-result/hasScore> \"" + mark + "\" .");
 
                     }
                 }
