@@ -42,7 +42,7 @@
                             <p:commandButton id="viewButton"   icon="fa fa-search" value="#{bundle.View}" process="@this" update=":DataFusionViewForm" oncomplete="PF('DataFusionViewDialog').show()" disabled="#{empty dataFusionBean.selected}" />                           
                             <p:commandButton id="deleteButton" icon="fa fa-trash"  value="#{bundle.Remove}" actionListener="#{dataFusionBean.removeDataSource}" process="@this" update=":growl,datalist" disabled="#{empty dataFusionBean.selected}" />
                             <p:commandButton id="fuseButton" icon="fa fa-play"  value="#{bundle.Fuse}" actionListener="#{dataFusionBean.fuseDataSources}" process="@this" update=":DataFusionResultForm,:growl,datalist" disabled="#{empty dataFusionBean.dataSources}" />
-                            <p:commandButton id="resultButton" icon="fa fa-play"  value="#{bundle.Result}" actionListener="#{dataFusionBean.downloadFile}" process="@this" update=":DataFusionResultForm" oncomplete="PF('DataFusionResultDialog').show()" disabled="#{empty dataFusionBean.result}" />                           
+                            <p:commandButton id="resultButton" icon="fa fa-download"  value="#{bundle.Result}" actionListener="#{dataFusionBean.downloadFile}" process="@this" update=":DataFusionResultForm" oncomplete="PF('DataFusionResultDialog').show()" disabled="#{empty dataFusionBean.result}" />                           
                         </f:facet>
 
                     </p:dataTable>

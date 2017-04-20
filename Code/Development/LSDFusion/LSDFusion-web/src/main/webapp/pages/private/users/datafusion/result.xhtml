@@ -20,9 +20,6 @@
 
                     <f:facet name="footer">
                         <p:commandButton type="button" value="#{bundle.Close}" icon="fa fa-close" onclick="PF('DataFusionResultDialog').hide()" />
-                    </f:facet>
-
-                    <f:facet name="footer">
                         <p:commandButton value="#{bundle.Download}" ajax="false" icon="ui-icon-arrowthick-1-s" onclick="PrimeFaces.monitorDownload(start, stop);" disabled="#{empty dataFusionBean.result}">
                             <p:fileDownload value="#{dataFusionBean.file}" />
                         </p:commandButton>
