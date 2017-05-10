@@ -30,7 +30,8 @@ public class DataSource {
     //# These assignments need to be removed
     private String path = "";
     private Lang syntax = Lang.RDFNULL;
-    private LocalDate freshness = null;
+    private LocalDate freshness;
+    private Float reliability;
     private Collection<Property> equivalenceProperties = new ArrayList<>();
     private Collection<Collection<LinkedHashSet<Property>>> mappedProperties = new HashSet<>();
     //#
@@ -95,9 +96,29 @@ public class DataSource {
      * @param freshness the freshness to set
      */
     public void setFreshness(Date freshness) {
-        Instant instant = freshness.toInstant();
-        ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());
-        this.freshness = zonedDateTime.toLocalDate();
+        if (freshness == null) {
+            this.freshness = null;
+        } else { 
+            Instant instant = freshness.toInstant();
+            ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());
+            this.freshness = zonedDateTime.toLocalDate();
+        }
+    }
+
+    /**
+     *
+     * @return the reliability
+     */
+    public Float getReliability() {
+        return reliability;
+    }
+
+    /**
+     *
+     * @param reliability the reliability to set
+     */
+    public void setReliability(Float reliability) {
+        this.reliability = reliability;
     }
 
     /**
