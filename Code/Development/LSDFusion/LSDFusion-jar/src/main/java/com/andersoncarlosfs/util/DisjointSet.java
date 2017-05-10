@@ -5,131 +5,284 @@
  */
 package com.andersoncarlosfs.util;
 
-import java.util.Arrays;
+import java.io.Serializable;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * Disjoint-set data structure to keep track of a set of equivalence class
- * partitioned into a number of disjoint subsets
+ * This class implements the <tt>Set</tt> interface, backed by a
+ * <tt>HashMap</tt> instance.
  *
- * @param <T>
+ * This data structure keeps track of a set of elements partitioned into a
+ * number of disjoint subsets.
+ *
+ * @param <E> the type of elements maintained by this set
  *
  * @see <a href="http://algs4.cs.princeton.edu/15uf/">1.5 Case Study:
  * Union-Find</a>
  *
  * @author Anderson Carlos Ferreira da Silva
  */
-public class DisjointSet<T> {
+public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable, Serializable {
 
-    private final HashMap<T, Collection<T>> map = new HashMap<>();
+    static final long serialVersionUID = 1L;
 
+    private transient HashMap<E, E> map;
+
+    /**
+     * Constructs a new empty set.
+     */
     public DisjointSet() {
+        map = new HashMap<>();
     }
 
     /**
-     * Search
+     * Adds the specified element to this set if it is not already present.
      *
-     * @param node
-     * @return
+     * @param e element to be added to this set
+     * @return <tt>true</tt> if this set did not already contain the specified
+     * element
      */
-    public T representative(T node) {
-        Collection nodeCollection = map.get(node);
-        if (nodeCollection.size() > 1) {
-            return node;
-        }
-        T parent = (T) nodeCollection.iterator().next();
-        if (parent.equals(node)) {
-            return parent;
-        }
-        return representative(parent);
+    @Override
+    public boolean add(E e) {
+        return map.putIfAbsent(e, e) == null;
     }
 
     /**
-     * Find
+     * Removes the specified element from this set if it is present.
      *
-     * @param node
-     * @return
+     * @param o object to be removed from this set, if present
+     * @return <tt>true</tt> if the set contained the specified element
      */
-    public Collection<T> find(T node) {
-        return map.getOrDefault(find(node), null);
+    @Override
+    public boolean remove(Object o) {
+        if (map.remove(o) != null) {
+            //
+            E parent = null;
+            //
+            for (Map.Entry<E, E> entry : map.entrySet()) {
+                if (entry.getValue() != o) {
+                    continue;
+                }
+                if (parent == null) {
+                    parent = entry.getValue();
+                }
+                entry.setValue(parent);
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
-     * Union
+     * Returns the representative of the disjoint subset which contains the
+     * specified element.
+     *
+     * @param e the element the representative presence in this set is to be
+     * found
+     * @return the representative of the disjoint subset which contains the
+     * specified element, or <tt>null</tt> if there was no representative for
+     * the specified element
+     */
+    public E representative(E e) {
+        //
+        return search(e).getKey();
+    }
+
+    /**
+     * Find the disjoint subset of the specified element
+     *
+     * @param e the element the representative presence in this set is to be
+     * found
+     * @return the disjoint subset which contains the specified element, or
+     * <tt>null</tt> if there was no disjoint subset for the specified element
+     */
+    public Collection<E> find(E e) {
+        //
+        E parent = search(e).getKey();
+        //
+        Set<E> set = new HashSet<>();
+        //
+        for (Map.Entry<E, E> entry : map.entrySet()) {
+            //
+            if (entry.getValue().equals(parent)) {
+                //
+                set.add(entry.getKey());
+            }
+        }
+        return set;
+    }
+
+    /**
+     * Union the specified elements
      *
      * @param subject
      * @param object
      */
-    public void union(T subject, T object) {
-        T subjectParent = subject;
-        T objectParent = object;
-        if (map.putIfAbsent(subject, new LinkedHashSet<>(Arrays.asList(subject))) != map.putIfAbsent(object, new LinkedHashSet<>(Arrays.asList(object)))) {
-            subjectParent = representative(subject);
-            objectParent = representative(object);
-        }
-        if (subjectParent.equals(objectParent)) {
-            return;
-        }
-        Collection subjectCollection = map.get(subjectParent);
-        Collection objectCollection = map.get(objectParent);
-        if (subjectCollection.size() < objectCollection.size()) {
-            objectCollection.addAll(subjectCollection);
-            map.put(subjectParent, new LinkedHashSet<>(Arrays.asList(objectParent)));
-        } else {
-            subjectCollection.addAll(objectCollection);
-            map.put(objectParent, new LinkedHashSet<>(Arrays.asList(subjectParent)));
-        }
+    public void union(E subject, E object) {
+        //   
+        union(search(subject), search(object));
     }
 
     /**
-     * Separation
+     * Union the specified elements
      *
      * @param subject
      * @param object
      */
-    public void separation(T subject, T object) {
-        if (subject.equals(object)) {
-            return;
+    public void unionIfAbsent(E subject, E object) {
+        //
+        AbstractMap.SimpleEntry<E, Integer> subjectParent = new AbstractMap.SimpleEntry(subject, 0);
+        AbstractMap.SimpleEntry<E, Integer> objectParent = new AbstractMap.SimpleEntry(object, 0);
+        //
+        if (map.putIfAbsent(subject, subject) != map.putIfAbsent(object, object)) {
+            //
+            subjectParent = search(subject, subjectParent);
+            objectParent = search(object, objectParent);
         }
-        T subjectParent = representative(subject);
-        T objectParent = representative(object);
-        if (!subjectParent.equals(objectParent)) {
-            return;
-        }
-        Collection subjectCollection = map.get(subjectParent);
-        Collection objectCollection = map.get(objectParent);
-        subjectCollection.remove(object);
-        subjectCollection.add(subject);
-        objectCollection.remove(subject);
-        objectCollection.add(object);
+        // 
+        union(subjectParent, objectParent);
     }
 
     /**
      *
-     * @return a collection of the equivalence classes contained in this
-     * disjoint set
+     * @return a view of the values contained this set partitioned into disjoint
+     * subsets
      */
-    public Collection<Collection<T>> disjointValues() {
-        return map.values().parallelStream().filter((Collection<T> c) -> c.size() > 1).collect(Collectors.toList());
+    public Collection<Collection<E>> disjointValues() {
+        //
+        Map<E, Collection<E>> disjointValues = new HashMap<>();
+        //
+        for (Map.Entry<E, E> entry : map.entrySet()) {
+            E key = entry.getKey();
+            E value = entry.getValue();
+            disjointValues.putIfAbsent(value, new HashSet<>());
+            disjointValues.get(value).add(key);
+        }
+        return disjointValues.values();
     }
 
     /**
      *
-     * @return a collection of the elements contained in this disjoint set
+     * @return a collection of the elements contained in this set
      */
-    public Collection<T> values() {
+    public Collection<E> values() {
         return map.keySet();
     }
 
     /**
-     * Removes all of the elements from this disjoint set. The disjoint set will
-     * be empty after this call returns.
+     * Returns an iterator over the elements in this set. The elements are
+     * returned in no particular order.
+     *
+     * @return an Iterator over the elements in this set
      */
+    @Override
+    public Iterator<E> iterator() {
+        return map.keySet().iterator();
+    }
+
+    /**
+     * Returns the number of elements in this set (its cardinality).
+     *
+     * @return the number of elements in this set (its cardinality)
+     */
+    @Override
+    public int size() {
+        return map.size();
+    }
+
+    /**
+     * Return the number of disjoint sets
+     *
+     * @return the number of disjoint sets
+     */
+    public int count() {
+        //
+        int representatives = 0;
+        //
+        for (Map.Entry<E, E> entry : map.entrySet()) {
+            if (entry.getValue().equals(entry.getKey())) {
+                representatives++;
+            }
+        }
+        return representatives;
+    }
+
+    /**
+     * Returns <tt>true</tt> if this set contains no elements.
+     *
+     * @return <tt>true</tt> if this set contains no elements
+     */
+    @Override
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
+
+    /**
+     * Removes all of the elements from this set. The set will be empty after
+     * this call returns.
+     */
+    @Override
     public void clear() {
         map.clear();
+    }
+
+    /**
+     * Search the specified element
+     *
+     * @param e the element the representative presence in this set is to be
+     * found
+     * @return
+     */
+    private AbstractMap.SimpleEntry<E, Integer> search(E e) {
+        //
+        return search(e, new AbstractMap.SimpleEntry(map.get(e), 0));
+    }
+
+    /**
+     * Search the specified element
+     *
+     * @param e the element the representative presence in this set is to be
+     * found
+     * @return
+     */
+    private AbstractMap.SimpleEntry<E, Integer> search(E e, AbstractMap.SimpleEntry entry) {
+        //
+        E parent = (E) entry.getKey();
+        //        
+        if ((e != null) && (!e.equals(parent))) {
+            //
+            Integer height = (Integer) entry.getValue();
+            //
+            entry = search(parent, new AbstractMap.SimpleEntry(map.get(parent), height++));
+            //
+            map.put(e, (E) entry.getKey());
+        }
+        return entry;
+    }
+
+    /**
+     * Union the specified elements
+     *
+     * @param subject
+     * @param object
+     */
+    private void union(AbstractMap.SimpleEntry<E, Integer> subject, AbstractMap.SimpleEntry<E, Integer> object) {
+        if ((subject.getKey()) == null || (object.getKey() == null) || subject.getKey().equals(object.getKey())) {
+            return;
+        }
+        //
+        if (subject.getValue() < object.getValue()) {
+            map.put(subject.getKey(), object.getKey());
+        } else {
+            map.put(object.getKey(), subject.getKey());
+        }
     }
 
 }

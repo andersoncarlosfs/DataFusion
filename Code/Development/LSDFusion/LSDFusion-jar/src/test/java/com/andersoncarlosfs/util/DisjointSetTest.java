@@ -20,17 +20,17 @@ import static org.junit.Assert.*;
  */
 public class DisjointSetTest {
 
-    private static final DisjointSet_<Object> instance = new DisjointSet_();
+    private static final DisjointSet<Object> instance = new DisjointSet();
 
     private static final Object representative = 7;
-  
+
     private static final Object subject = 8;
-    
+
     private static final Object object = 9;
-    
+
     private static final Collection equivaleceClass = Arrays.asList(7, 8);
-    
-    private static final Collection equivaleceClasses = Arrays.asList(Arrays.asList(1, 2), Arrays.asList(3, 4), Arrays.asList(5, 6), Arrays.asList(7, 8), Arrays.asList(9 , 10));
+
+    private static final Collection equivaleceClasses = Arrays.asList(Arrays.asList(1, 2), Arrays.asList(3, 4), Arrays.asList(5, 6), Arrays.asList(7, 8), Arrays.asList(9, 10));
 
     public DisjointSetTest() {
     }
@@ -61,16 +61,16 @@ public class DisjointSetTest {
     }
 
     /**
-     * Test of representative method, of class DisjointSet_.
+     * Test of representative method, of class DisjointSet.
      */
     @Test
     public void testRepresentative() {
         System.out.println("representative");
-        assertEquals(representative, instance.representative(subject));
+        assertEquals(null, instance.representative(15));
     }
 
     /**
-     * Test of find method, of class DisjointSet_.
+     * Test of find method, of class DisjointSet.
      */
     @Test
     public void testFind() {
@@ -79,7 +79,7 @@ public class DisjointSetTest {
     }
 
     /**
-     * Test of union method, of class DisjointSet_.
+     * Test of union method, of class DisjointSet.
      */
     @Test
     public void testUnionIfAbsent() {
@@ -89,20 +89,20 @@ public class DisjointSetTest {
     }
 
     /**
-     * Test of disjointValues method, of class DisjointSet_.
+     * Test of disjointValues method, of class DisjointSet.
      */
     //@Test
     public void testDisjointValues() {
-        System.out.println("disjointValues");        
+        System.out.println("disjointValues");
         assertArrayEquals(equivaleceClasses.toArray(), instance.disjointValues().toArray());
     }
-    
+
     /**
-     * 
+     *
      */
     @Test
     public void testCustom() {
-        instance.union(subject, null);      
+        instance.union(subject, null);
         System.out.println(instance.disjointValues());
     }
 
