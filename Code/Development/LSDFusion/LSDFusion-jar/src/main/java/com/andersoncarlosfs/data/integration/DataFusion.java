@@ -40,6 +40,22 @@ import org.apache.jena.vocabulary.SKOS;
 @RequestScoped
 public class DataFusion {
 
+    private class DataQualityCriteria {
+        
+        private LocalDate freshness;
+        
+        private Float reliability;
+
+        public DataQualityCriteria() {
+        }
+
+        public DataQualityCriteria(LocalDate freshness, Float reliability) {
+            this.freshness = freshness;
+            this.reliability = reliability;
+        }                
+        
+    }
+    
     /**
      *
      */
@@ -70,14 +86,14 @@ public class DataFusion {
      */
     private class DataQualityEvaluation implements StreamRDF {
 
-        private Map<Node, Map<Node, Map<Node, LocalDate>>> statements;
+        private Map<Node, Map<Node, Map<Node, DataQualityCriteria>>> statements;
         private Set<LocalDate> freshnesses;
+        private Set<Float> reliabilities;
         //# These variables need to be removed
         // 
         //
-        private AtomicInteger count;
-        private LocalDate freshness;
-        private Map<Node, AtomicInteger> frequencies;
+        private DataQualityCriteria criteria;
+        private Map<Node, Map<Node, AtomicInteger>> frequencies;
         //#
         private DisjointSet<Node> equivalenceClasses;
         private Collection<Node> equivalenceProperties;
@@ -85,19 +101,19 @@ public class DataFusion {
 
         public DataQualityEvaluation() {
             //
-            count = new AtomicInteger(0);
+            freshnesses = new LinkedHashSet<>();
             //
-            freshnesses = new LinkedHashSet();
+            reliabilities = new LinkedHashSet<>();
             //
-            frequencies = new HashMap();
+            frequencies = new HashMap<>();
             //
-            statements = new HashMap();
+            statements = new HashMap<>();
             //            
-            equivalenceClasses = new DisjointSet();
+            equivalenceClasses = new DisjointSet<>();
             //
             equivalenceProperties = new HashSet();
             //
-            mappedProperties = new HashSet();
+            mappedProperties = new HashSet();                  
         }
 
         /**
@@ -107,9 +123,14 @@ public class DataFusion {
         public void parse(DataSource dataSource) throws IOException {
             // Add a freshness           
             freshnesses.add(dataSource.getFreshness());
+            reliabilities.add(dataSource.getReliability());
             //# These variables need to be removed
+            //
+            criteria = new DataQualityCriteria();
             // Asign the freshness
-            freshness = dataSource.getFreshness();
+            criteria.freshness = dataSource.getFreshness();
+            // Asign the reliability
+            criteria.reliability = dataSource.getReliability();
             //#
             // Clear
             equivalenceProperties.clear();
@@ -143,14 +164,7 @@ public class DataFusion {
          * @param object
          */
         private void parse(Node subject, Node predicate, Node object) {
-            //
-            count.incrementAndGet();
-
-            // Compute frequencies
-            frequencies.putIfAbsent(object, new AtomicInteger(0));
-            frequencies.get(object).incrementAndGet();
-
-            //frequency = (((frequency * size()) + 1) / size());
+            
             // Find equivalence classes
             if (equivalenceProperties.contains(predicate)) {
                 //
@@ -158,23 +172,39 @@ public class DataFusion {
                 //
                 return;
             }
+            
+            // Compute frequencies
+            frequencies.putIfAbsent(predicate, new HashMap<>());
+            Map<Node, AtomicInteger> objects1= frequencies.get(predicate);                       
+            objects1.putIfAbsent(object, new AtomicInteger(0));
+            objects1.get(object).incrementAndGet();
 
             // Map statements
             statements.putIfAbsent(subject, new HashMap());
             // 
-            Map<Node, Map<Node, LocalDate>> properties = statements.get(subject);
+            Map<Node, Map<Node, DataQualityCriteria>> properties = statements.get(subject);
             properties.putIfAbsent(predicate, new HashMap());
             //
-            Map<Node, LocalDate> objects = properties.get(predicate);
+            Map<Node, DataQualityCriteria> objects2 = properties.get(predicate);
             //# These assignments need to be removed
             // 
-            objects.putIfAbsent(object, freshness);
+            objects2.putIfAbsent(object, criteria);
             //
-            if (freshness != null) {
+            DataQualityCriteria criteria2 = objects2.get(object);
+            //
+            if (criteria.freshness != null) {
                 // 
-                if (freshness.isBefore(objects.putIfAbsent(object, freshness))) {
+                if (criteria.freshness.isBefore(criteria2.freshness)) {
                     // Put the oldest date
-                    objects.put(object, freshness);
+                    criteria2.freshness = criteria.freshness;
+                }
+            }
+            //
+            if (criteria.reliability != null) {
+                // 
+                if (criteria.reliability > criteria2.reliability) {
+                    // Put the oldest date
+                    criteria2.reliability = criteria.reliability;
                 }
             }
             //#           
@@ -200,7 +230,7 @@ public class DataFusion {
          */
         @Override
         public void quad(Quad quad) {
-            parse(quad.getSubject(), quad.getPredicate(), quad.getObject());
+            triple(quad.asTriple());
         }
 
         @Override
@@ -221,6 +251,33 @@ public class DataFusion {
          */
         public Map<Collection<Node>, Map<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>>> computeDataQualityAssessment() {
 
+            //
+            Map<Node, Map<Node, Float>> computedFrequencies = new HashMap<>();
+            //
+            for (Map.Entry<Node, Map<Node, AtomicInteger>> entry1 : frequencies.entrySet()) {
+                //
+                Node property = entry1.getKey();
+                Map<Node, AtomicInteger> objects = entry1.getValue();
+                //
+                computedFrequencies.putIfAbsent(property, new HashMap<>());
+                Map<Node, Float> computedObjects = computedFrequencies.get(property);
+                //
+                Float computedFrequency = 0F;
+                //
+                for (AtomicInteger frequency : objects.values()) {                  
+                    computedFrequency +=  frequency.floatValue();
+                }
+                //
+                for (Map.Entry<Node, AtomicInteger> entry2 : objects.entrySet()) {
+                    //
+                    Node object = entry2.getKey();
+                    AtomicInteger frequency = entry2.getValue();                    
+                    //
+                    computedObjects.putIfAbsent(object, (frequency.floatValue() / computedFrequency));
+                }
+                
+            }
+            
             //
             Float durations = new Float(0);
             //
@@ -266,10 +323,10 @@ public class DataFusion {
                         continue;
                     }
                     // Loop properties of a subject
-                    for (Map.Entry<Node, Map<Node, LocalDate>> propertyEntry : statements.get(subject).entrySet()) {
+                    for (Map.Entry<Node, Map<Node, DataQualityCriteria>> propertyEntry : statements.get(subject).entrySet()) {
                         //
                         Node property = propertyEntry.getKey();
-                        Map<Node, LocalDate> objects = propertyEntry.getValue();
+                        Map<Node, DataQualityCriteria> objects = propertyEntry.getValue();
                         //
                         LinkedHashSet<Node> complexProperty = new LinkedHashSet();
                         complexProperty.add(property);
@@ -296,32 +353,34 @@ public class DataFusion {
                             // Get objects of equivalence class
                             Map<Node, DataQualityAssessment> computedObjects = computedProperties.get(complexNode);
                             // Loop objects of a property
-                            for (Map.Entry<Node, LocalDate> objectEntry : objects.entrySet()) {
+                            for (Map.Entry<Node, DataQualityCriteria> objectEntry : objects.entrySet()) {
                                 //
                                 Node object = objectEntry.getKey();
-                                LocalDate freshness = objectEntry.getValue();
+                                DataQualityCriteria criteria3 = objectEntry.getValue();
                                 //
                                 DataQualityAssessment assessment = new DataQualityAssessment();
                                 // Map objects
                                 computedObjects.putIfAbsent(object, assessment);
                                 //                         
                                 assessment = computedObjects.get(object);
-                                // 
+                                // Compute reliability
+                                assessment.setReliability(criteria3.reliability);
+                                //
                                 if (assessment.getReliability() == null) {
-                                    assessment.setReliability(0.0f);
+                                    assessment.setReliability(0F);
                                 }
                                 // Compute freshness
-                                assessment.setFreshness(computedFreshness.get(freshness));
+                                assessment.setFreshness(computedFreshness.get(criteria3.freshness));
                                 // Compute frenquency
                                 if (assessment.getFrequency() == null) {
-                                    assessment.setFrequency(frequencies.get(object).floatValue() / frequencies.size());
+                                    assessment.setFrequency(computedFrequencies.get(property).get(object));
                                 }
                                 // Compute homogeneity                                
                                 Float homogeneity = assessment.getHomogeneity();
                                 if (homogeneity == null) {
-                                    homogeneity = 0.0f;
+                                    homogeneity = 0F;
                                 }
-                                homogeneity = (((homogeneity * equivalenceClasses.size()) + 1) / equivalenceClasses.size());
+                                homogeneity++;            
                                 assessment.setHomogeneity(homogeneity);
                                 //
                                 if (assessment.getMorePrecise() == null) {
@@ -356,6 +415,24 @@ public class DataFusion {
                         }
                     }
                 }
+                // Compute homogeneity    
+                for (Map.Entry<LinkedHashSet<Node>, Map<Node, DataQualityAssessment>> entry : computedProperties.entrySet()) {
+                    //
+                    LinkedHashSet<Node> property = entry.getKey();
+                    Map<Node, DataQualityAssessment> assessments = entry.getValue();
+                    //
+                    Float computedHomogeneity = 0F;
+                    //
+                    for (DataQualityAssessment homogeneity : assessments.values()) {
+                        computedHomogeneity += homogeneity.getHomogeneity();
+                    }
+                    //
+                    for (DataQualityAssessment assessment : assessments.values()) {
+                        Float homogeneity = assessment.getHomogeneity() / computedHomogeneity;
+                        assessment.setHomogeneity(homogeneity);
+                    }
+                }
+                
             }
 
             return computedStatements;
