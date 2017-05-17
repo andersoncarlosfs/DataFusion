@@ -5,6 +5,8 @@ package com.andersoncarlosfs.data.model;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -28,8 +30,8 @@ public class DataSource {
     private static final long serialVersionUID = 1L;
 
     //# These assignments need to be removed
-    private String path = "";
-    private Lang syntax = Lang.RDFNULL;
+    private Path path;
+    private Lang syntax;
     private LocalDate freshness;
     private Float reliability;
     private Collection<Property> equivalenceProperties = new ArrayList<>();
@@ -38,16 +40,16 @@ public class DataSource {
 
     public DataSource() {
     }
-
+    
     public DataSource(String path) {
-        this.path = path;
+        this.path = Paths.get(path);
     }
 
     /**
      *
      * @return the path
      */
-    public String getPath() {
+    public Path getPath() {
         return path;
     }
 
@@ -55,7 +57,7 @@ public class DataSource {
      *
      * @param path the path to set
      */
-    public void setPath(String path) {
+    public void setPath(Path path) {
         this.path = path;
     }
 
@@ -98,7 +100,7 @@ public class DataSource {
     public void setFreshness(Date freshness) {
         if (freshness == null) {
             this.freshness = null;
-        } else { 
+        } else {
             Instant instant = freshness.toInstant();
             ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());
             this.freshness = zonedDateTime.toLocalDate();

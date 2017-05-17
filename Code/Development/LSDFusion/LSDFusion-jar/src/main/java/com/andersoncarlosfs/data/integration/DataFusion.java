@@ -154,7 +154,7 @@ public class DataFusion {
                 }
             }
             //            
-            RDFDataMgr.parse(this, dataSource.getPath(), dataSource.getSyntax());
+            RDFDataMgr.parse(this, dataSource.getPath().toString(), dataSource.getSyntax());
         }
 
         /**
