@@ -6,9 +6,7 @@ import com.andersoncarlosfs.data.integration.DataFusion;
 import com.andersoncarlosfs.data.model.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -21,14 +19,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.faces.component.UIComponent;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
-import javax.servlet.ServletContext;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
@@ -394,7 +388,7 @@ public class DataFusionBean implements AutoCloseable {
 
             Files.copy(event.getFile().getInputstream(), file.toPath());
 
-            selected.setPath(file.getCanonicalPath());
+            selected.setPath(file.toPath());
 
         } catch (Exception exception) {
 
@@ -491,7 +485,7 @@ public class DataFusionBean implements AutoCloseable {
             selected.setFreshness(freshness);
         }
 
-        if (selected.getPath().trim().isEmpty()) {
+        if (selected.getPath() == null) {
             FacesContext.getCurrentInstance().validationFailed();
             NotificationBean.addErrorMessage(new Exception(""), "");
         }

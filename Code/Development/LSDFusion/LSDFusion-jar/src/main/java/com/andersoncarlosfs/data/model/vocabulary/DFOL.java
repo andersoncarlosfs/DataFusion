@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.andersoncarlosfs.data.vocabulary;
+package com.andersoncarlosfs.data.model.vocabulary;
 
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
@@ -73,8 +73,10 @@ public class DFOL {
     public static final Property hasHomogeneity = createProperty("hasHomogeneity");
     public static final Property hasFrequency = createProperty("hasFrequency");
     public static final Property hasReliability = createProperty("hasReliability");
+    public static final Property hasFreshness = createProperty("hasFreshness");
     public static final Property isMorePrecise = createProperty("isMorePrecise");
     public static final Property isSynonym = createProperty("isSynonym");
     public static final Property hasTrustiness = createProperty("hasTrustiness");
+    public static final Property hasScore = createProperty("hasScore");
 
 }

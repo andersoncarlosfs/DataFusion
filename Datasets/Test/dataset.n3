@@ -1,11 +1,15 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> . 
 
-
+<http://www.ina.fr/thesaurus/A0> <http://www.ina.fr/thesaurus/P0> "V".
+<http://www.ina.fr/thesaurus/A1> <http://www.ina.fr/thesaurus/P0> "V".
+<http://www.ina.fr/thesaurus/A2> <http://www.ina.fr/thesaurus/P0> "V".
+<http://www.ina.fr/thesaurus/A2> <http://www.ina.fr/thesaurus/P0> "VV".
 <http://www.ina.fr/thesaurus/A1> <http://www.ina.fr/thesaurus/P1> <http://www.ina.fr/thesaurus/C1>.
-<http://www.ina.fr/thesaurus/C1> <http://www.ina.fr/thesaurus/P2> <http://www.ina.fr/thesaurus/C2>.
 <http://www.ina.fr/thesaurus/A2> <http://www.ina.fr/thesaurus/P1> <http://www.ina.fr/thesaurus/C1>.
 <http://www.ina.fr/thesaurus/B1> <http://www.ina.fr/thesaurus/P1> <http://www.ina.fr/thesaurus/C1>.
-<http://www.ina.fr/thesaurus/C2> <http://www.ina.fr/thesaurus/P1> <http://www.ina.fr/thesaurus/D1>.
-<http://www.ina.fr/thesaurus/C3> <http://www.ina.fr/thesaurus/P1> <http://www.ina.fr/thesaurus/C1>.
-<http://www.ina.fr/thesaurus/A1> <http://www.ina.fr/thesaurus/P3> "V".
-<http://www.ina.fr/thesaurus/A2> <http://www.ina.fr/thesaurus/P3> "VV".
+<http://www.ina.fr/thesaurus/B2> <http://www.ina.fr/thesaurus/P1> <http://www.ina.fr/thesaurus/C2>.
+<http://www.ina.fr/thesaurus/D1> <http://www.ina.fr/thesaurus/P1> <http://www.ina.fr/thesaurus/C2>.
+<http://www.ina.fr/thesaurus/D2> <http://www.ina.fr/thesaurus/P1> <http://www.ina.fr/thesaurus/C3>.
+<http://www.ina.fr/thesaurus/D3> <http://www.ina.fr/thesaurus/P2> <http://www.ina.fr/thesaurus/C4>.
+<http://www.ina.fr/thesaurus/A0> <http://www.ina.fr/thesaurus/P0> "V".
+
