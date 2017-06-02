@@ -158,7 +158,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
         //
         for (Map.Entry<E, E> entry : map.entrySet()) {
             E key = entry.getKey();
-            E value = entry.getValue();
+            E value = representative(entry.getValue());
             disjointValues.putIfAbsent(value, new HashSet<>());
             disjointValues.get(value).add(key);
         }
