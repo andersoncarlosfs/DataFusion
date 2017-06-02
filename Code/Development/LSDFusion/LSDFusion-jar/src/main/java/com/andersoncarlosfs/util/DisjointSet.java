@@ -141,11 +141,8 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
         AbstractMap.SimpleEntry<E, Integer> subjectParent = new AbstractMap.SimpleEntry(subject, 0);
         AbstractMap.SimpleEntry<E, Integer> objectParent = new AbstractMap.SimpleEntry(object, 0);
         //
-        if (map.putIfAbsent(subject, subject) != map.putIfAbsent(object, object)) {
-            //
-            subjectParent = search(subject, subjectParent);
-            objectParent = search(object, objectParent);
-        }
+        subjectParent = search(map.putIfAbsent(subject, subject), subjectParent);
+        objectParent = search(map.putIfAbsent(object, object), objectParent);            
         // 
         union(subjectParent, objectParent);
     }
