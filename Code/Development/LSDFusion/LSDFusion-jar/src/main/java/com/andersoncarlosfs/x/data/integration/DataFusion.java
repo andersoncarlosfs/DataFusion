@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.andersoncarlosfs.data.integration;
+package com.andersoncarlosfs.x.data.integration;
 
-import com.andersoncarlosfs.data.model.DataQualityAssessment;
-import com.andersoncarlosfs.data.model.DataSource;
+import com.andersoncarlosfs.x.model.DataQualityAssessment;
+import com.andersoncarlosfs.x.model.DataSource;
 import com.andersoncarlosfs.util.DisjointSet;
 import java.io.IOException;
 import java.time.LocalDate;

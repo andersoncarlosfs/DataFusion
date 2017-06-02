@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.andersoncarlosfs.data.controller.services;
+package com.andersoncarlosfs.x.controller.services;
 
-import com.andersoncarlosfs.data.model.DataSource;
-import com.andersoncarlosfs.data.integration.DataFusion;
-import com.andersoncarlosfs.data.model.DataQualityAssessment;
+import com.andersoncarlosfs.x.model.DataSource;
+import com.andersoncarlosfs.x.data.integration.DataFusion;
+import com.andersoncarlosfs.x.model.DataQualityAssessment;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;

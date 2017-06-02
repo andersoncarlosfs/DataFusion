@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.andersoncarlosfs.data.model;
+package com.andersoncarlosfs.x.model;
 
 import java.io.Serializable;
 import java.util.Collection;

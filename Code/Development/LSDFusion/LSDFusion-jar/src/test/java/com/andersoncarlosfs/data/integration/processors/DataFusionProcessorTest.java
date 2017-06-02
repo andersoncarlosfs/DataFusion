@@ -5,52 +5,62 @@
  */
 package com.andersoncarlosfs.data.integration.processors;
 
-import com.andersoncarlosfs.data.model.DataSource;
+import com.andersoncarlosfs.x.data.integration.DataFusion;
+import com.andersoncarlosfs.x.model.DataSource;
 import com.andersoncarlosfs.util.DisjointSet;
+import org.apache.jena.riot.Lang;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
  * @author lsdfusion
  */
 public class DataFusionProcessorTest {
-    
+
+    private DataSource dataSet;
+    private DataSource link;
+
     public DataFusionProcessorTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
+        //
+        dataSet = new DataSource("../../../../Datasets/Books/dataset.rdf");
+        dataSet.setSyntax(Lang.N3);
+        //
+        link = new DataSource("../../../../Datasets/Books/links.rdf");
+        link.setSyntax(Lang.N3);
+        link.setEquivalenceProperties(DataFusion.EQUIVALENCE_PROPERTIES);
     }
-    
+
     @After
     public void tearDown() {
     }
 
     /**
      * Test of fuse method, of class DataFusionProcessor.
+     *
+     * @throws java.lang.Exception
      */
     @Test
     public void testFuse() throws Exception {
         System.out.println("fuse");
-        DataSource[] dataSources = null;
-        DisjointSet expResult = null;
-        DisjointSet result = DataFusionProcessor.fuse(dataSources);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
+        new DataFusionProcessor(dataSet, link);
+
     }
-    
+
 }

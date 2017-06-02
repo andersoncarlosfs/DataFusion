@@ -5,10 +5,10 @@
  */
 package com.andersoncarlosfs.controller.services;
 
-import com.andersoncarlosfs.data.controller.services.DataFusionService;
-import com.andersoncarlosfs.data.integration.DataFusion;
-import com.andersoncarlosfs.data.model.DataQualityAssessment;
-import com.andersoncarlosfs.data.model.DataSource;
+import com.andersoncarlosfs.x.controller.services.DataFusionService;
+import com.andersoncarlosfs.x.data.integration.DataFusion;
+import com.andersoncarlosfs.x.model.DataQualityAssessment;
+import com.andersoncarlosfs.x.model.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

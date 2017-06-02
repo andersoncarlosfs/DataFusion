@@ -5,17 +5,16 @@
  */
 package com.andersoncarlosfs.data.integration.processors;
 
-import com.andersoncarlosfs.data.model.DataSource;
+import com.andersoncarlosfs.x.model.DataSource;
 import com.andersoncarlosfs.util.DisjointSet;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import org.apache.jena.graph.Triple;
+import java.util.HashMap;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RDFDataMgr;
@@ -35,23 +34,37 @@ public class DataFusionProcessor {
      */
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
 
-    DisjointSet<RDFNode> equivalenceClasses;
+    private class StatementBag extends DisjointSet<RDFNode> {
 
-    private DataFusionProcessor() {
-        equivalenceClasses = new DisjointSet<>();
+        private final transient HashMap<Resource, DataSource> map = new HashMap<>();
+
+        /**
+         *
+         * @param statement
+         * @param dataSource
+         */
+        public void unionIfAbsent(Statement statement, DataSource dataSource) {
+
+            Resource subject = statement.getSubject();
+            Property property = statement.getPredicate();
+            RDFNode object = statement.getObject();
+
+            map.put(subject, dataSource);
+
+            super.unionIfAbsent(subject, object);
+
+        }
+
     }
+
+    private final StatementBag equivalenceClasses = new StatementBag();
 
     /**
      *
      * @param dataSources
-     * @throws java.io.IOException
+     * @throws IOException
      */
-    public static DisjointSet fuse(DataSource... dataSources) throws IOException {
-
-        DataFusionProcessor processor = new DataFusionProcessor();
-
-        Set<Triple> triples = new HashSet<>();
-
+    public DataFusionProcessor(DataSource... dataSources) throws IOException {
         for (DataSource dataSource : dataSources) {
 
             Model model = RDFDataMgr.loadModel(dataSource.getPath().toString(), dataSource.getSyntax());
@@ -62,15 +75,23 @@ public class DataFusionProcessor {
 
                 Statement statement = statements.next();
 
-                Triple triple = statement.asTriple();
-                
-                
+                if (dataSource.getEquivalenceProperties().contains(statement.getPredicate())) {
+                    equivalenceClasses.unionIfAbsent(statement, dataSource);
+                }
 
             }
 
         }
-        
-        return processor.equivalenceClasses;
+    }
+
+    /**
+     *
+     * @param dataSources
+     * @throws java.io.IOException
+     */
+    public static void process(DataSource... dataSources) throws IOException {
+
+        new DataFusionProcessor(dataSources);
 
     }
 

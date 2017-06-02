@@ -1,4 +1,4 @@
-package com.andersoncarlosfs.data.model;
+package com.andersoncarlosfs.x.model;
 
 /*
  * To change this license header, choose License Headers in Project Attributes.
@@ -11,39 +11,40 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import javax.enterprise.context.RequestScoped;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.riot.Lang;
 
 /**
- * X
  *
  * @author Anderson Carlos Ferreira da Silva
  */
-@RequestScoped
 public class DataSource {
 
     private static final long serialVersionUID = 1L;
 
-    //# These assignments need to be removed
     private Path path;
     private Lang syntax;
     private LocalDate freshness;
     private Float reliability;
-    private Collection<Property> equivalenceProperties = new ArrayList<>();
-    private Collection<Collection<LinkedHashSet<Property>>> mappedProperties = new HashSet<>();
-    //#
+    private Collection<Property> equivalenceProperties;
+    private Collection<Collection<LinkedHashSet<Property>>> mappedProperties;
 
     public DataSource() {
+        equivalenceProperties = new HashSet<Property>();
+        mappedProperties = new HashSet<>();
+    }
+
+    public DataSource(Path path) {
+        this();
+        this.path = path;
     }
 
     public DataSource(String path) {
-        this.path = Paths.get(path);
+        this(Paths.get(path));
     }
 
     /**
