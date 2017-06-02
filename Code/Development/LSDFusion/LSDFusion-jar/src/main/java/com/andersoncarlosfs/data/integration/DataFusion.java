@@ -33,6 +33,7 @@ import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.SKOS;
 
 /**
+ * X
  * http://algs4.cs.princeton.edu/42digraph/
  *
  * @author Anderson Carlos Ferreira da Silva
@@ -41,9 +42,9 @@ import org.apache.jena.vocabulary.SKOS;
 public class DataFusion {
 
     private class DataQualityCriteria {
-        
+
         private LocalDate freshness;
-        
+
         private Float reliability;
 
         public DataQualityCriteria() {
@@ -52,10 +53,10 @@ public class DataFusion {
         public DataQualityCriteria(LocalDate freshness, Float reliability) {
             this.freshness = freshness;
             this.reliability = reliability;
-        }                
-        
+        }
+
     }
-    
+
     /**
      *
      */
@@ -113,7 +114,7 @@ public class DataFusion {
             //
             equivalenceProperties = new HashSet();
             //
-            mappedProperties = new HashSet();                  
+            mappedProperties = new HashSet();
         }
 
         /**
@@ -164,7 +165,7 @@ public class DataFusion {
          * @param object
          */
         private void parse(Node subject, Node predicate, Node object) {
-            
+
             // Find equivalence classes
             if (equivalenceProperties.contains(predicate)) {
                 //
@@ -172,10 +173,10 @@ public class DataFusion {
                 //
                 return;
             }
-            
+
             // Compute frequencies
             frequencies.putIfAbsent(predicate, new HashMap<>());
-            Map<Node, AtomicInteger> objects1= frequencies.get(predicate);                       
+            Map<Node, AtomicInteger> objects1 = frequencies.get(predicate);
             objects1.putIfAbsent(object, new AtomicInteger(0));
             objects1.get(object).incrementAndGet();
 
@@ -264,20 +265,20 @@ public class DataFusion {
                 //
                 Float computedFrequency = 0F;
                 //
-                for (AtomicInteger frequency : objects.values()) {                  
-                    computedFrequency +=  frequency.floatValue();
+                for (AtomicInteger frequency : objects.values()) {
+                    computedFrequency += frequency.floatValue();
                 }
                 //
                 for (Map.Entry<Node, AtomicInteger> entry2 : objects.entrySet()) {
                     //
                     Node object = entry2.getKey();
-                    AtomicInteger frequency = entry2.getValue();                    
+                    AtomicInteger frequency = entry2.getValue();
                     //
                     computedObjects.putIfAbsent(object, (frequency.floatValue() / computedFrequency));
                 }
-                
+
             }
-            
+
             //
             Float durations = new Float(0);
             //
@@ -380,7 +381,7 @@ public class DataFusion {
                                 if (homogeneity == null) {
                                     homogeneity = 0F;
                                 }
-                                homogeneity++;            
+                                homogeneity++;
                                 assessment.setHomogeneity(homogeneity);
                                 //
                                 if (assessment.getMorePrecise() == null) {
@@ -432,7 +433,7 @@ public class DataFusion {
                         assessment.setHomogeneity(homogeneity);
                     }
                 }
-                
+
             }
 
             return computedStatements;

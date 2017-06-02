@@ -21,6 +21,7 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.riot.Lang;
 
 /**
+ * X
  *
  * @author Anderson Carlos Ferreira da Silva
  */
@@ -40,7 +41,7 @@ public class DataSource {
 
     public DataSource() {
     }
-    
+
     public DataSource(String path) {
         this.path = Paths.get(path);
     }

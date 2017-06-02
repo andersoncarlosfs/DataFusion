@@ -22,6 +22,7 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 
 /**
+ * X
  *
  * @author Anderson Carlos Ferreira da Silva
  */
@@ -117,10 +118,10 @@ public class DataFusionService {
 
                         writer.println(".");
 
-                        if(!v.isEmpty()){
+                        if (!v.isEmpty()) {
                             writer.println(v);
                         }
-                        
+
                         if (assessment == null) {
                             continue;
                         }
