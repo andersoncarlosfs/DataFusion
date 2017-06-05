@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
@@ -34,30 +35,39 @@ public class DataFusionProcessor {
      */
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
 
-    private class StatementBag extends DisjointSet<RDFNode> {
+    private class Bag {
 
-        private final transient HashMap<Resource, DataSource> map = new HashMap<>();
+        private final transient HashMap<Resource, HashMap<DataSource, HashMap<Property, HashMap<RDFNode, Object>>>> map = new HashMap<>();
 
         /**
          *
          * @param statement
          * @param dataSource
          */
-        public void unionIfAbsent(Statement statement, DataSource dataSource) {
-
+        private void add(Statement statement, DataSource dataSource) {
+            //
             Resource subject = statement.getSubject();
             Property property = statement.getPredicate();
             RDFNode object = statement.getObject();
 
-            map.put(subject, dataSource);
+            //
+            map.putIfAbsent(subject, new HashMap<>());
+            Map map = this.map.get(subject);
 
-            super.unionIfAbsent(subject, object);
+            map.putIfAbsent(dataSource, new HashMap<>());
+            map = (Map) map.get(dataSource);
 
+            map.putIfAbsent(property, new HashMap<>());
+            map = (Map) map.get(property);
+
+            map.putIfAbsent(object, new HashMap<>());
+            Object o = (Object) map.get(object);
         }
 
     }
 
-    private final StatementBag equivalenceClasses = new StatementBag();
+    private final Bag statements = new Bag();
+    private final DisjointSet classes = new DisjointSet<>();
 
     /**
      *
@@ -76,8 +86,10 @@ public class DataFusionProcessor {
                 Statement statement = statements.next();
 
                 if (dataSource.getEquivalenceProperties().contains(statement.getPredicate())) {
-                    equivalenceClasses.unionIfAbsent(statement, dataSource);
+                    this.classes.unionIfAbsent(statement.getSubject(), statement.getObject());
                 }
+
+                this.statements.add(statement, dataSource);
 
             }
 
