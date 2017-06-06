@@ -29,7 +29,7 @@ import java.util.Set;
  *
  * @author Anderson Carlos Ferreira da Silva
  */
-public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable, Serializable {
+public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<E>, Cloneable, Serializable {
 
     static final long serialVersionUID = 1L;
 
@@ -90,6 +90,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
      * specified element, or <tt>null</tt> if there was no representative for
      * the specified element
      */
+    @Override
     public E representative(E e) {
         //
         return search(e).getKey();
@@ -103,6 +104,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
      * @return the disjoint subset which contains the specified element, or
      * <tt>null</tt> if there was no disjoint subset for the specified element
      */
+    @Override
     public Collection<E> find(E e) {
         //
         E parent = search(e).getKey();
@@ -125,6 +127,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
      * @param subject
      * @param object
      */
+    @Override
     public void union(E subject, E object) {
         //   
         union(search(subject), search(object));
@@ -152,6 +155,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
      * @return a view of the values contained this set partitioned into disjoint
      * subsets
      */
+    @Override
     public Collection<Collection<E>> disjointValues() {
         //
         Map<E, Collection<E>> disjointValues = new HashMap<>();
@@ -199,6 +203,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
      *
      * @return the number of disjoint sets
      */
+    @Override
     public int count() {
         //
         int representatives = 0;
