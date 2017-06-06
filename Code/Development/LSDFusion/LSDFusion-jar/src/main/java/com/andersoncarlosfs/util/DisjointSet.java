@@ -152,7 +152,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
 
     /**
      *
-     * @return a view of the values contained this set partitioned into disjoint
+     * @return a view of the values contained in this set partitioned into disjoint
      * subsets
      */
     @Override
