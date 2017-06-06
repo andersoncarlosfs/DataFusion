@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
@@ -37,6 +38,9 @@ public class DataFusionProcessor {
      */
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
 
+    /**
+     *
+     */
     private class Bag extends DisjointSet<RDFNode> {
 
         private final transient Map<Resource, Map<DataSource, Map<Property, Collection<RDFNode>>>> map = new HashMap<>();
@@ -70,7 +74,7 @@ public class DataFusionProcessor {
 
         /**
          *
-         * @return a view of the values contained this bag partitioned into
+         * @return a view of the values contained in this bag partitioned into
          * disjoint subsets
          */
         @Override
@@ -149,6 +153,73 @@ public class DataFusionProcessor {
 
     }
 
+    /**
+     *
+     */
+    private class DataQualityInformation implements com.andersoncarlosfs.data.model.assessments.DataQualityInformation {
+
+        private int frequency;
+        private int homogeneity;
+        private int reliability;
+        private int freshness;
+        private Collection<Node> morePrecise;
+
+        public DataQualityInformation() {
+            frequency = 0;
+            homogeneity = 0;
+            reliability = 0;
+            freshness = 0;
+            morePrecise = new HashSet<>();
+        }
+
+        /**
+         *
+         * @param frequency the frequency to set
+         */
+        @Override
+        public Number getFrequency() {
+            return frequency;
+        }
+
+        /**
+         *
+         * @return the homogeneity
+         */
+        @Override
+        public Number getHomogeneity() {
+            return homogeneity;
+        }
+
+        /**
+         *
+         * @return the reliability
+         */
+        @Override
+        public Number getReliability() {
+            return reliability;
+        }
+
+        /**
+         * Returns the timestamp.
+         *
+         * @return the freshness
+         */
+        @Override
+        public Number getFreshness() {
+            return freshness;
+        }
+
+        /**
+         *
+         * @return the morePrecise
+         */
+        @Override
+        public Collection<Node> getMorePrecise() {
+            return morePrecise;
+        }
+
+    }
+
     private final Bag classes = new Bag();
 
     /**
@@ -178,17 +249,79 @@ public class DataFusionProcessor {
         }
     }
 
-    /**
-     * X
-     *
-     * @param dataSources
-     * @return Statements
-     * @throws java.io.IOException
-     */
-    public static Collection<Map<RDFNode, Map<Property, Collection<RDFNode>>>> process(DataSource... dataSources) throws IOException {
+    public Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> computeDataQualityAssessment() {
+        Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> values = new HashMap<>();
 
-        return (new DataFusionProcessor(dataSources)).classes.disjointValues();
+        //
+        Collection<Collection<RDFNode>> classes = this.classes.disjointValues();
 
+        //
+        for (Collection<RDFNode> classe : classes) {
+
+            if (classe.size() < 2) {
+                continue;
+            }
+
+            //
+            values.put(classe, new HashMap<>());
+
+        }
+
+        //
+        for (Map.Entry<Resource, Map<DataSource, Map<Property, Collection<RDFNode>>>> statements : this.classes.map.entrySet()) {
+            //
+            RDFNode subject = statements.getKey();
+            Map<DataSource, Map<Property, Collection<RDFNode>>> provenances = statements.getValue();
+            
+            //
+            Map<Property, Map<RDFNode, DataQualityInformation>> value;
+            
+            //
+            for (Collection<RDFNode> classe : classes) {
+                if (classe.contains(subject)) {
+                    value = values.get(classe);
+                }
+  
+            }
+
+            //
+            for (Map.Entry<DataSource, Map<Property, Collection<RDFNode>>> provenance : provenances.entrySet()) {
+                //
+                DataSource dataSource = provenance.getKey();
+                Map<Property, Collection<RDFNode>> properties = provenance.getValue();
+
+                //
+                for (Map.Entry<Property, Collection<RDFNode>> property : properties.entrySet()) {
+                    //
+                    Property key = property.getKey();
+                    Collection<RDFNode> objects = property.getValue();
+
+                    for (RDFNode object : objects) {
+
+                        //                    
+                        map.putIfAbsent(property, new HashMap<>());
+                        map = (Map) map.get(property);
+
+                        //
+                        map.putIfAbsent(object, new DataQualityInformation());
+                        DataQualityInformation information = (DataQualityInformation) map.get(object);
+
+                        information.homogeneity++;
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        return values;
+
+    }
+
+    public static Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> process(DataSource... dataSources) throws IOException {
+        return (new DataFusionProcessor(dataSources)).computeDataQualityAssessment();
     }
 
 }

@@ -20,7 +20,7 @@ import org.junit.Test;
 
 /**
  *
- * @author lsdfusion
+ * @author Anderson Carlos Ferreira da Silva
  */
 public class DataFusionProcessorTest {
 
