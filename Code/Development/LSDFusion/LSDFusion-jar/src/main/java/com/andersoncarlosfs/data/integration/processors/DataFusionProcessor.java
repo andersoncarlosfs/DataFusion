@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
@@ -37,7 +39,7 @@ public class DataFusionProcessor {
 
     private class Bag extends DisjointSet<RDFNode> {
 
-        private final transient HashMap<Resource, HashMap<DataSource, HashMap<Property, HashMap<RDFNode, Object>>>> map = new HashMap<>();
+        private final transient Map<Resource, Map<DataSource, Map<Property, Collection<RDFNode>>>> map = new HashMap<>();
 
         /**
          *
@@ -51,17 +53,98 @@ public class DataFusionProcessor {
             RDFNode object = statement.getObject();
 
             //
-            map.putIfAbsent(subject, new HashMap<>());
+            this.map.putIfAbsent(subject, new HashMap<>());
             Map map = this.map.get(subject);
 
             map.putIfAbsent(dataSource, new HashMap<>());
             map = (Map) map.get(dataSource);
 
-            map.putIfAbsent(property, new HashMap<>());
-            map = (Map) map.get(property);
+            map.putIfAbsent(property, new HashSet<>());
+            Collection collection = (Collection) map.get(property);
 
-            map.putIfAbsent(object, new HashMap<>());
-            Object o = (Object) map.get(object);
+            if (!collection.add(object)) {
+                // Warning, the statement is already present in the dataSouce
+            }
+
+        }
+
+        /**
+         *
+         * @return a view of the values contained this bag partitioned into
+         * disjoint subsets
+         */
+        @Override
+        public Collection disjointValues() {
+            Collection<Map<RDFNode, Map<Property, Collection<RDFNode>>>> values = new HashSet<>();
+
+            //
+            Collection<Collection<RDFNode>> classes = super.disjointValues();
+
+            //
+            for (Collection<RDFNode> classe : classes) {
+
+                if (classe.size() < 2) {
+                    continue;
+                }
+
+                //
+                Map value = new HashMap<>();
+
+                //
+                for (RDFNode node : classe) {
+                    value = disjointValues(node, value);
+                }
+
+                //
+                values.add(value);
+
+            }
+
+            return values;
+        }
+
+        /**
+         *
+         * @param node
+         * @param statements
+         * @return a view of the values contained this bag partitioned into
+         * disjoint subsets
+         */
+        private Map disjointValues(RDFNode node, Map values) {
+
+            //
+            if (this.map.get(node) == null) {
+                return values;
+            }
+
+            //
+            values.putIfAbsent(node, new HashMap<>());
+
+            //
+            for (Map<Property, Collection<RDFNode>> properties : map.get(node).values()) {
+
+                //
+                for (Map.Entry<Property, Collection<RDFNode>> entry : properties.entrySet()) {
+
+                    //
+                    Property property = entry.getKey();
+                    Collection<RDFNode> objects = entry.getValue();
+
+                    //
+                    if (((Map) values.get(node)).putIfAbsent(property, objects) != null) {
+                        ((Set) ((Map) values.get(node)).get(property)).addAll(objects);
+                    }
+
+                    for (RDFNode object : objects) {
+                        values = disjointValues(object, values);
+                    }
+
+                }
+
+            }
+
+            return values;
+
         }
 
     }
@@ -96,13 +179,15 @@ public class DataFusionProcessor {
     }
 
     /**
+     * X
      *
      * @param dataSources
+     * @return Statements
      * @throws java.io.IOException
      */
-    public static void process(DataSource... dataSources) throws IOException {
+    public static Collection<Map<RDFNode, Map<Property, Collection<RDFNode>>>> process(DataSource... dataSources) throws IOException {
 
-        new DataFusionProcessor(dataSources);
+        return (new DataFusionProcessor(dataSources)).classes.disjointValues();
 
     }
 
