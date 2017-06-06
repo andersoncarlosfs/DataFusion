@@ -7,7 +7,6 @@ package com.andersoncarlosfs.data.integration.processors;
 
 import com.andersoncarlosfs.x.data.integration.DataFusion;
 import com.andersoncarlosfs.x.model.DataSource;
-import com.andersoncarlosfs.util.DisjointSet;
 import org.apache.jena.riot.Lang;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -51,15 +50,15 @@ public class DataFusionProcessorTest {
     }
 
     /**
-     * Test of fuse method, of class DataFusionProcessor.
+     * Test of process method, of class DataFusionProcessor.
      *
      * @throws java.lang.Exception
      */
     @Test
-    public void testFuse() throws Exception {
-        System.out.println("fuse");
+    public void testProcess() throws Exception {
+        System.out.println("process");
 
-        new DataFusionProcessor(dataSet, link);
+        DataFusionProcessor.process(dataSet, link);
 
     }
 

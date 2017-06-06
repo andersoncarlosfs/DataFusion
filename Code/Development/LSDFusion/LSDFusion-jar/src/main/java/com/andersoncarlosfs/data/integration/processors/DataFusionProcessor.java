@@ -35,7 +35,7 @@ public class DataFusionProcessor {
      */
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
 
-    private class Bag {
+    private class Bag extends DisjointSet<RDFNode> {
 
         private final transient HashMap<Resource, HashMap<DataSource, HashMap<Property, HashMap<RDFNode, Object>>>> map = new HashMap<>();
 
@@ -66,8 +66,7 @@ public class DataFusionProcessor {
 
     }
 
-    private final Bag statements = new Bag();
-    private final DisjointSet classes = new DisjointSet<>();
+    private final Bag classes = new Bag();
 
     /**
      *
@@ -86,10 +85,10 @@ public class DataFusionProcessor {
                 Statement statement = statements.next();
 
                 if (dataSource.getEquivalenceProperties().contains(statement.getPredicate())) {
-                    this.classes.unionIfAbsent(statement.getSubject(), statement.getObject());
+                    classes.unionIfAbsent(statement.getSubject(), statement.getObject());
                 }
 
-                this.statements.add(statement, dataSource);
+                classes.add(statement, dataSource);
 
             }
 
