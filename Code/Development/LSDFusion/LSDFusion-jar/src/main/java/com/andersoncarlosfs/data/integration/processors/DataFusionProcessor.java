@@ -12,8 +12,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
@@ -37,6 +37,21 @@ public class DataFusionProcessor {
      *
      */
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
+
+    /**
+     *
+     */
+    private class EquivalenceClass implements Iterable<RDFNode> {
+
+        public EquivalenceClass() {
+        }
+
+        @Override
+        public Iterator<RDFNode> iterator() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+    }
 
     /**
      *
@@ -72,85 +87,6 @@ public class DataFusionProcessor {
 
         }
 
-        /**
-         *
-         * @return a view of the values contained in this bag partitioned into
-         * disjoint subsets
-         */
-        @Override
-        public Collection disjointValues() {
-            Collection<Map<RDFNode, Map<Property, Collection<RDFNode>>>> values = new HashSet<>();
-
-            //
-            Collection<Collection<RDFNode>> classes = super.disjointValues();
-
-            //
-            for (Collection<RDFNode> classe : classes) {
-
-                if (classe.size() < 2) {
-                    continue;
-                }
-
-                //
-                Map value = new HashMap<>();
-
-                //
-                for (RDFNode node : classe) {
-                    value = disjointValues(node, value);
-                }
-
-                //
-                values.add(value);
-
-            }
-
-            return values;
-        }
-
-        /**
-         *
-         * @param node
-         * @param statements
-         * @return a view of the values contained this bag partitioned into
-         * disjoint subsets
-         */
-        private Map disjointValues(RDFNode node, Map values) {
-
-            //
-            if (this.map.get(node) == null) {
-                return values;
-            }
-
-            //
-            values.putIfAbsent(node, new HashMap<>());
-
-            //
-            for (Map<Property, Collection<RDFNode>> properties : map.get(node).values()) {
-
-                //
-                for (Map.Entry<Property, Collection<RDFNode>> entry : properties.entrySet()) {
-
-                    //
-                    Property property = entry.getKey();
-                    Collection<RDFNode> objects = entry.getValue();
-
-                    //
-                    if (((Map) values.get(node)).putIfAbsent(property, objects) != null) {
-                        ((Set) ((Map) values.get(node)).get(property)).addAll(objects);
-                    }
-
-                    for (RDFNode object : objects) {
-                        values = disjointValues(object, values);
-                    }
-
-                }
-
-            }
-
-            return values;
-
-        }
-
     }
 
     /**
@@ -158,17 +94,15 @@ public class DataFusionProcessor {
      */
     private class DataQualityInformation implements com.andersoncarlosfs.data.model.assessments.DataQualityInformation {
 
-        private int frequency;
-        private int homogeneity;
-        private float reliability;
-        private long freshness;
+        private Integer frequency;
+        private Integer homogeneity;
+        private Float reliability;
+        private Long freshness;
         private Collection<Node> morePrecise;
 
         public DataQualityInformation() {
             frequency = 0;
             homogeneity = 0;
-            reliability = 0;
-            freshness = Integer.MAX_VALUE;
             morePrecise = new HashSet<>();
         }
 
@@ -249,8 +183,8 @@ public class DataFusionProcessor {
         }
     }
 
-    public Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> computeDataQualityAssessment() {
-        Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> values = new HashMap<>();
+    public Map<Collection<RDFNode>, Map<Property, Map<RDFNode, com.andersoncarlosfs.data.model.assessments.DataQualityInformation>>> computeDataQualityAssessment() {
+        Map<Collection<RDFNode>, Map<Property, Map<RDFNode, com.andersoncarlosfs.data.model.assessments.DataQualityInformation>>> values = new HashMap<>();
 
         //
         Collection<Collection<RDFNode>> classes = this.classes.disjointValues();
@@ -264,55 +198,6 @@ public class DataFusionProcessor {
 
             //
             values.put(classe, new HashMap<>());
-
-        }
-
-        //
-        for (Map.Entry<Resource, Map<DataSource, Map<Property, Collection<RDFNode>>>> statements : this.classes.map.entrySet()) {
-            //
-            RDFNode subject = statements.getKey();
-            Map<DataSource, Map<Property, Collection<RDFNode>>> provenances = statements.getValue();
-
-            //
-            Map<Property, Map<RDFNode, DataQualityInformation>> value;
-
-            //
-            for (Collection<RDFNode> classe : classes) {
-                if (classe.contains(subject)) {
-                    value = values.get(classe);
-                }
-
-            }
-
-            //
-            for (Map.Entry<DataSource, Map<Property, Collection<RDFNode>>> provenance : provenances.entrySet()) {
-                //
-                DataSource dataSource = provenance.getKey();
-                Map<Property, Collection<RDFNode>> properties = provenance.getValue();
-
-                //
-                for (Map.Entry<Property, Collection<RDFNode>> property : properties.entrySet()) {
-                    //
-                    Property key = property.getKey();
-                    Collection<RDFNode> objects = property.getValue();
-
-                    for (RDFNode object : objects) {
-
-                        //                    
-                        map.putIfAbsent(property, new HashMap<>());
-                        map = (Map) map.get(property);
-
-                        //
-                        map.putIfAbsent(object, new DataQualityInformation());
-                        DataQualityInformation information = (DataQualityInformation) map.get(object);
-
-                        information.homogeneity++;
-
-                    }
-
-                }
-
-            }
 
         }
 
@@ -350,10 +235,14 @@ public class DataFusionProcessor {
 
                         information.frequency++;
 
-                        information.freshness = Math.min(information.freshness, dataSource.getFreshness().toEpochDay());
-                        
-                        information.reliability = Math.max(information.reliability, dataSource.getReliability());
-                        
+                        if (dataSource.getFreshness() != null) {
+                            information.freshness = Math.min(information.freshness, dataSource.getFreshness().toEpochDay());
+                        }
+
+                        if (dataSource.getReliability() != null) {
+                            information.reliability = Math.max(information.reliability, dataSource.getReliability());
+                        }
+
                     }
                 }
 
@@ -365,7 +254,7 @@ public class DataFusionProcessor {
 
     }
 
-    public static Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> process(DataSource... dataSources) throws IOException {
+    public static Map<Collection<RDFNode>, Map<Property, Map<RDFNode, com.andersoncarlosfs.data.model.assessments.DataQualityInformation>>> process(DataSource... dataSources) throws IOException {
         return (new DataFusionProcessor(dataSources)).computeDataQualityAssessment();
     }
 
