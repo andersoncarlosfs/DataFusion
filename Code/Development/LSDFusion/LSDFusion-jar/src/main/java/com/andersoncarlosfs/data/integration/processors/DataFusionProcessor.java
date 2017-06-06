@@ -160,15 +160,15 @@ public class DataFusionProcessor {
 
         private int frequency;
         private int homogeneity;
-        private int reliability;
-        private int freshness;
+        private float reliability;
+        private long freshness;
         private Collection<Node> morePrecise;
 
         public DataQualityInformation() {
             frequency = 0;
             homogeneity = 0;
             reliability = 0;
-            freshness = 0;
+            freshness = Integer.MAX_VALUE;
             morePrecise = new HashSet<>();
         }
 
@@ -195,7 +195,7 @@ public class DataFusionProcessor {
          * @return the reliability
          */
         @Override
-        public Number getReliability() {
+        public Float getReliability() {
             return reliability;
         }
 
@@ -272,16 +272,16 @@ public class DataFusionProcessor {
             //
             RDFNode subject = statements.getKey();
             Map<DataSource, Map<Property, Collection<RDFNode>>> provenances = statements.getValue();
-            
+
             //
             Map<Property, Map<RDFNode, DataQualityInformation>> value;
-            
+
             //
             for (Collection<RDFNode> classe : classes) {
                 if (classe.contains(subject)) {
                     value = values.get(classe);
                 }
-  
+
             }
 
             //
@@ -310,6 +310,51 @@ public class DataFusionProcessor {
 
                     }
 
+                }
+
+            }
+
+        }
+
+        return values;
+
+    }
+
+    private Map computeDataQualityAssessment(RDFNode node, Map values) {
+
+        //
+        if (classes.map.get(node) == null) {
+            return values;
+        }
+
+        //
+        for (Map.Entry<DataSource, Map<Property, Collection<RDFNode>>> provenances : classes.map.get(node).entrySet()) {
+
+            DataSource dataSource = provenances.getKey();
+            Map<Property, Collection<RDFNode>> properties = provenances.getValue();
+
+            //
+            for (Map.Entry<Property, Collection<RDFNode>> entry : properties.entrySet()) {
+
+                //
+                Property property = entry.getKey();
+                Collection<RDFNode> objects = entry.getValue();
+
+                for (RDFNode object : objects) {
+                    //
+                    if (values.size() == computeDataQualityAssessment(object, values).size()) {
+                        //                    
+                        values.putIfAbsent(property, new HashMap<>());
+                        ((Map) values.get(property)).putIfAbsent(object, new DataQualityInformation());
+                        DataQualityInformation information = (DataQualityInformation) ((Map) values.get(property)).get(object);
+
+                        information.frequency++;
+
+                        information.freshness = Math.min(information.freshness, dataSource.getFreshness().toEpochDay());
+                        
+                        information.reliability = Math.max(information.reliability, dataSource.getReliability());
+                        
+                    }
                 }
 
             }

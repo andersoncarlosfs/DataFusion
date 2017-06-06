@@ -27,13 +27,6 @@ public interface DataQualityAssessment extends DataQualityInformation {
 
     /**
      *
-     * @return the reliability
-     */
-    @Override
-    public Float getReliability();
-
-    /**
-     *
      * @return the freshness
      */
     @Override

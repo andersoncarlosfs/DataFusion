@@ -32,7 +32,7 @@ public interface DataQualityInformation {
      *
      * @return the reliability
      */
-    public Number getReliability();
+    public Float getReliability();
 
     /**
      * Returns the timestamp.
