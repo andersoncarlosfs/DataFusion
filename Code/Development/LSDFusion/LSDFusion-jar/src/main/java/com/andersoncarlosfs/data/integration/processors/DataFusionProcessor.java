@@ -76,6 +76,37 @@ public class DataFusionProcessor {
         }
 
         @Override
+        public Collection values() {
+            return super.values(); //To change body of generated methods, choose Tools | Templates.
+        }
+                
+        /**
+         * Return the number of statements
+         *
+         * @return the number of statements
+         */
+        @Override
+        public int size() {
+            return size(0, map);
+        }
+
+        /**
+         * Return the number of statements
+         *
+         * @return the number of statements
+         */
+        public int size(int size, Map map) {
+            for (Object value : map.values()) {
+                if (value instanceof Map) {
+                    size += size(0, (Map) value);
+                } else {
+                    return map.values().size();
+                }
+            }
+            return size;
+        }
+
+        @Override
         public boolean remove(Object o) {
             throw new UnsupportedOperationException();
         }
@@ -83,32 +114,6 @@ public class DataFusionProcessor {
         @Override
         public void clear() {
             throw new UnsupportedOperationException();
-        }
-
-        /**
-         * Return the number of statements
-         *
-         * @return the number of statements
-         */
-        @Override
-        public int count() {
-            return count(0, map);
-        }
-
-        /**
-         * Return the number of statements
-         *
-         * @return the number of statements
-         */
-        public int count(int count, Map map) {
-            for (Object value : map.values()) {                
-                if (value instanceof Map) {
-                    count += count(0, (Map) value);                    
-                } else {                    
-                    return map.values().size();
-                }
-            }
-            return count;
         }
 
     }
@@ -204,7 +209,7 @@ public class DataFusionProcessor {
 
             }
 
-        }            
+        }
     }
 
     public Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> computeDataQualityAssessment() {
