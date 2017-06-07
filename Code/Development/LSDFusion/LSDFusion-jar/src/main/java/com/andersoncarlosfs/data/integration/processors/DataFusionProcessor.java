@@ -5,6 +5,7 @@
  */
 package com.andersoncarlosfs.data.integration.processors;
 
+import com.andersoncarlosfs.data.model.assessments.DataQualityInformation;
 import com.andersoncarlosfs.x.model.DataSource;
 import com.andersoncarlosfs.util.DisjointSet;
 import java.io.IOException;
@@ -12,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Model;
@@ -41,31 +41,20 @@ public class DataFusionProcessor {
     /**
      *
      */
-    private class EquivalenceClass implements Iterable<RDFNode> {
-
-        public EquivalenceClass() {
-        }
-
-        @Override
-        public Iterator<RDFNode> iterator() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-    }
-
-    /**
-     *
-     */
     private class Bag extends DisjointSet<RDFNode> {
 
-        private final transient Map<Resource, Map<DataSource, Map<Property, Collection<RDFNode>>>> map = new HashMap<>();
+        private final transient Map<Resource, Map<DataSource, Map<Property, Map<RDFNode, Object>>>> map = new HashMap<>();
 
         /**
+         * Adds the specified statement associated with a data source to this
+         * bag if it is not already present.
          *
-         * @param statement
-         * @param dataSource
+         * @param statement to be added to this bag
+         * @param dataSource to be associated with the specified statement
+         * @return <tt>true</tt> if this bag did not already contain the
+         * specified statement
          */
-        private void add(Statement statement, DataSource dataSource) {
+        private boolean add(Statement statement, DataSource dataSource) {
             //
             Resource subject = statement.getSubject();
             Property property = statement.getPredicate();
@@ -78,13 +67,48 @@ public class DataFusionProcessor {
             map.putIfAbsent(dataSource, new HashMap<>());
             map = (Map) map.get(dataSource);
 
-            map.putIfAbsent(property, new HashSet<>());
-            Collection collection = (Collection) map.get(property);
+            map.putIfAbsent(property, new HashMap<>());
+            map = (Map) map.get(property);
 
-            if (!collection.add(object)) {
-                // Warning, the statement is already present in the dataSouce
+            // Warning, the statement is already present in the dataSouce           
+            return map.put(object, null) == null;
+
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void clear() {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Return the number of statements
+         *
+         * @return the number of statements
+         */
+        @Override
+        public int count() {
+            return count(0, map);
+        }
+
+        /**
+         * Return the number of statements
+         *
+         * @return the number of statements
+         */
+        public int count(int count, Map map) {
+            for (Object value : map.values()) {                
+                if (value instanceof Map) {
+                    count += count(0, (Map) value);                    
+                } else {                    
+                    return map.values().size();
+                }
             }
-
+            return count;
         }
 
     }
@@ -92,7 +116,7 @@ public class DataFusionProcessor {
     /**
      *
      */
-    private class DataQualityInformation implements com.andersoncarlosfs.data.model.assessments.DataQualityInformation {
+    private class DataQualityRecords implements DataQualityInformation {
 
         private Integer frequency;
         private Integer homogeneity;
@@ -100,7 +124,7 @@ public class DataFusionProcessor {
         private Long freshness;
         private Collection<Node> morePrecise;
 
-        public DataQualityInformation() {
+        public DataQualityRecords() {
             frequency = 0;
             homogeneity = 0;
             morePrecise = new HashSet<>();
@@ -180,11 +204,11 @@ public class DataFusionProcessor {
 
             }
 
-        }
+        }            
     }
 
-    public Map<Collection<RDFNode>, Map<Property, Map<RDFNode, com.andersoncarlosfs.data.model.assessments.DataQualityInformation>>> computeDataQualityAssessment() {
-        Map<Collection<RDFNode>, Map<Property, Map<RDFNode, com.andersoncarlosfs.data.model.assessments.DataQualityInformation>>> values = new HashMap<>();
+    public Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> computeDataQualityAssessment() {
+        Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> values = new HashMap<>();
 
         //
         Collection<Collection<RDFNode>> classes = this.classes.disjointValues();
@@ -213,25 +237,25 @@ public class DataFusionProcessor {
         }
 
         //
-        for (Map.Entry<DataSource, Map<Property, Collection<RDFNode>>> provenances : classes.map.get(node).entrySet()) {
+        for (Map.Entry<DataSource, Map<Property, Map<RDFNode, Object>>> provenances : classes.map.get(node).entrySet()) {
 
             DataSource dataSource = provenances.getKey();
-            Map<Property, Collection<RDFNode>> properties = provenances.getValue();
+            Map<Property, Map<RDFNode, Object>> properties = provenances.getValue();
 
             //
-            for (Map.Entry<Property, Collection<RDFNode>> entry : properties.entrySet()) {
+            for (Map.Entry<Property, Map<RDFNode, Object>> entry : properties.entrySet()) {
 
                 //
                 Property property = entry.getKey();
-                Collection<RDFNode> objects = entry.getValue();
+                Map<RDFNode, Object> objects = entry.getValue();
 
-                for (RDFNode object : objects) {
+                for (RDFNode object : objects.keySet()) {
                     //
                     if (values.size() == computeDataQualityAssessment(object, values).size()) {
                         //                    
                         values.putIfAbsent(property, new HashMap<>());
-                        ((Map) values.get(property)).putIfAbsent(object, new DataQualityInformation());
-                        DataQualityInformation information = (DataQualityInformation) ((Map) values.get(property)).get(object);
+                        ((Map) values.get(property)).putIfAbsent(object, new DataQualityRecords());
+                        DataQualityRecords information = (DataQualityRecords) ((Map) values.get(property)).get(object);
 
                         information.frequency++;
 
@@ -254,7 +278,7 @@ public class DataFusionProcessor {
 
     }
 
-    public static Map<Collection<RDFNode>, Map<Property, Map<RDFNode, com.andersoncarlosfs.data.model.assessments.DataQualityInformation>>> process(DataSource... dataSources) throws IOException {
+    public static Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> process(DataSource... dataSources) throws IOException {
         return (new DataFusionProcessor(dataSources)).computeDataQualityAssessment();
     }
 

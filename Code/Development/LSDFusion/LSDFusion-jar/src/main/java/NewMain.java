@@ -29,10 +29,10 @@ public class NewMain {
     public static void main(String[] args) {
 
         try {
-            DataSource dataSet = new DataSource("C:/Users/AndersonCarlos/Desktop/LSDFusion/Datasets/Books/dataset.rdf");
+            DataSource dataSet = new DataSource("/home/lsdfusion/Desktop/LSDFusion/Datasets/Books/dataset.rdf");
             dataSet.setSyntax(Lang.N3);
             //
-            DataSource link = new DataSource("C:/Users/AndersonCarlos/Desktop/LSDFusion/Datasets/Books/links.rdf");
+            DataSource link = new DataSource("/home/lsdfusion/Desktop/LSDFusion/Datasets/Books/links.rdf");
             link.setSyntax(Lang.N3);
             link.setEquivalenceProperties(DataFusion.EQUIVALENCE_PROPERTIES);
 
