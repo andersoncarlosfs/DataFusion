@@ -198,17 +198,13 @@ public class DataFusionProcessor {
     }
 
     public Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> computeDataQualityAssessment() {
-        Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> values = new HashMap<>();
+        Map values = new HashMap<>();
 
         //
         Collection<Collection<RDFNode>> classes = this.classes.disjointValues();
 
         //
         for (Collection<RDFNode> classe : classes) {
-
-            if (classe.size() < 2) {
-                continue;
-            }
 
             //
             values.put(classe, new HashMap<>());
