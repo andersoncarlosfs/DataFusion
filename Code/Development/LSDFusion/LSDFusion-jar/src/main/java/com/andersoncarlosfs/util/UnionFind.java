@@ -9,8 +9,12 @@ import java.util.Collection;
 
 /**
  *
+ * @param <E> the type of elements maintained by this set
+ *
+ * @see <a href="http://algs4.cs.princeton.edu/15uf/">1.5 Case Study:
+ * Union-Find</a>
+ *
  * @author Anderson Carlos Ferreira da Silva
- * @param <E>
  */
 public interface UnionFind<E> {
 
