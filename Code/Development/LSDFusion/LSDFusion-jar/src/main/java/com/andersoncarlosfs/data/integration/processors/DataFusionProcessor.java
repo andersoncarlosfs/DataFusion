@@ -41,7 +41,7 @@ public class DataFusionProcessor {
     /**
      *
      */
-    private class Bag extends DisjointSet<RDFNode> {
+    private class DataBag extends DisjointSet<RDFNode> {
 
         private final transient Map<Resource, Map<DataSource, Map<Property, Map<RDFNode, Object>>>> map = new HashMap<>();
 
@@ -75,11 +75,6 @@ public class DataFusionProcessor {
 
         }
 
-        @Override
-        public Collection values() {
-            return super.values(); //To change body of generated methods, choose Tools | Templates.
-        }
-                
         /**
          * Return the number of statements
          *
@@ -104,16 +99,6 @@ public class DataFusionProcessor {
                 }
             }
             return size;
-        }
-
-        @Override
-        public boolean remove(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void clear() {
-            throw new UnsupportedOperationException();
         }
 
     }
@@ -183,7 +168,7 @@ public class DataFusionProcessor {
 
     }
 
-    private final Bag classes = new Bag();
+    private final DataBag classes = new DataBag();
 
     /**
      *
