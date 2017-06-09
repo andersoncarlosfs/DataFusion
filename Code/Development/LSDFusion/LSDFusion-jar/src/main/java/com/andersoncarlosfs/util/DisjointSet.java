@@ -84,7 +84,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
      * Returns the representative of the disjoint subset which contains the
      * specified element.
      *
-     * @param e the element the representative presence in this set is to be
+     * @param e the element that it representative presence in this set is to be
      * found
      * @return the representative of the disjoint subset which contains the
      * specified element, or <tt>null</tt> if there was no representative for
@@ -99,8 +99,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
     /**
      * Find the disjoint subset of the specified element
      *
-     * @param e the element the representative presence in this set is to be
-     * found
+     * @param e the element that it disjoint subset in this set is to be found
      * @return the disjoint subset which contains the specified element, or
      * <tt>null</tt> if there was no disjoint subset for the specified element
      */
@@ -145,15 +144,15 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
         AbstractMap.SimpleEntry<E, Integer> objectParent = new AbstractMap.SimpleEntry(object, 0);
         //
         subjectParent = search(map.putIfAbsent(subject, subject), subjectParent);
-        objectParent = search(map.putIfAbsent(object, object), objectParent);            
+        objectParent = search(map.putIfAbsent(object, object), objectParent);
         // 
         union(subjectParent, objectParent);
     }
 
     /**
      *
-     * @return a view of the values contained in this set partitioned into disjoint
-     * subsets
+     * @return a view of the values contained in this set partitioned into
+     * disjoint subsets
      */
     @Override
     public Collection<Collection<E>> disjointValues() {
@@ -238,8 +237,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
     /**
      * Search the specified element
      *
-     * @param e the element the representative presence in this set is to be
-     * found
+     * @param e the element that in this set is to be found
      * @return
      */
     private AbstractMap.SimpleEntry<E, Integer> search(E e) {
@@ -250,8 +248,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
     /**
      * Search the specified element
      *
-     * @param e the element the representative presence in this set is to be
-     * found
+     * @param e the element that in this set is to be found
      * @return
      */
     private AbstractMap.SimpleEntry<E, Integer> search(E e, AbstractMap.SimpleEntry entry) {
