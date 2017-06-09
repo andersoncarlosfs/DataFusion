@@ -5,6 +5,8 @@
  */
 package com.andersoncarlosfs.data.integration.processors;
 
+import com.andersoncarlosfs.data.model.assessments.DataFusionAssessment;
+import com.andersoncarlosfs.data.model.assessments.DataQualityAssessment;
 import com.andersoncarlosfs.data.model.assessments.DataQualityInformation;
 import com.andersoncarlosfs.x.model.DataSource;
 import com.andersoncarlosfs.util.DisjointSet;
@@ -37,6 +39,23 @@ public class DataFusionProcessor {
      *
      */
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
+
+    /**
+     *
+     */
+    private class DataFusionRecords implements DataFusionAssessment {
+       
+        @Override
+        public Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityAssessment>>> getComputedDataQualityAssessment() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public Model getModel() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+    }
 
     /**
      *

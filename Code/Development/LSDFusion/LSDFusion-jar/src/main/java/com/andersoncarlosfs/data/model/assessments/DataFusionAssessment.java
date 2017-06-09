@@ -5,12 +5,12 @@
  */
 package com.andersoncarlosfs.data.model.assessments;
 
-import com.andersoncarlosfs.x.model.DataSource;
 import java.util.Collection;
 import java.util.Map;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Statement;
 
 /**
  *
@@ -18,15 +18,13 @@ import org.apache.jena.rdf.model.RDFNode;
  */
 public interface DataFusionAssessment {
 
+    public Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityAssessment>>> getComputedDataQualityAssessment();
+
     /**
      *
-     * @return the data sources
+     * @return a view of the duplicate statements in this data fusion processing
      */
-    public Collection<DataSource> getDataSources();
-
-    public Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> getComputedDataQualityInformation();
-
-    public Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityAssessment>>> getComputedDataQualityAssessment();
+    public Collection<Statement> getDuplicates();
 
     /**
      *
