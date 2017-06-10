@@ -96,12 +96,10 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
         return search(e).getKey();
     }
 
-    // the element of the subset in this set that is to be found
-    
     /**
      * Find the disjoint subset of the specified element
      *
-     * @param e the element that it disjoint subset in this set is to be found
+     * @param e the element of the subset in this set that is to be found
      * @return the disjoint subset which contains the specified element, or
      * <tt>null</tt> if there was no disjoint subset for the specified element
      */
