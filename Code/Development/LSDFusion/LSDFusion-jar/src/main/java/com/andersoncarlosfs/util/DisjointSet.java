@@ -33,13 +33,13 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
 
     static final long serialVersionUID = 1L;
 
-    private transient HashMap<E, E> map;
+    private transient HashMap<E, E> data;
 
     /**
      * Constructs a new empty set.
      */
     public DisjointSet() {
-        map = new HashMap<>();
+        data = new HashMap<>();
     }
 
     /**
@@ -51,7 +51,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
      */
     @Override
     public boolean add(E e) {
-        return map.putIfAbsent(e, e) == null;
+        return data.putIfAbsent(e, e) == null;
     }
 
     /**
@@ -62,11 +62,11 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
      */
     @Override
     public boolean remove(Object o) {
-        if (map.remove(o) != null) {
+        if (data.remove(o) != null) {
             //
             E parent = null;
             //
-            for (Map.Entry<E, E> entry : map.entrySet()) {
+            for (Map.Entry<E, E> entry : data.entrySet()) {
                 if (entry.getValue() != o) {
                     continue;
                 }
@@ -110,7 +110,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
         //
         Set<E> set = new HashSet<>();
         //
-        for (Map.Entry<E, E> entry : map.entrySet()) {
+        for (Map.Entry<E, E> entry : data.entrySet()) {
             //
             if (entry.getValue().equals(parent)) {
                 //
@@ -143,8 +143,8 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
         AbstractMap.SimpleEntry<E, Integer> subjectParent = new AbstractMap.SimpleEntry(subject, 0);
         AbstractMap.SimpleEntry<E, Integer> objectParent = new AbstractMap.SimpleEntry(object, 0);
         //
-        subjectParent = search(map.putIfAbsent(subject, subject), subjectParent);
-        objectParent = search(map.putIfAbsent(object, object), objectParent);
+        subjectParent = search(data.putIfAbsent(subject, subject), subjectParent);
+        objectParent = search(data.putIfAbsent(object, object), objectParent);
         // 
         union(subjectParent, objectParent);
     }
@@ -159,7 +159,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
         //
         Map<E, Collection<E>> disjointValues = new HashMap<>();
         //
-        for (Map.Entry<E, E> entry : map.entrySet()) {
+        for (Map.Entry<E, E> entry : data.entrySet()) {
             E key = entry.getKey();
             E value = representative(entry.getValue());
             disjointValues.putIfAbsent(value, new HashSet<>());
@@ -173,7 +173,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
      * @return a collection of the elements contained in this set
      */
     public Collection<E> values() {
-        return map.keySet();
+        return data.keySet();
     }
 
     /**
@@ -184,7 +184,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
      */
     @Override
     public Iterator<E> iterator() {
-        return map.keySet().iterator();
+        return data.keySet().iterator();
     }
 
     /**
@@ -194,7 +194,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
      */
     @Override
     public int size() {
-        return map.size();
+        return data.size();
     }
 
     /**
@@ -207,7 +207,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
         //
         int representatives = 0;
         //
-        for (Map.Entry<E, E> entry : map.entrySet()) {
+        for (Map.Entry<E, E> entry : data.entrySet()) {
             if (entry.getValue().equals(entry.getKey())) {
                 representatives++;
             }
@@ -222,7 +222,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
      */
     @Override
     public boolean isEmpty() {
-        return map.isEmpty();
+        return data.isEmpty();
     }
 
     /**
@@ -231,7 +231,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
      */
     @Override
     public void clear() {
-        map.clear();
+        data.clear();
     }
 
     /**
@@ -242,7 +242,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
      */
     private AbstractMap.SimpleEntry<E, Integer> search(E e) {
         //
-        return search(e, new AbstractMap.SimpleEntry(map.get(e), 0));
+        return search(e, new AbstractMap.SimpleEntry(data.get(e), 0));
     }
 
     /**
@@ -259,9 +259,9 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
             //
             Integer height = (Integer) entry.getValue();
             //
-            entry = search(parent, new AbstractMap.SimpleEntry(map.get(parent), height++));
+            entry = search(parent, new AbstractMap.SimpleEntry(data.get(parent), height++));
             //
-            map.put(e, (E) entry.getKey());
+            data.put(e, (E) entry.getKey());
         }
         return entry;
     }
@@ -278,9 +278,9 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
         }
         //
         if (subject.getValue() < object.getValue()) {
-            map.put(subject.getKey(), object.getKey());
+            data.put(subject.getKey(), object.getKey());
         } else {
-            map.put(object.getKey(), subject.getKey());
+            data.put(object.getKey(), subject.getKey());
         }
     }
 
