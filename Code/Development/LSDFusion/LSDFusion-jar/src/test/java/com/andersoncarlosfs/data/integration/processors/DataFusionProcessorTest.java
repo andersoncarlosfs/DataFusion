@@ -5,8 +5,8 @@
  */
 package com.andersoncarlosfs.data.integration.processors;
 
-import com.andersoncarlosfs.x.data.integration.DataFusion;
-import com.andersoncarlosfs.x.model.DataSource;
+import com.andersoncarlosfs.model.DataSource;
+import java.nio.file.Paths;
 import org.apache.jena.riot.Lang;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -36,13 +36,8 @@ public class DataFusionProcessorTest {
 
     @Before
     public void setUp() {
-        //
-        dataSet = new DataSource("../../../../Datasets/Books/dataset.rdf");
-        dataSet.setSyntax(Lang.N3);
-        //
-        link = new DataSource("../../../../Datasets/Books/links.rdf");
-        link.setSyntax(Lang.N3);
-        link.setEquivalenceProperties(DataFusion.EQUIVALENCE_PROPERTIES);
+        dataSet = new DataSource(Paths.get("../../../../Datasets/Books/dataset.rdf"), Lang.N3, null, null, null, null);
+        link = new DataSource(Paths.get("../../../../Datasets/Books/links.rdf"), Lang.N3, null, null, DataFusionProcessor.EQUIVALENCE_PROPERTIES, null);
     }
 
     @After

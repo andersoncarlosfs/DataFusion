@@ -5,18 +5,13 @@
  */
 package com.andersoncarlosfs.data.integration.processors;
 
-import com.andersoncarlosfs.data.model.assessments.DataFusionAssessment;
-import com.andersoncarlosfs.data.model.assessments.DataQualityAssessment;
-import com.andersoncarlosfs.data.model.assessments.DataQualityInformation;
-import com.andersoncarlosfs.x.model.DataSource;
-import com.andersoncarlosfs.util.DisjointSet;
+import com.andersoncarlosfs.util.DisjointMap;
+import com.andersoncarlosfs.model.DataSource;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
@@ -38,55 +33,23 @@ public class DataFusionProcessor {
     /**
      *
      */
-    public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
-
-    /**
-     *
-     */
-    private class DataFusionRecords implements DataFusionAssessment {
-       
-        @Override
-        public Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityAssessment>>> getComputedDataQualityAssessment() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public Model getModel() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public Collection<Statement> getDuplicates() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-    }
-
-    /**
-     *
-     */
-    private class DataBag extends DisjointSet<RDFNode> {
-
-        private final transient Map<Resource, Map<DataSource, Map<Property, Map<RDFNode, Object>>>> map = new HashMap<>();
+    private class DataBag extends DisjointMap<RDFNode, DisjointMap<RDFNode, DisjointMap<RDFNode, DataSource>>> {
 
         /**
-         * Adds the specified statement associated with a data source to this
-         * bag if it is not already present.
          *
-         * @param statement to be added to this bag
+         * @param statement
          * @param dataSource to be associated with the specified statement
          * @return <tt>true</tt> if this bag did not already contain the
          * specified statement
          */
-        private boolean add(Statement statement, DataSource dataSource) {
-            //
+        private boolean put(Statement statement, DataSource dataSource) {
             Resource subject = statement.getSubject();
             Property property = statement.getPredicate();
             RDFNode object = statement.getObject();
 
             //
-            this.map.putIfAbsent(subject, new HashMap<>());
-            Map map = this.map.get(subject);
+            super.putIfAbsent(subject, new DisjointMap<>());
+            Map map = get(subject);
 
             map.putIfAbsent(dataSource, new HashMap<>());
             map = (Map) map.get(dataSource);
@@ -95,8 +58,7 @@ public class DataFusionProcessor {
             map = (Map) map.get(property);
 
             // Warning, the statement is already present in the dataSouce           
-            return map.put(object, null) == null;
-
+            return map.put(object, dataSource) == dataSource;
         }
 
         /**
@@ -106,7 +68,7 @@ public class DataFusionProcessor {
          */
         @Override
         public int size() {
-            return size(0, map);
+            return size(0, this);
         }
 
         /**
@@ -130,69 +92,9 @@ public class DataFusionProcessor {
     /**
      *
      */
-    private class DataQualityRecords implements DataQualityInformation {
+    public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
 
-        private Integer frequency;
-        private Integer homogeneity;
-        private Float reliability;
-        private Long freshness;
-        private Collection<Node> morePrecise;
-
-        public DataQualityRecords() {
-            frequency = 0;
-            homogeneity = 0;
-            morePrecise = new HashSet<>();
-        }
-
-        /**
-         *
-         * @param frequency the frequency to set
-         */
-        @Override
-        public Number getFrequency() {
-            return frequency;
-        }
-
-        /**
-         *
-         * @return the homogeneity
-         */
-        @Override
-        public Number getHomogeneity() {
-            return homogeneity;
-        }
-
-        /**
-         *
-         * @return the reliability
-         */
-        @Override
-        public Float getReliability() {
-            return reliability;
-        }
-
-        /**
-         * Returns the timestamp.
-         *
-         * @return the freshness
-         */
-        @Override
-        public Number getFreshness() {
-            return freshness;
-        }
-
-        /**
-         *
-         * @return the morePrecise
-         */
-        @Override
-        public Collection<Node> getMorePrecise() {
-            return morePrecise;
-        }
-
-    }
-
-    private final DataBag classes = new DataBag();
+    private final DataBag data = new DataBag();
 
     /**
      *
@@ -210,86 +112,15 @@ public class DataFusionProcessor {
 
                 Statement statement = statements.next();
 
+                data.put(statement, dataSource);
+
                 if (dataSource.getEquivalenceProperties().contains(statement.getPredicate())) {
-                    classes.unionIfAbsent(statement.getSubject(), statement.getObject());
-                }
-
-                classes.add(statement, dataSource);
-
-            }
-
-        }
-    }
-
-    public Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> computeDataQualityAssessment() {
-        Map values = new HashMap<>();
-
-        //
-        Collection<Collection<RDFNode>> classes = this.classes.disjointValues();
-
-        //
-        for (Collection<RDFNode> classe : classes) {
-
-            //
-            values.put(classe, new HashMap<>());
-
-        }
-
-        return values;
-
-    }
-
-    private Map computeDataQualityAssessment(RDFNode node, Map values) {
-
-        //
-        if (classes.map.get(node) == null) {
-            return values;
-        }
-
-        //
-        for (Map.Entry<DataSource, Map<Property, Map<RDFNode, Object>>> provenances : classes.map.get(node).entrySet()) {
-
-            DataSource dataSource = provenances.getKey();
-            Map<Property, Map<RDFNode, Object>> properties = provenances.getValue();
-
-            //
-            for (Map.Entry<Property, Map<RDFNode, Object>> entry : properties.entrySet()) {
-
-                //
-                Property property = entry.getKey();
-                Map<RDFNode, Object> objects = entry.getValue();
-
-                for (RDFNode object : objects.keySet()) {
-                    //
-                    if (values.size() == computeDataQualityAssessment(object, values).size()) {
-                        //                    
-                        values.putIfAbsent(property, new HashMap<>());
-                        ((Map) values.get(property)).putIfAbsent(object, new DataQualityRecords());
-                        DataQualityRecords information = (DataQualityRecords) ((Map) values.get(property)).get(object);
-
-                        information.frequency++;
-
-                        if (dataSource.getFreshness() != null) {
-                            information.freshness = Math.min(information.freshness, dataSource.getFreshness().toEpochDay());
-                        }
-
-                        if (dataSource.getReliability() != null) {
-                            information.reliability = Math.max(information.reliability, dataSource.getReliability());
-                        }
-
-                    }
+                    data.union(statement.getSubject(), statement.getObject());
                 }
 
             }
 
         }
-
-        return values;
-
-    }
-
-    public static Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> process(DataSource... dataSources) throws IOException {
-        return (new DataFusionProcessor(dataSources)).computeDataQualityAssessment();
     }
 
 }

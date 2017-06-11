@@ -1,9 +1,9 @@
 
 import com.andersoncarlosfs.data.integration.processors.DataFusionProcessor;
 import com.andersoncarlosfs.data.model.assessments.DataQualityInformation;
-import com.andersoncarlosfs.x.data.integration.DataFusion;
-import com.andersoncarlosfs.x.model.DataSource;
+import com.andersoncarlosfs.model.DataSource;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Level;
@@ -29,12 +29,8 @@ public class NewMain {
     public static void main(String[] args) {
 
         try {
-            DataSource dataSet = new DataSource("/home/lsdfusion/Desktop/LSDFusion/Datasets/Books/dataset.rdf");
-            dataSet.setSyntax(Lang.N3);
-            //
-            DataSource link = new DataSource("/home/lsdfusion/Desktop/LSDFusion/Datasets/Books/links.rdf");
-            link.setSyntax(Lang.N3);
-            link.setEquivalenceProperties(DataFusion.EQUIVALENCE_PROPERTIES);
+            DataSource dataSet = new DataSource(Paths.get("../../../../Datasets/Books/dataset.rdf"), Lang.N3, null, null, null, null);
+            DataSource link = new DataSource(Paths.get("../../../../Datasets/Books/links.rdf"), Lang.N3, null, null, DataFusionProcessor.EQUIVALENCE_PROPERTIES, null);
 
             for (Map.Entry<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> statements : DataFusionProcessor.process(dataSet, link).entrySet()) {
                 System.out.println("{");
@@ -50,8 +46,8 @@ public class NewMain {
                 }
                 System.out.println("}");
             }
-        } catch (IOException ex) {
-            Logger.getLogger(NewMain.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            ex.printStackTrace(System.out);
         }
 
     }
