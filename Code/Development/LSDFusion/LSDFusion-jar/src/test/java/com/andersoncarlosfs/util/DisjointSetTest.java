@@ -100,10 +100,9 @@ public class DisjointSetTest {
     /**
      *
      */
-    @Test
+    //@Test
     public void testCustom() {
-        instance.union(subject, null);
-        System.out.println(instance.disjointValues());
+
     }
 
 }

@@ -6,10 +6,8 @@
 package com.andersoncarlosfs.util;
 
 import java.io.Serializable;
-import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,13 +31,13 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
 
     static final long serialVersionUID = 1L;
 
-    private transient HashMap<E, E> data;
+    private transient DisjointMap<E, Object> data;
 
     /**
      * Constructs a new empty set.
      */
     public DisjointSet() {
-        data = new HashMap<>();
+        data = new DisjointMap<>();
     }
 
     /**
@@ -51,7 +49,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
      */
     @Override
     public boolean add(E e) {
-        return data.putIfAbsent(e, e) == null;
+        return data.putIfAbsent(e, new Object()) == null;
     }
 
     /**
@@ -62,22 +60,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
      */
     @Override
     public boolean remove(Object o) {
-        if (data.remove(o) != null) {
-            //
-            E parent = null;
-            //
-            for (Map.Entry<E, E> entry : data.entrySet()) {
-                if (entry.getValue() != o) {
-                    continue;
-                }
-                if (parent == null) {
-                    parent = entry.getKey();
-                }
-                entry.setValue(parent);
-            }
-            return true;
-        }
-        return false;
+        return data.remove(o) != null;
     }
 
     /**
@@ -91,8 +74,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
      * the specified element
      */
     public E representative(E e) {
-        //
-        return search(e).getKey();
+        return data.representative(e);
     }
 
     /**
@@ -103,18 +85,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
      * <tt>null</tt> if there was no disjoint subset for the specified element
      */
     public Collection<E> find(E e) {
-        E representative = representative(e);
-        //
-        Set<E> set = new HashSet<>();
-        //
-        for (Map.Entry<E, E> entry : data.entrySet()) {
-            //
-            if (entry.getValue().equals(representative)) {
-                //
-                set.add(entry.getKey());
-            }
-        }
-        return set;
+        return data.find(e).keySet();
     }
 
     /**
@@ -124,8 +95,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
      * @param object
      */
     public void union(E subject, E object) {
-        //   
-        union(search(subject), search(object));
+        data.union(subject, object);
     }
 
     /**
@@ -136,13 +106,10 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
      */
     public void unionIfAbsent(E subject, E object) {
         //
-        AbstractMap.SimpleEntry<E, Integer> subjectParent = new AbstractMap.SimpleEntry(subject, 0);
-        AbstractMap.SimpleEntry<E, Integer> objectParent = new AbstractMap.SimpleEntry(object, 0);
-        //
-        subjectParent = search(data.putIfAbsent(subject, subject), subjectParent);
-        objectParent = search(data.putIfAbsent(object, object), objectParent);
+        add(subject);
+        add(object);
         // 
-        union(subjectParent, objectParent);
+        union(subject, object);
     }
 
     /**
@@ -151,15 +118,12 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
      * disjoint subsets
      */
     public Collection<Collection<E>> disjointValues() {
-        Map<E, Collection<E>> disjointValues = new HashMap<>();
+        Collection<Collection<E>> disjointValues = new HashSet<>();
         //
-        for (Map.Entry<E, E> entry : data.entrySet()) {
-            E key = entry.getKey();
-            E value = representative(entry.getValue());
-            disjointValues.putIfAbsent(value, new HashSet<>());
-            disjointValues.get(value).add(key);
+        for (Map<E, Object> map : data.disjointValues()) {
+            disjointValues.add(map.keySet());
         }
-        return disjointValues.values();
+        return disjointValues;
     }
 
     /**
@@ -189,14 +153,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
      * @return the number of disjoint sets
      */
     public int count() {
-        int representatives = 0;
-        //
-        for (Map.Entry<E, E> entry : data.entrySet()) {
-            if (entry.getValue().equals(entry.getKey())) {
-                representatives++;
-            }
-        }
-        return representatives;
+        return data.count();
     }
 
     /**
@@ -216,56 +173,6 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
     @Override
     public void clear() {
         data.clear();
-    }
-
-    /**
-     * Search the specified element
-     *
-     * @param e the element whose presence in this set is to be found
-     * @return
-     */
-    private AbstractMap.SimpleEntry<E, Integer> search(E e) {
-        //
-        return search(e, new AbstractMap.SimpleEntry(data.get(e), 0));
-    }
-
-    /**
-     * Search the specified element
-     *
-     * @param e the element whose presence in this set is to be found
-     * @return
-     */
-    private AbstractMap.SimpleEntry<E, Integer> search(E e, AbstractMap.SimpleEntry entry) {
-        //
-        E parent = (E) entry.getKey();
-        //        
-        if ((e != null) && (!e.equals(parent))) {
-            //
-            Integer height = (Integer) entry.getValue();
-            //
-            entry = search(parent, new AbstractMap.SimpleEntry(data.get(parent), height++));
-            //
-            data.put(e, (E) entry.getKey());
-        }
-        return entry;
-    }
-
-    /**
-     * Union of the specified elements
-     *
-     * @param subject
-     * @param object
-     */
-    private void union(AbstractMap.SimpleEntry<E, Integer> subject, AbstractMap.SimpleEntry<E, Integer> object) {
-        if ((subject.getKey()) == null || (object.getKey() == null) || subject.getKey().equals(object.getKey())) {
-            return;
-        }
-        //
-        if (subject.getValue() < object.getValue()) {
-            data.put(subject.getKey(), object.getKey());
-        } else {
-            data.put(object.getKey(), subject.getKey());
-        }
     }
 
 }
