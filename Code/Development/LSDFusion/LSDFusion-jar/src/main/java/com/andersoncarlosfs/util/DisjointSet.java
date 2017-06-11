@@ -29,7 +29,7 @@ import java.util.Set;
  *
  * @author Anderson Carlos Ferreira da Silva
  */
-public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<E>, Cloneable, Serializable {
+public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable, Serializable {
 
     static final long serialVersionUID = 1L;
 
@@ -71,7 +71,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
                     continue;
                 }
                 if (parent == null) {
-                    parent = entry.getValue();
+                    parent = entry.getKey();
                 }
                 entry.setValue(parent);
             }
@@ -84,13 +84,12 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
      * Returns the representative of the disjoint subset which contains the
      * specified element.
      *
-     * @param e the element that it representative presence in this set is to be
+     * @param e the element whose representative presence in this set is to be
      * found
      * @return the representative of the disjoint subset which contains the
      * specified element, or <tt>null</tt> if there was no representative for
      * the specified element
      */
-    @Override
     public E representative(E e) {
         //
         return search(e).getKey();
@@ -103,16 +102,14 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
      * @return the disjoint subset which contains the specified element, or
      * <tt>null</tt> if there was no disjoint subset for the specified element
      */
-    @Override
     public Collection<E> find(E e) {
-        //
-        E parent = search(e).getKey();
+        E representative = representative(e);
         //
         Set<E> set = new HashSet<>();
         //
         for (Map.Entry<E, E> entry : data.entrySet()) {
             //
-            if (entry.getValue().equals(parent)) {
+            if (entry.getValue().equals(representative)) {
                 //
                 set.add(entry.getKey());
             }
@@ -121,19 +118,18 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
     }
 
     /**
-     * Union the specified elements
+     * Union of the specified elements
      *
      * @param subject
      * @param object
      */
-    @Override
     public void union(E subject, E object) {
         //   
         union(search(subject), search(object));
     }
 
     /**
-     * Union the specified elements
+     * Union of the specified elements
      *
      * @param subject
      * @param object
@@ -154,9 +150,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
      * @return a view of the values contained in this set partitioned into
      * disjoint subsets
      */
-    @Override
     public Collection<Collection<E>> disjointValues() {
-        //
         Map<E, Collection<E>> disjointValues = new HashMap<>();
         //
         for (Map.Entry<E, E> entry : data.entrySet()) {
@@ -166,14 +160,6 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
             disjointValues.get(value).add(key);
         }
         return disjointValues.values();
-    }
-
-    /**
-     *
-     * @return a collection of the elements contained in this set
-     */
-    public Collection<E> values() {
-        return data.keySet();
     }
 
     /**
@@ -202,9 +188,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
      *
      * @return the number of disjoint sets
      */
-    @Override
     public int count() {
-        //
         int representatives = 0;
         //
         for (Map.Entry<E, E> entry : data.entrySet()) {
@@ -237,7 +221,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
     /**
      * Search the specified element
      *
-     * @param e the element that in this set is to be found
+     * @param e the element whose presence in this set is to be found
      * @return
      */
     private AbstractMap.SimpleEntry<E, Integer> search(E e) {
@@ -248,7 +232,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
     /**
      * Search the specified element
      *
-     * @param e the element that in this set is to be found
+     * @param e the element whose presence in this set is to be found
      * @return
      */
     private AbstractMap.SimpleEntry<E, Integer> search(E e, AbstractMap.SimpleEntry entry) {
@@ -267,7 +251,7 @@ public class DisjointSet<E> extends AbstractSet<E> implements UnionFind<E>, Set<
     }
 
     /**
-     * Union the specified elements
+     * Union of the specified elements
      *
      * @param subject
      * @param object
