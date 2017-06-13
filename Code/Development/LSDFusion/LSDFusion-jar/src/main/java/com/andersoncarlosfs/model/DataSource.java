@@ -7,8 +7,6 @@ package com.andersoncarlosfs.model;
  */
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.Collection;
-import org.apache.jena.rdf.model.Property;
 import org.apache.jena.riot.Lang;
 
 /**
@@ -21,16 +19,14 @@ public class DataSource {
     private final Lang syntax;
     private final LocalDate freshness;
     private final Float reliability;
-    private final Collection<Property> equivalenceProperties;
-    private final Collection<Collection<Property>> mappedProperties;
+    private final Rule[] rules;
 
-    public DataSource(Path path, Lang syntax, LocalDate freshness, Float reliability, Collection<Property> equivalenceProperties, Collection<Collection<Property>> mappedProperties) {
+    public DataSource(Path path, Lang syntax, LocalDate freshness, Float reliability, Rule... rules) {
         this.path = path;
         this.syntax = syntax;
         this.freshness = freshness;
         this.reliability = reliability;
-        this.equivalenceProperties = equivalenceProperties;
-        this.mappedProperties = mappedProperties;
+        this.rules = rules;
     }
 
     /**
@@ -67,18 +63,10 @@ public class DataSource {
 
     /**
      *
-     * @return the equivalenceProperties
+     * @return the rules
      */
-    public Collection<Property> getEquivalenceProperties() {
-        return equivalenceProperties;
-    }
-
-    /**
-     *
-     * @return the mappedProperties
-     */
-    public Collection<Collection<Property>> getMappedProperties() {
-        return mappedProperties;
+    public Rule[] getRules() {
+        return rules;
     }
 
 }
