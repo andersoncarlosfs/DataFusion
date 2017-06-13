@@ -6,10 +6,11 @@
 package com.andersoncarlosfs.data.integration.processors;
 
 import com.andersoncarlosfs.data.model.assessments.DataQualityInformation;
-import com.andersoncarlosfs.model.DataSource;
-import com.andersoncarlosfs.model.Rule;
+import com.andersoncarlosfs.data.model.DataSource;
+import com.andersoncarlosfs.data.util.Function;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
@@ -26,10 +27,12 @@ import org.junit.Test;
  */
 public class DataFusionProcessorTest {
 
-    private DataSource dataSet;
-    private DataSource link;
+    private Map<DataSource, Map<Function, Collection<Property>>> dataSources = new HashMap<>();
 
-    private Rule construct = new Rule(Rule.Function.CONSTRUCT, DataFusionProcessor.EQUIVALENCE_PROPERTIES);
+    private DataSource dataSet = new DataSource(Paths.get("../../../../Datasets/Books/dataset.rdf"), Lang.N3, null, null);
+    private DataSource link = new DataSource(Paths.get("../../../../Datasets/Books/links.rdf"), Lang.N3, null, null);
+
+    private Map<Function, Collection<Property>> rules = new HashMap<>();
 
     public DataFusionProcessorTest() {
     }
@@ -44,8 +47,7 @@ public class DataFusionProcessorTest {
 
     @Before
     public void setUp() {
-        link = new DataSource(Paths.get("../../../../Datasets/Books/links.rdf"), Lang.N3, null, null, construct);
-        dataSet = new DataSource(Paths.get("../../../../Datasets/Books/dataset.rdf"), Lang.N3, null, null);
+        rules.put(Function.CONSTRUCT, DataFusionProcessor.EQUIVALENCE_PROPERTIES);
     }
 
     @After

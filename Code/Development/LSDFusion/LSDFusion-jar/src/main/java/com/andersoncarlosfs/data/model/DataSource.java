@@ -1,4 +1,4 @@
-package com.andersoncarlosfs.model;
+package com.andersoncarlosfs.data.model;
 
 /*
  * To change this license header, choose License Headers in Project Attributes.
@@ -19,14 +19,12 @@ public class DataSource {
     private final Lang syntax;
     private final LocalDate freshness;
     private final Float reliability;
-    private final Rule[] rules;
 
-    public DataSource(Path path, Lang syntax, LocalDate freshness, Float reliability, Rule... rules) {
+    public DataSource(Path path, Lang syntax, LocalDate freshness, Float reliability) {
         this.path = path;
         this.syntax = syntax;
         this.freshness = freshness;
         this.reliability = reliability;
-        this.rules = rules;
     }
 
     /**
@@ -59,14 +57,6 @@ public class DataSource {
      */
     public Float getReliability() {
         return reliability;
-    }
-
-    /**
-     *
-     * @return the rules
-     */
-    public Rule[] getRules() {
-        return rules;
     }
 
 }

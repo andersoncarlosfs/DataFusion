@@ -6,10 +6,12 @@
 package com.andersoncarlosfs.data.integration.processors;
 
 import com.andersoncarlosfs.util.DisjointMap;
-import com.andersoncarlosfs.model.DataSource;
+import com.andersoncarlosfs.data.model.DataSource;
+import com.andersoncarlosfs.data.util.Function;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.jena.rdf.model.Model;
@@ -33,75 +35,16 @@ public class DataFusionProcessor {
     /**
      *
      */
-    private class DataBag extends DisjointMap<RDFNode, DisjointMap<RDFNode, DisjointMap<RDFNode, DataSource>>> {
-
-        /**
-         *
-         * @param statement
-         * @param dataSource to be associated with the specified statement
-         * @return <tt>true</tt> if this bag did not already contain the
-         * specified statement
-         */
-        private boolean put(Statement statement, DataSource dataSource) {
-            Resource subject = statement.getSubject();
-            Property property = statement.getPredicate();
-            RDFNode object = statement.getObject();
-
-            //
-            super.putIfAbsent(subject, new DisjointMap<>());
-            Map map = get(subject);
-
-            map.putIfAbsent(dataSource, new HashMap<>());
-            map = (Map) map.get(dataSource);
-
-            map.putIfAbsent(property, new HashMap<>());
-            map = (Map) map.get(property);
-
-            // Warning, the statement is already present in the dataSouce           
-            return map.put(object, dataSource) == dataSource;
-        }
-
-        /**
-         * Return the number of statements
-         *
-         * @return the number of statements
-         */
-        @Override
-        public int size() {
-            return size(0, this);
-        }
-
-        /**
-         * Return the number of statements
-         *
-         * @return the number of statements
-         */
-        public int size(int size, Map map) {
-            for (Object value : map.values()) {
-                if (value instanceof Map) {
-                    size += size(0, (Map) value);
-                } else {
-                    return map.values().size();
-                }
-            }
-            return size;
-        }
-
-    }
-
-    /**
-     *
-     */
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
 
-    private final DataBag data = new DataBag();
+    private final Map<DataSource, Map<RDFNode, Map<RDFNode, Map<RDFNode, Object>>>> data = new HashMap<>();
 
     /**
      *
      * @param dataSources
      * @throws IOException
      */
-    public DataFusionProcessor(DataSource... dataSources) throws IOException {
+    public DataFusionProcessor(Map<Function, Collection<Property>> rules, DataSource... dataSources) throws IOException {
         for (DataSource dataSource : dataSources) {
 
             Model model = RDFDataMgr.loadModel(dataSource.getPath().toString(), dataSource.getSyntax());
@@ -112,15 +55,74 @@ public class DataFusionProcessor {
 
                 Statement statement = statements.next();
 
-                data.put(statement, dataSource);
+                Resource subject = statement.getSubject();
+                Property property = statement.getPredicate();
+                RDFNode object = statement.getObject();
 
-                if (dataSource.getEquivalenceProperties().contains(statement.getPredicate())) {
-                    data.union(statement.getSubject(), statement.getObject());
+                //
+                Map map = this.data;
+
+                map.putIfAbsent(dataSource, new DisjointMap<>());
+                map = (Map) map.get(dataSource);
+
+                map.putIfAbsent(subject, new DisjointMap<>());
+                map = (Map) map.get(subject);
+
+                map.putIfAbsent(property, new DisjointMap<>());
+                map = (Map) map.get(property);
+
+                map.putIfAbsent(object, new DisjointMap<>());
+                map = (Map) map.get(object);
+
+                // Warning, the statement is already present in the dataSouce           
+                if (map.put(object, new Object()) != null) {
+                    continue;
+                }
+
+                //
+                if (rules.getOrDefault(Function.CONSTRUCT, Collections.EMPTY_SET).contains(property)) {
+                    ((DisjointMap) this.data).union(subject, object);
                 }
 
             }
 
         }
+
+        //
+        Property property = null;
+        
+        for (Object value : rules.getOrDefault(Function.UNION, Collections.EMPTY_SET)) {
+
+            
+        }
+
+    }
+
+    /**
+     * Return the number of statements
+     *
+     * @return the number of statements
+     */
+    public int size() {
+        return size(0, data);
+    }
+
+    /**
+     * Return the number of statements
+     *
+     * @param size
+     * @param map
+     * @return the number of statements
+     */
+    public int size(int size, Map map) {
+        for (Object value : map.values()) {
+            if (value instanceof Map) {
+                size += size(0, (Map) value);
+            } else {
+                return map.values().size();
+            }
+        }
+        return size;
     }
 
 }
