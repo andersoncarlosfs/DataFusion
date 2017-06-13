@@ -5,9 +5,14 @@
  */
 package com.andersoncarlosfs.data.integration.processors;
 
+import com.andersoncarlosfs.data.model.assessments.DataQualityInformation;
 import com.andersoncarlosfs.model.DataSource;
 import com.andersoncarlosfs.model.Rule;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.Map;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.riot.Lang;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -55,6 +60,20 @@ public class DataFusionProcessorTest {
     @Test
     public void testProcess() throws Exception {
         System.out.println("process");
+        for (Map.Entry<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> statements : DataFusionProcessor.process(dataSet, link).entrySet()) {
+            System.out.println("{");
+            System.out.println("\t" + statements.getKey());
+            for (Map.Entry<Property, Map<RDFNode, DataQualityInformation>> properties : statements.getValue().entrySet()) {
+                System.out.println("\t\t" + properties.getKey());
+                for (Map.Entry<RDFNode, DataQualityInformation> objects : properties.getValue().entrySet()) {
+                    System.out.println("\t\t\t" + objects.getKey());
+                    System.out.println("\t\t\t\t" + "F" + objects.getValue().getFrequency()
+                            + " F" + objects.getValue().getFreshness() + " H" + objects.getValue().getHomogeneity()
+                            + " R" + objects.getValue().getReliability() + " M" + objects.getValue().getMorePrecise());
+                }
+            }
+            System.out.println("}");
+        }
     }
 
 }
