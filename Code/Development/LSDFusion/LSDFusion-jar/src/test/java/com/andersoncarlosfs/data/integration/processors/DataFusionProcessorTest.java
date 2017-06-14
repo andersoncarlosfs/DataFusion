@@ -5,7 +5,6 @@
  */
 package com.andersoncarlosfs.data.integration.processors;
 
-import com.andersoncarlosfs.data.model.assessments.DataQualityInformation;
 import com.andersoncarlosfs.data.model.DataSource;
 import com.andersoncarlosfs.data.util.Function;
 import java.nio.file.Paths;
@@ -20,6 +19,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import com.andersoncarlosfs.data.model.control.DataQualityControl;
 
 /**
  *
@@ -62,12 +62,12 @@ public class DataFusionProcessorTest {
     @Test
     public void testProcess() throws Exception {
         System.out.println("process");
-        for (Map.Entry<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityInformation>>> statements : DataFusionProcessor.process(dataSet, link).entrySet()) {
+        for (Map.Entry<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityControl>>> statements : DataFusionProcessor.process(dataSet, link).entrySet()) {
             System.out.println("{");
             System.out.println("\t" + statements.getKey());
-            for (Map.Entry<Property, Map<RDFNode, DataQualityInformation>> properties : statements.getValue().entrySet()) {
+            for (Map.Entry<Property, Map<RDFNode, DataQualityControl>> properties : statements.getValue().entrySet()) {
                 System.out.println("\t\t" + properties.getKey());
-                for (Map.Entry<RDFNode, DataQualityInformation> objects : properties.getValue().entrySet()) {
+                for (Map.Entry<RDFNode, DataQualityControl> objects : properties.getValue().entrySet()) {
                     System.out.println("\t\t\t" + objects.getKey());
                     System.out.println("\t\t\t\t" + "F" + objects.getValue().getFrequency()
                             + " F" + objects.getValue().getFreshness() + " H" + objects.getValue().getHomogeneity()

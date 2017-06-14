@@ -6,7 +6,6 @@ package com.andersoncarlosfs.data.model;
  * and open the template in the editor.
  */
 import java.nio.file.Path;
-import java.time.LocalDate;
 import org.apache.jena.riot.Lang;
 
 /**
@@ -17,10 +16,18 @@ public class DataSource {
 
     private final Path path;
     private final Lang syntax;
-    private final LocalDate freshness;
+    private final Long freshness;
     private final Float reliability;
 
-    public DataSource(Path path, Lang syntax, LocalDate freshness, Float reliability) {
+    public DataSource(Path path, Lang syntax) {
+        this.path = path;
+        this.syntax = syntax;
+        this.freshness = null;
+        this.reliability = null;
+
+    }
+
+    public DataSource(Path path, Lang syntax, Long freshness, Float reliability) {
         this.path = path;
         this.syntax = syntax;
         this.freshness = freshness;
@@ -47,7 +54,7 @@ public class DataSource {
      *
      * @return the freshness
      */
-    public LocalDate getFreshness() {
+    public Long getFreshness() {
         return freshness;
     }
 

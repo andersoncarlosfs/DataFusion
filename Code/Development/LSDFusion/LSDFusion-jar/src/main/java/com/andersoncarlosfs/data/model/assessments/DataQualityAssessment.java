@@ -5,11 +5,13 @@
  */
 package com.andersoncarlosfs.data.model.assessments;
 
+import com.andersoncarlosfs.data.model.control.DataQualityControl;
+
 /**
  *
  * @author Anderson Carlos Ferreira da Silva
  */
-public interface DataQualityAssessment extends DataQualityInformation {
+public interface DataQualityAssessment extends DataQualityControl {
 
     /**
      *

@@ -32,12 +32,7 @@ import org.apache.jena.vocabulary.SKOS;
  */
 public class DataFusionProcessor {
 
-    /**
-     *
-     */
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
-
-    private final Map<DataSource, Map<RDFNode, Map<RDFNode, Map<RDFNode, Object>>>> data = new HashMap<>();
 
     /**
      *
@@ -45,6 +40,8 @@ public class DataFusionProcessor {
      * @throws IOException
      */
     public DataFusionProcessor(Map<Function, Collection<Property>> rules, DataSource... dataSources) throws IOException {
+        Map<RDFNode, Map<RDFNode, Map<RDFNode, Object>>> data = new DisjointMap<>();
+
         for (DataSource dataSource : dataSources) {
 
             Model model = RDFDataMgr.loadModel(dataSource.getPath().toString(), dataSource.getSyntax());
@@ -60,10 +57,7 @@ public class DataFusionProcessor {
                 RDFNode object = statement.getObject();
 
                 //
-                Map map = this.data;
-
-                map.putIfAbsent(dataSource, new DisjointMap<>());
-                map = (Map) map.get(dataSource);
+                Map map = data;
 
                 map.putIfAbsent(subject, new DisjointMap<>());
                 map = (Map) map.get(subject);
@@ -71,29 +65,31 @@ public class DataFusionProcessor {
                 map.putIfAbsent(property, new DisjointMap<>());
                 map = (Map) map.get(property);
 
-                map.putIfAbsent(object, new DisjointMap<>());
+                map.putIfAbsent(object, new HashMap<>());
                 map = (Map) map.get(object);
 
                 // Warning, the statement is already present in the dataSouce           
-                if (map.put(object, new Object()) != null) {
-                    continue;
+                if (map.putIfAbsent(dataSource, 0) == null && rules.getOrDefault(Function.CONSTRUCT, Collections.EMPTY_SET).contains(property)) {
+                    ((DisjointMap) data).union(subject, object);
                 }
 
-                //
-                if (rules.getOrDefault(Function.CONSTRUCT, Collections.EMPTY_SET).contains(property)) {
-                    ((DisjointMap) this.data).union(subject, object);
-                }
+                // Computing the number of duplicate statements
+                map.put(dataSource, ((int) map.get(dataSource)) + 1);
 
             }
 
         }
 
+        Collection<Map<RDFNode, Map<RDFNode, Map<RDFNode, Object>>>> equivalenceClasses = ((DisjointMap) data).disjointValues();
+
+        for (Map<RDFNode, Map<RDFNode, Object>> value : data.values()) {
+
+        }
         //
         Property property = null;
-        
-        for (Object value : rules.getOrDefault(Function.UNION, Collections.EMPTY_SET)) {
 
-            
+        for (Property node : rules.getOrDefault(Function.UNION, Collections.emptySet())) {
+
         }
 
     }
@@ -101,10 +97,11 @@ public class DataFusionProcessor {
     /**
      * Return the number of statements
      *
+     * @param map
      * @return the number of statements
      */
-    public int size() {
-        return size(0, data);
+    private int size(Map map) {
+        return size(0, map);
     }
 
     /**
@@ -114,7 +111,7 @@ public class DataFusionProcessor {
      * @param map
      * @return the number of statements
      */
-    public int size(int size, Map map) {
+    private int size(int size, Map map) {
         for (Object value : map.values()) {
             if (value instanceof Map) {
                 size += size(0, (Map) value);
@@ -125,4 +122,75 @@ public class DataFusionProcessor {
         return size;
     }
 
+    /*
+    private Collection<Map<RDFNode, Map<RDFNode, Map<RDFNode, Object>>>> equivalenceClasses() {
+        Collection<Map<RDFNode, Map<RDFNode, Map<RDFNode, Object>>>> values = new HashSet<>();
+
+        Collection<Collection<RDFNode>> classes = ((DisjointMap) data).disjointValues();
+
+        for (Collection<RDFNode> classe : classes) {
+
+            if (classe.size() > 1) {
+
+                //
+                Map value = new HashMap<>();
+
+                //
+                for (RDFNode node : classe) {
+                    value = disjointValues(node, value);
+                }
+
+                //
+                values.add(value);
+
+            }
+
+        }
+
+        return values;
+    }
+
+  
+     *
+     * @param node
+     * @param statements
+     * @return a view of the values contained this bag partitioned into disjoint
+     * subsets
+   
+    private Map disjointValues(RDFNode node, Map values) {
+
+        //
+        if (data.get(node) == null) {
+            return values;
+        }
+
+        //
+        values.putIfAbsent(node, new HashMap<>());
+
+        //
+        for (Map<Property, Map<RDFNode, Object>> properties : data.get(node).values()) {
+
+            //
+            for (Map.Entry<Property, Collection<RDFNode>> entry : properties.entrySet()) {
+
+                //
+                Property property = entry.getKey();
+                Collection<RDFNode> objects = entry.getValue();
+
+                //
+                if (((Map) values.get(node)).putIfAbsent(property, objects) != null) {
+                    ((Set) ((Map) values.get(node)).get(property)).addAll(objects);
+                }
+
+                for (RDFNode object : objects) {
+                    values = disjointValues(object, values);
+                }
+
+            }
+
+        }
+
+        return values;
+    }
+     */
 }

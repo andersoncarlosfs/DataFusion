@@ -3,16 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.andersoncarlosfs.data.model.assessments;
+package com.andersoncarlosfs.data.model.control;
 
 import java.util.Collection;
-import org.apache.jena.graph.Node;
+import org.apache.jena.rdf.model.RDFNode;
 
 /**
  *
  * @author Anderson Carlos Ferreira da Silva
  */
-public interface DataQualityInformation {
+public interface DataQualityControl {
 
     static final long serialVersionUID = 1L;
 
@@ -45,6 +45,6 @@ public interface DataQualityInformation {
      *
      * @return the morePrecise
      */
-    public Collection<Node> getMorePrecise();
+    public Collection<RDFNode> getMorePrecise();
 
 }
