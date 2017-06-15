@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
@@ -36,10 +37,36 @@ public class DataFusionProcessor {
 
     /**
      *
+     * @param rules
      * @param dataSources
      * @throws IOException
      */
-    public DataFusionProcessor(Map<Function, Collection<Property>> rules, DataSource... dataSources) throws IOException {
+    public DataFusionProcessor(Map<Collection<Property>, Collection<Function>> rules, DataSource... dataSources) throws IOException {
+        // Functions processing
+        DisjointMap<Property, Collection<Function>> properties = new DisjointMap<>();
+
+        Boolean duplicatesAllowed = rules.getOrDefault(null, Collections.EMPTY_LIST).contains(Function.DUPLICATE);
+
+        for (Map.Entry<Collection<Property>, Collection<Function>> entry : rules.entrySet()) {
+
+            Property property = null;
+
+            for (Property p : entry.getKey()) {
+
+                // Many functions can be applied to a property 
+                properties.putIfAbsent(p, new HashSet<>());
+                properties.get(p).addAll(entry.getValue());
+
+                //
+                if (entry.getValue().contains(Function.UNION)) {
+                    properties.union(property, p);
+                }
+
+            }
+
+        }
+
+        // Data souces processing
         Map<RDFNode, Map<RDFNode, Map<RDFNode, Object>>> data = new DisjointMap<>();
 
         for (DataSource dataSource : dataSources) {
@@ -59,17 +86,17 @@ public class DataFusionProcessor {
                 //
                 Map map = data;
 
-                map.putIfAbsent(subject, new DisjointMap<>());
+                map.putIfAbsent(subject, new HashMap<>());
                 map = (Map) map.get(subject);
 
-                map.putIfAbsent(property, new DisjointMap<>());
+                map.putIfAbsent(property, new HashMap<>());
                 map = (Map) map.get(property);
 
                 map.putIfAbsent(object, new HashMap<>());
                 map = (Map) map.get(object);
 
                 // Warning, the statement is already present in the dataSouce           
-                if (map.putIfAbsent(dataSource, 0) == null && rules.getOrDefault(Function.CONSTRUCT, Collections.EMPTY_SET).contains(property)) {
+                if (map.putIfAbsent(dataSource, 0) == null && properties.get(property).contains(Function.CONSTRUCT)) {
                     ((DisjointMap) data).union(subject, object);
                 }
 
@@ -80,17 +107,33 @@ public class DataFusionProcessor {
 
         }
 
-        Collection<Map<RDFNode, Map<RDFNode, Map<RDFNode, Object>>>> equivalenceClasses = ((DisjointMap) data).disjointValues();
+        //Equivalence classes processing     
+        Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<RDFNode, RDFNode>>>> values = new HashMap<>();
 
-        for (Map<RDFNode, Map<RDFNode, Object>> value : data.values()) {
+        // Complements (properties and object)
+        //Map<RDFNode, Map<RDFNode, Object>> complements = new DisjointMap<>();
 
-        }
-        //
-        Property property = null;
+        for (Map.Entry<RDFNode, Map<RDFNode, Map<RDFNode, Object>>> statements : data.entrySet()) {
 
-        for (Property node : rules.getOrDefault(Function.UNION, Collections.emptySet())) {
+            RDFNode subject = statements.getKey();
 
-        }
+            // Computing the equivalence classes for subjects            
+            RDFNode representative = (RDFNode) ((DisjointMap) data).representative(subject);
+            //values.putIfAbsent(representative, new HashSet<>());
+
+            /*
+            Map map = values.get(representative).get(subject);
+
+            for (Map.Entry<RDFNode, Map<RDFNode, Object>> outlines : statements.getValue().entrySet()) {
+
+                Property property = (Property) outlines.getKey();
+
+                //Dis
+                map.put(property, complements.get(property));
+
+            }
+            */
+        }       
 
     }
 

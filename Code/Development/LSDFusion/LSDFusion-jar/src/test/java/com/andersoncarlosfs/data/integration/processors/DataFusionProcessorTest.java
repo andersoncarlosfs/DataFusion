@@ -20,36 +20,37 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import com.andersoncarlosfs.data.model.control.DataQualityControl;
+import java.util.Arrays;
 
 /**
  *
  * @author Anderson Carlos Ferreira da Silva
  */
 public class DataFusionProcessorTest {
-
+    
     private Map<DataSource, Map<Function, Collection<Property>>> dataSources = new HashMap<>();
-
+    
     private DataSource dataSet = new DataSource(Paths.get("../../../../Datasets/Books/dataset.rdf"), Lang.N3, null, null);
     private DataSource link = new DataSource(Paths.get("../../../../Datasets/Books/links.rdf"), Lang.N3, null, null);
-
-    private Map<Function, Collection<Property>> rules = new HashMap<>();
-
+    
+    private Map<Collection<Property>, Function> rules = new HashMap<>();
+    
     public DataFusionProcessorTest() {
     }
-
+    
     @BeforeClass
     public static void setUpClass() {
     }
-
+    
     @AfterClass
     public static void tearDownClass() {
     }
-
+    
     @Before
     public void setUp() {
-        rules.put(Function.CONSTRUCT, DataFusionProcessor.EQUIVALENCE_PROPERTIES);
+        rules.put(DataFusionProcessor.EQUIVALENCE_PROPERTIES, Arrays.asList(Function.CONSTRUCT));
     }
-
+    
     @After
     public void tearDown() {
     }
@@ -62,7 +63,7 @@ public class DataFusionProcessorTest {
     @Test
     public void testProcess() throws Exception {
         System.out.println("process");
-        for (Map.Entry<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityControl>>> statements : DataFusionProcessor.process(dataSet, link).entrySet()) {
+        for (Map.Entry<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityControl>>> statements : DataFusionProcessor.process(rules, dataSet, link).entrySet()) {
             System.out.println("{");
             System.out.println("\t" + statements.getKey());
             for (Map.Entry<Property, Map<RDFNode, DataQualityControl>> properties : statements.getValue().entrySet()) {
@@ -77,5 +78,5 @@ public class DataFusionProcessorTest {
             System.out.println("}");
         }
     }
-
+    
 }

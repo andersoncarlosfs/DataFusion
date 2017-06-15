@@ -100,6 +100,16 @@ public class DisjointMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, C
      * @param key
      * @return
      */
+    @Override
+    public boolean containsKey(Object key) {
+        return data.containsKey(key);
+    }
+
+    /**
+     *
+     * @param key
+     * @return
+     */
     public K representative(K key) {
         return search(key).getKey();
     }
