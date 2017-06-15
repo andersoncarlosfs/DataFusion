@@ -32,7 +32,7 @@ import org.apache.jena.vocabulary.SKOS;
  * @author Anderson Carlos Ferreira da Silva
  */
 public class DataFusionProcessor {
-
+    
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
 
     /**
@@ -43,197 +43,135 @@ public class DataFusionProcessor {
      */
     public DataFusionProcessor(Map<Collection<Property>, Collection<Function>> rules, DataSource... dataSources) throws IOException {
         // Functions processing
-        DisjointMap<Property, Collection<Function>> properties = new DisjointMap<>();
-
+        DisjointMap<Property, Collection<Function>> parameters = new DisjointMap<>();
+        
         Boolean duplicatesAllowed = rules.getOrDefault(null, Collections.EMPTY_LIST).contains(Function.DUPLICATE);
-
+        
         for (Map.Entry<Collection<Property>, Collection<Function>> entry : rules.entrySet()) {
-
+            
             Property property = null;
-
+            
             for (Property p : entry.getKey()) {
 
                 // Many functions can be applied to a property 
-                properties.putIfAbsent(p, new HashSet<>());
-                properties.get(p).addAll(entry.getValue());
+                parameters.putIfAbsent(p, new HashSet<>());
+                parameters.get(p).addAll(entry.getValue());
 
                 //
                 if (entry.getValue().contains(Function.UNION)) {
-                    properties.union(property, p);
+                    parameters.union(property, p);
                 }
-
+                
             }
-
+            
         }
 
         // Data souces processing
-        Map<RDFNode, Map<RDFNode, Map<RDFNode, Object>>> data = new DisjointMap<>();
+        Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> data = new DisjointMap<>();
 
+        // Frequencies processing
+        Map<RDFNode, Map<RDFNode, Object>> complements = new DisjointMap<>();
+        
         for (DataSource dataSource : dataSources) {
-
+            
             Model model = RDFDataMgr.loadModel(dataSource.getPath().toString(), dataSource.getSyntax());
-
+            
             StmtIterator statements = model.listStatements();
-
+            
             while (statements.hasNext()) {
-
+                
                 Statement statement = statements.next();
-
+                
                 Resource subject = statement.getSubject();
                 Property property = statement.getPredicate();
                 RDFNode object = statement.getObject();
 
-                //
+                //Equivalence classes processing     
                 Map map = data;
-
+                
                 map.putIfAbsent(subject, new HashMap<>());
                 map = (Map) map.get(subject);
-
+                
                 map.putIfAbsent(property, new HashMap<>());
                 map = (Map) map.get(property);
-
+                
                 map.putIfAbsent(object, new HashMap<>());
                 map = (Map) map.get(object);
 
                 // Warning, the statement is already present in the dataSouce           
-                if (map.putIfAbsent(dataSource, 0) == null && properties.get(property).contains(Function.CONSTRUCT)) {
+                if (map.putIfAbsent(dataSource, 0) == null && parameters.get(property).contains(Function.CONSTRUCT)) {
                     ((DisjointMap) data).union(subject, object);
                 }
 
                 // Computing the number of duplicate statements
                 map.put(dataSource, ((int) map.get(dataSource)) + 1);
 
-            }
+                // Frequencies processing
+                map = complements;
+                
+                map.putIfAbsent(property, new HashMap<>());
+                map = (Map) map.get(property);
+                
+                map.putIfAbsent(object, new HashMap<>());
+                map = (Map) map.get(object);
 
+                // Warning, the property is already computed          
+                if (map.putIfAbsent(dataSource, 0) == null && duplicatesAllowed) {
+                    map.put(dataSource, ((int) map.get(dataSource)) + 1);
+                }
+                
+            }
+            
+        }
+
+        // Size processing
+        int size = 0;
+        
+        for (Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>> subjects : data.values()) {
+            for (Map<RDFNode, Map<DataSource, Integer>> predicates : subjects.values()) {
+                if (duplicatesAllowed) {
+                    for (Map<DataSource, Integer> objects : predicates.values()) {
+                        for (Integer value : objects.values()) {
+                            size += value;
+                        }
+                    }
+                }
+                size += predicates.values().size();
+            }
         }
 
         //Equivalence classes processing     
-        Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<RDFNode, RDFNode>>>> values = new HashMap<>();
+        Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, Object>>> classes = new HashMap<>();
+        
+        Collection<Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>>> values = ((DisjointMap) data).disjointValues();
+        
+        for (Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> value : values) {
+            
+            Collection<RDFNode> subjects = new HashSet<>();
+            
+            Map<RDFNode, Map<RDFNode, Object>> properties = new HashMap<>();
+            
+            for (Map.Entry<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> subject : value.entrySet()) {
+                
+                subjects.add(subject.getKey());
+                
+                for (Map.Entry<RDFNode, Map<RDFNode, Map<DataSource, Integer>>> property : subject.getValue().entrySet()) {
+                    
+                    properties.putIfAbsent(property.getKey(), new HashMap<>());
+                    
+                    for (Map.Entry<RDFNode, Map<DataSource, Integer>> object : property.getValue().entrySet()) {
+                        
+                        RDFNode node = obj
 
-        // Complements (properties and object)
-        //Map<RDFNode, Map<RDFNode, Object>> complements = new DisjointMap<>();
-
-        for (Map.Entry<RDFNode, Map<RDFNode, Map<RDFNode, Object>>> statements : data.entrySet()) {
-
-            RDFNode subject = statements.getKey();
-
-            // Computing the equivalence classes for subjects            
-            RDFNode representative = (RDFNode) ((DisjointMap) data).representative(subject);
-            //values.putIfAbsent(representative, new HashSet<>());
-
-            /*
-            Map map = values.get(representative).get(subject);
-
-            for (Map.Entry<RDFNode, Map<RDFNode, Object>> outlines : statements.getValue().entrySet()) {
-
-                Property property = (Property) outlines.getKey();
-
-                //Dis
-                map.put(property, complements.get(property));
-
-            }
-            */
-        }       
-
-    }
-
-    /**
-     * Return the number of statements
-     *
-     * @param map
-     * @return the number of statements
-     */
-    private int size(Map map) {
-        return size(0, map);
-    }
-
-    /**
-     * Return the number of statements
-     *
-     * @param size
-     * @param map
-     * @return the number of statements
-     */
-    private int size(int size, Map map) {
-        for (Object value : map.values()) {
-            if (value instanceof Map) {
-                size += size(0, (Map) value);
-            } else {
-                return map.values().size();
-            }
-        }
-        return size;
-    }
-
-    /*
-    private Collection<Map<RDFNode, Map<RDFNode, Map<RDFNode, Object>>>> equivalenceClasses() {
-        Collection<Map<RDFNode, Map<RDFNode, Map<RDFNode, Object>>>> values = new HashSet<>();
-
-        Collection<Collection<RDFNode>> classes = ((DisjointMap) data).disjointValues();
-
-        for (Collection<RDFNode> classe : classes) {
-
-            if (classe.size() > 1) {
-
-                //
-                Map value = new HashMap<>();
-
-                //
-                for (RDFNode node : classe) {
-                    value = disjointValues(node, value);
+                        //
+                    }                    
                 }
-
-                //
-                values.add(value);
-
+                
             }
 
+            //classes.put(subjects, properties);
         }
-
-        return values;
+        
     }
-
-  
-     *
-     * @param node
-     * @param statements
-     * @return a view of the values contained this bag partitioned into disjoint
-     * subsets
-   
-    private Map disjointValues(RDFNode node, Map values) {
-
-        //
-        if (data.get(node) == null) {
-            return values;
-        }
-
-        //
-        values.putIfAbsent(node, new HashMap<>());
-
-        //
-        for (Map<Property, Map<RDFNode, Object>> properties : data.get(node).values()) {
-
-            //
-            for (Map.Entry<Property, Collection<RDFNode>> entry : properties.entrySet()) {
-
-                //
-                Property property = entry.getKey();
-                Collection<RDFNode> objects = entry.getValue();
-
-                //
-                if (((Map) values.get(node)).putIfAbsent(property, objects) != null) {
-                    ((Set) ((Map) values.get(node)).get(property)).addAll(objects);
-                }
-
-                for (RDFNode object : objects) {
-                    values = disjointValues(object, values);
-                }
-
-            }
-
-        }
-
-        return values;
-    }
-     */
+    
 }
