@@ -7,6 +7,9 @@ package com.andersoncarlosfs.data.integration.processors;
 
 import com.andersoncarlosfs.util.DisjointMap;
 import com.andersoncarlosfs.data.model.DataSource;
+import com.andersoncarlosfs.data.model.assessments.DataFusionAssessment;
+import com.andersoncarlosfs.data.model.assessments.DataQualityAssessment;
+import com.andersoncarlosfs.data.model.control.DataQualityControl;
 import com.andersoncarlosfs.data.util.Function;
 import java.io.IOException;
 import java.util.Arrays;
@@ -32,8 +35,110 @@ import org.apache.jena.vocabulary.SKOS;
  * @author Anderson Carlos Ferreira da Silva
  */
 public class DataFusionProcessor {
-    
+
+    private class DataFusionInformation implements DataFusionAssessment {
+
+        private boolean duplicatesAllowed;
+
+        private int size;
+
+        @Override
+        public Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityAssessment>>> getComputedDataQualityAssessment() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public Collection<Statement> getDuplicates() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public Model getModel() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+    }
+
+    private class DataQualityRecords implements DataQualityControl {
+
+        private Map<DataSource, Integer> dataSources;
+
+        @Override
+        public Number getFrequency() {
+            if (data.duplicatesAllowed) {
+
+            }
+        }
+
+        @Override
+        public Number getHomogeneity() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public Float getReliability() {
+            Float value = null;
+            for (DataSource d : dataSources.keySet()) {
+                if (d.getReliability() == null) {
+                    continue;
+                }
+                if (value == null) {
+                    value = d.getReliability();
+                }
+                value = Math.max(value, d.getReliability());
+            }
+            return value;
+        }
+
+        @Override
+        public Number getFreshness() {
+            Float value = null;
+            for (DataSource d : dataSources.keySet()) {
+                if (d.getReliability() == null) {
+                    continue;
+                }
+                if (value == null) {
+                    value = d.getReliability();
+                }
+                value = Math.min(value, d.getReliability());
+            }
+            return value;
+        }
+
+        @Override
+        public Collection<RDFNode> getMorePrecise() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+    }
+
+    private class DataQualityInformation extends DataQualityRecords implements DataQualityAssessment {
+
+        @Override
+        public Float getFrequency() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public Float getHomogeneity() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public Float getFreshness() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public Float getTrustiness() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+    }
+
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
+
+    private DataFusionInformation data = new DataFusionInformation();
 
     /**
      *
@@ -44,13 +149,13 @@ public class DataFusionProcessor {
     public DataFusionProcessor(Map<Collection<Property>, Collection<Function>> rules, DataSource... dataSources) throws IOException {
         // Functions processing
         DisjointMap<Property, Collection<Function>> parameters = new DisjointMap<>();
-        
-        Boolean duplicatesAllowed = rules.getOrDefault(null, Collections.EMPTY_LIST).contains(Function.DUPLICATE);
-        
+
+        data.duplicatesAllowed = rules.getOrDefault(null, Collections.EMPTY_LIST).contains(Function.DUPLICATE);
+
         for (Map.Entry<Collection<Property>, Collection<Function>> entry : rules.entrySet()) {
-            
+
             Property property = null;
-            
+
             for (Property p : entry.getKey()) {
 
                 // Many functions can be applied to a property 
@@ -61,46 +166,46 @@ public class DataFusionProcessor {
                 if (entry.getValue().contains(Function.UNION)) {
                     parameters.union(property, p);
                 }
-                
+
             }
-            
+
         }
 
         // Data souces processing
-        Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> data = new DisjointMap<>();
+        Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> statements = new DisjointMap<>();
 
         // Frequencies processing
-        Map<RDFNode, Map<RDFNode, Object>> complements = new DisjointMap<>();
-        
+        Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>> complements = new DisjointMap<>();
+
         for (DataSource dataSource : dataSources) {
-            
+
             Model model = RDFDataMgr.loadModel(dataSource.getPath().toString(), dataSource.getSyntax());
-            
-            StmtIterator statements = model.listStatements();
-            
-            while (statements.hasNext()) {
-                
-                Statement statement = statements.next();
-                
+
+            StmtIterator iterator = model.listStatements();
+
+            while (iterator.hasNext()) {
+
+                Statement statement = iterator.next();
+
                 Resource subject = statement.getSubject();
                 Property property = statement.getPredicate();
                 RDFNode object = statement.getObject();
 
                 //Equivalence classes processing     
-                Map map = data;
-                
+                Map map = statements;
+
                 map.putIfAbsent(subject, new HashMap<>());
                 map = (Map) map.get(subject);
-                
+
                 map.putIfAbsent(property, new HashMap<>());
                 map = (Map) map.get(property);
-                
+
                 map.putIfAbsent(object, new HashMap<>());
                 map = (Map) map.get(object);
 
                 // Warning, the statement is already present in the dataSouce           
                 if (map.putIfAbsent(dataSource, 0) == null && parameters.get(property).contains(Function.CONSTRUCT)) {
-                    ((DisjointMap) data).union(subject, object);
+                    ((DisjointMap) statements).union(subject, object);
                 }
 
                 // Computing the number of duplicate statements
@@ -108,70 +213,69 @@ public class DataFusionProcessor {
 
                 // Frequencies processing
                 map = complements;
-                
+
                 map.putIfAbsent(property, new HashMap<>());
                 map = (Map) map.get(property);
-                
+
                 map.putIfAbsent(object, new HashMap<>());
                 map = (Map) map.get(object);
 
                 // Warning, the property is already computed          
-                if (map.putIfAbsent(dataSource, 0) == null && duplicatesAllowed) {
+                if (map.putIfAbsent(dataSource, 0) == null || data.duplicatesAllowed) {
                     map.put(dataSource, ((int) map.get(dataSource)) + 1);
                 }
-                
+
             }
-            
+
         }
 
         // Size processing
-        int size = 0;
-        
-        for (Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>> subjects : data.values()) {
+        data.size = 0;
+
+        for (Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>> subjects : statements.values()) {
             for (Map<RDFNode, Map<DataSource, Integer>> predicates : subjects.values()) {
-                if (duplicatesAllowed) {
+                if (data.duplicatesAllowed) {
                     for (Map<DataSource, Integer> objects : predicates.values()) {
                         for (Integer value : objects.values()) {
-                            size += value;
+                            data.size += value;
                         }
                     }
                 }
-                size += predicates.values().size();
+                data.size += predicates.values().size();
             }
         }
 
         //Equivalence classes processing     
         Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, Object>>> classes = new HashMap<>();
-        
-        Collection<Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>>> values = ((DisjointMap) data).disjointValues();
-        
-        for (Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> value : values) {
-            
-            Collection<RDFNode> subjects = new HashSet<>();
-            
-            Map<RDFNode, Map<RDFNode, Object>> properties = new HashMap<>();
-            
-            for (Map.Entry<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> subject : value.entrySet()) {
-                
-                subjects.add(subject.getKey());
-                
-                for (Map.Entry<RDFNode, Map<RDFNode, Map<DataSource, Integer>>> property : subject.getValue().entrySet()) {
-                    
-                    properties.putIfAbsent(property.getKey(), new HashMap<>());
-                    
-                    for (Map.Entry<RDFNode, Map<DataSource, Integer>> object : property.getValue().entrySet()) {
-                        
-                        RDFNode node = obj
 
+        Collection<Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>>> values = ((DisjointMap) statements).disjointValues();
+
+        for (Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> value : values) {
+
+            Collection<RDFNode> subjects = new HashSet<>();
+
+            Map<RDFNode, Map<RDFNode, Object>> properties = new HashMap<>();
+
+            for (Map.Entry<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> subject : value.entrySet()) {
+
+                subjects.add(subject.getKey());
+
+                for (Map.Entry<RDFNode, Map<RDFNode, Map<DataSource, Integer>>> property : subject.getValue().entrySet()) {
+
+                    properties.putIfAbsent(property.getKey(), new HashMap<>());
+
+                    for (Map.Entry<RDFNode, Map<DataSource, Integer>> object : property.getValue().entrySet()) {
+
+                        //RDFNode node = obj
                         //
-                    }                    
+                    }
                 }
-                
+
             }
 
             //classes.put(subjects, properties);
         }
-        
+
     }
-    
+
 }
