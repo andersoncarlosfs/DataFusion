@@ -32,9 +32,9 @@ public class Rule {
 
     /**
      *
-     * @return the function
+     * @return the functions
      */
-    public Collection<Function> getFunction() {
+    public Collection<Function> getFunctions() {
         return functions;
     }
 
