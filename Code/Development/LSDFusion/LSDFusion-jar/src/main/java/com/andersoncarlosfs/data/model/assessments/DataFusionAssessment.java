@@ -7,10 +7,9 @@ package com.andersoncarlosfs.data.model.assessments;
 
 import java.util.Collection;
 import java.util.Map;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.Statement;
 
 /**
  *
@@ -18,13 +17,17 @@ import org.apache.jena.rdf.model.Statement;
  */
 public interface DataFusionAssessment {
 
-    public Map<Collection<RDFNode>, Map<Property, Map<RDFNode, DataQualityAssessment>>> getComputedDataQualityAssessment();
+    /**
+     *
+     * @return
+     */
+    public Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> getComputedDataQualityAssessment();
 
     /**
      *
      * @return a view of the duplicate statements in this data fusion processing
      */
-    public Collection<Statement> getDuplicates();
+    public Collection<Triple> getDuplicates();
 
     /**
      *

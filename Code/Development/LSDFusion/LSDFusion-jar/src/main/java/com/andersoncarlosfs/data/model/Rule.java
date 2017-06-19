@@ -9,7 +9,6 @@ import com.andersoncarlosfs.data.util.Function;
 import java.util.Collection;
 import java.util.HashSet;
 import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.RDFNode;
 
 /**
  *
@@ -42,7 +41,7 @@ public class Rule {
      *
      * @return the properties
      */
-    public Collection<? extends RDFNode> getProperties() {
+    public Collection<Property> getProperties() {
         return properties;
     }
 

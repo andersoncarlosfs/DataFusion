@@ -20,13 +20,13 @@ public interface DataQualityControl {
      *
      * @return the frequency
      */
-    public Number getFrequency();
+    public Float getFrequency();
 
     /**
      *
      * @return the homogeneity
      */
-    public Number getHomogeneity();
+    public Float getHomogeneity();
 
     /**
      *
@@ -39,7 +39,7 @@ public interface DataQualityControl {
      *
      * @return the freshness
      */
-    public Number getFreshness();
+    public Float getFreshness();
 
     /**
      *

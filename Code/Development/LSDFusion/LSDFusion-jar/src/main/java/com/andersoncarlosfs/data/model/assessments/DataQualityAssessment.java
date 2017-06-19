@@ -15,27 +15,6 @@ public interface DataQualityAssessment extends DataQualityControl {
 
     /**
      *
-     * @return the frequency
-     */
-    @Override
-    public Float getFrequency();
-
-    /**
-     *
-     * @return the homogeneity
-     */
-    @Override
-    public Float getHomogeneity();
-
-    /**
-     *
-     * @return the freshness
-     */
-    @Override
-    public Float getFreshness();
-
-    /**
-     *
      * @return the score
      */
     default Float getScore() {
