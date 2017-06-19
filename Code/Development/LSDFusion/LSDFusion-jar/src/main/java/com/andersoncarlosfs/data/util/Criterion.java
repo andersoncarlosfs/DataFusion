@@ -7,10 +7,10 @@ package com.andersoncarlosfs.data.util;
 
 /**
  *
- * @author Anderson Carlos Ferreira da Silva
+ * @author lsdfusion
  */
-public enum Function {
+public enum Criterion {
 
-    MIN, MAX, UNION, CONSTRUCT
+    FREQUENCY, HOMOGENEITY, REABILITY, FRESHNESS
 
 }
