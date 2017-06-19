@@ -12,12 +12,14 @@ import com.andersoncarlosfs.data.model.assessments.DataQualityAssessment;
 import com.andersoncarlosfs.data.model.control.DataQualityControl;
 import com.andersoncarlosfs.data.util.Function;
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
@@ -61,13 +63,18 @@ public class DataFusionProcessor {
 
     private class DataQualityRecords implements DataQualityControl {
 
-        private Map<DataSource, Integer> dataSources;
+        private Map<DataSource, Entry<Integer, Integer>> dataSources;
 
         @Override
         public Number getFrequency() {
-            if (data.duplicatesAllowed) {
-
+            Integer value = null;
+            for (Entry<Integer, Integer> frequency : dataSources.values()) {
+                value += frequency.getKey();
+                if (data.duplicatesAllowed) {
+                    value += frequency.getValue();
+                }
             }
+            return value;
         }
 
         @Override
@@ -175,7 +182,7 @@ public class DataFusionProcessor {
         Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> statements = new DisjointMap<>();
 
         // Frequencies processing
-        Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>> complements = new DisjointMap<>();
+        Map<RDFNode, Map<RDFNode, Map<DataSource, Entry<Integer, Integer>>>> complements = new DisjointMap<>();
 
         for (DataSource dataSource : dataSources) {
 
@@ -192,37 +199,46 @@ public class DataFusionProcessor {
                 RDFNode object = statement.getObject();
 
                 //Equivalence classes processing     
-                Map map = statements;
+                Map classes = statements;
 
-                map.putIfAbsent(subject, new HashMap<>());
-                map = (Map) map.get(subject);
+                classes.putIfAbsent(subject, new HashMap<>());
+                classes = (Map) classes.get(subject);
 
-                map.putIfAbsent(property, new HashMap<>());
-                map = (Map) map.get(property);
+                classes.putIfAbsent(property, new HashMap<>());
+                classes = (Map) classes.get(property);
 
-                map.putIfAbsent(object, new HashMap<>());
-                map = (Map) map.get(object);
+                classes.putIfAbsent(object, new HashMap<>());
+                classes = (Map) classes.get(object);
 
                 // Warning, the statement is already present in the dataSouce           
-                if (map.putIfAbsent(dataSource, 0) == null && parameters.get(property).contains(Function.CONSTRUCT)) {
+                Object present = null;
+
+                if ((present = classes.putIfAbsent(dataSource, 0)) == null && parameters.get(property).contains(Function.CONSTRUCT)) {
                     ((DisjointMap) statements).union(subject, object);
                 }
 
                 // Computing the number of duplicate statements
-                map.put(dataSource, ((int) map.get(dataSource)) + 1);
+                classes.put(dataSource, ((int) classes.get(dataSource)) + 1);
 
                 // Frequencies processing
-                map = complements;
+                Map frequencies = complements;
 
-                map.putIfAbsent(property, new HashMap<>());
-                map = (Map) map.get(property);
+                frequencies.putIfAbsent(property, new HashMap<>());
+                frequencies = (Map) frequencies.get(property);
 
-                map.putIfAbsent(object, new HashMap<>());
-                map = (Map) map.get(object);
+                frequencies.putIfAbsent(object, new HashMap<>());
+                frequencies = (Map) frequencies.get(object);
 
-                // Warning, the property is already computed          
-                if (map.putIfAbsent(dataSource, 0) == null || data.duplicatesAllowed) {
-                    map.put(dataSource, ((int) map.get(dataSource)) + 1);
+                // Warning, the property is already computed    
+                frequencies.putIfAbsent(dataSource, new AbstractMap.SimpleEntry(0, 0));
+
+                Entry frequency = (Entry) frequencies.get(dataSource);
+
+                // Computing the number of duplicate statements
+                if (present == null) {
+                    frequencies.put(dataSource, new AbstractMap.SimpleEntry((int) frequency.getKey() + 1, frequency.getValue()));
+                } else {
+                    frequencies.put(dataSource, new AbstractMap.SimpleEntry(frequency.getKey(), (int) frequency.getValue() + 1));
                 }
 
             }
@@ -248,6 +264,7 @@ public class DataFusionProcessor {
         //Equivalence classes processing     
         Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, Object>>> classes = new HashMap<>();
 
+        // Retrieving the equivalence classes 
         Collection<Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>>> values = ((DisjointMap) statements).disjointValues();
 
         for (Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> value : values) {
