@@ -39,7 +39,7 @@ import org.apache.jena.vocabulary.SKOS;
  */
 public class DataFusionProcessor {
 
-    private class DataQualityRecords implements DataQualityControl {
+    private class DataQualityRecords implements DataQualityControl, Cloneable {
 
         private Float frequency;
         //private Integer duplicates;
@@ -49,7 +49,7 @@ public class DataFusionProcessor {
         public DataQualityRecords() {
             this.frequency = new Float(0);
             //this.duplicates = new Integer(0);
-            this.frequency = new Float(0);
+            this.homogeneity = new Float(0);
             this.dataSources = new HashSet<>();
         }
 
@@ -100,7 +100,7 @@ public class DataFusionProcessor {
 
         @Override
         protected Object clone() throws CloneNotSupportedException {
-            return super.clone(); //To change body of generated methods, choose Tools | Templates.
+            return super.clone();
         }
 
     }
@@ -116,11 +116,12 @@ public class DataFusionProcessor {
 
     private class DataFusionInformation implements DataFusionAssessment {
 
+        private Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> values;
         private Collection<Triple> duplicates;
 
         @Override
         public Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> getComputedDataQualityAssessment() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return values;
         }
 
         @Override
@@ -225,7 +226,7 @@ public class DataFusionProcessor {
                 frequencies.putIfAbsent(object, new DataQualityInformation());
 
                 // Warning, the complement is already computed                   
-                DataQualityRecords records = (DataQualityRecords) frequencies.get(dataSource);
+                DataQualityRecords records = (DataQualityRecords) frequencies.get(object);
 
                 if (present == null) {
                     // Computing the absolute frequency of the complements 
@@ -234,7 +235,7 @@ public class DataFusionProcessor {
                     // Computing the absolute number of duplicate complements 
                     //records.duplicates++;
                 }
-                
+
                 if (duplicatesAllowed) {
                     records.frequency++;
                 }
@@ -262,13 +263,13 @@ public class DataFusionProcessor {
         }
 
         // Equivalence classes processing     
-        Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> values = new HashMap<>();
-
-        // Retrieving the equivalence classes 
-        Collection<Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>>> classes = ((DisjointMap) statements).disjointValues();
+        data.values = new HashMap<>();
 
         // Computing the duplicate statements
         data.duplicates = new HashSet<>();
+
+        // Retrieving the equivalence classes 
+        Collection<Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>>> classes = ((DisjointMap) statements).disjointValues();
 
         for (Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> map : classes) {
 
@@ -295,7 +296,7 @@ public class DataFusionProcessor {
 
                     // Grouping the properties
                     if (parameters.getOrDefault(current, Collections.EMPTY_SET).contains(Function.UNION)) {
-                        ((DisjointMap) values).union(last, current);
+                        ((DisjointMap) outlines).union(last, current);
                     }
 
                     last = current;
@@ -332,7 +333,13 @@ public class DataFusionProcessor {
                         DataQualityRecords records = (DataQualityRecords) objects.get(o);
 
                         // Computing the absolute homogeneity
-                        records.homogeneity++;
+                        if (duplicatesAllowed) {
+                            for (Integer value : object.getValue().values()) {
+                                records.homogeneity += value;
+                            }
+                        } else {
+                            records.homogeneity++;
+                        }
 
                     }
                 }
@@ -351,12 +358,12 @@ public class DataFusionProcessor {
                 Collection<Function> functions = new HashSet<>();
 
                 for (RDFNode p : predicates) {
-                    functions.addAll(parameters.get(p));
+                    functions.addAll(parameters.getOrDefault(p, Collections.EMPTY_SET));
                 }
 
                 functions.remove(Function.UNION);
                 functions.remove(Function.CONSTRUCT);
-                
+
                 Map<RDFNode, DataQualityAssessment> objects = new HashMap<>();
 
                 for (Map<RDFNode, DataQualityAssessment> object : mapping.values()) {
@@ -366,15 +373,12 @@ public class DataFusionProcessor {
                         DataQualityRecords v = (DataQualityRecords) value.getValue();
 
                         // Processing the absolute criteria
-                        objects.putIfAbsent(o, (DataQualityAssessment) new DataQualityRecords());
+                        objects.putIfAbsent(o, (DataQualityAssessment) new DataQualityInformation());
 
                         DataQualityRecords records = (DataQualityRecords) objects.get(o);
 
                         // Computing the absolute frequency
                         records.frequency += v.frequency;
-
-                        // Computing the absolute duplicates
-                        //records.duplicates += v.duplicates;
 
                         // Computing the absolute homogeneity
                         records.homogeneity += v.homogeneity;
@@ -384,21 +388,42 @@ public class DataFusionProcessor {
 
                     }
                 }
-                
+
                 summary.put(predicates, objects);
 
             }
-                        
+
             // Processing the relative criteria
             int count = 0;
 
-            for (Map<RDFNode, DataQualityAssessment> value : summary.values()) {
-                
+            for (Map<RDFNode, DataQualityAssessment> object : summary.values()) {
+                for (DataQualityAssessment value : object.values()) {
+                    count += ((DataQualityRecords) value).homogeneity;
+                }
             }
-            
-            values.put(subjects, summary);
+
+            for (Map<RDFNode, DataQualityAssessment> object : summary.values()) {
+                for (DataQualityAssessment value : object.values()) {
+
+                    DataQualityRecords records = (DataQualityRecords) value;
+
+                    // Computing the relative frequency
+                    records.frequency /= size;
+
+                    // Computing the relative homogeneity
+                    records.homogeneity /= count;
+
+                }
+            }
+
+            data.values.put(subjects, summary);
+
         }
 
+    }
+
+    public static DataFusionAssessment process(Collection<DataSource> dataSources, Collection<Rule> rules, boolean duplicatesAllowed) throws IOException, CloneNotSupportedException {
+        return new DataFusionProcessor(dataSources, rules, true).data;
     }
 
 }
