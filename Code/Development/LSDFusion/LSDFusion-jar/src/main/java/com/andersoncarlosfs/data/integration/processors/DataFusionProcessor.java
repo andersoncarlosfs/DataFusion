@@ -45,12 +45,14 @@ public class DataFusionProcessor {
         //private Integer duplicates;
         private Float homogeneity;
         private Collection<DataSource> dataSources;
+        private Collection<RDFNode> morePrecise;
 
         public DataQualityRecords() {
             this.frequency = new Float(0);
             //this.duplicates = new Integer(0);
             this.homogeneity = new Float(0);
             this.dataSources = new HashSet<>();
+            this.morePrecise = new HashSet<>();
         }
 
         @Override
@@ -75,7 +77,7 @@ public class DataFusionProcessor {
                 }
                 value = Math.max(value, d.getReliability());
             }
-            return value;
+            return value == null ? new Float(0.5) : value;
         }
 
         @Override
@@ -95,7 +97,7 @@ public class DataFusionProcessor {
 
         @Override
         public Collection<RDFNode> getMorePrecise() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return morePrecise;
         }
 
         @Override
@@ -107,9 +109,17 @@ public class DataFusionProcessor {
 
     private class DataQualityInformation extends DataQualityRecords implements DataQualityAssessment {
 
+        private Float freshness;
+        private Float trustiness;
+
+        @Override
+        public Float getFreshness() {
+            return freshness == null ? super.getFreshness() : freshness;
+        }
+
         @Override
         public Float getTrustiness() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return trustiness;
         }
 
     }
@@ -165,7 +175,7 @@ public class DataFusionProcessor {
                 parameters.get(current).addAll(functions);
 
                 // Grouping the properties
-                if (functions.contains(Function.UNION)) {
+                if (functions.contains(Function.MAP)) {
                     parameters.union(last, current);
                 }
 
@@ -180,7 +190,15 @@ public class DataFusionProcessor {
 
         Map<RDFNode, Map<RDFNode, DataQualityRecords>> complements = new DisjointMap<>();
 
+        long durations = 0;
+
         for (DataSource dataSource : dataSources) {
+
+            Long freshness = dataSource.getFreshness();
+
+            if (freshness != null) {
+                durations += freshness;
+            }
 
             Model model = RDFDataMgr.loadModel(dataSource.getPath().toString(), dataSource.getSyntax());
 
@@ -295,7 +313,7 @@ public class DataFusionProcessor {
                     outlines.putIfAbsent(current, new HashMap<>());
 
                     // Grouping the properties
-                    if (parameters.getOrDefault(current, Collections.EMPTY_SET).contains(Function.UNION)) {
+                    if (parameters.getOrDefault(current, Collections.EMPTY_SET).contains(Function.MAP)) {
                         ((DisjointMap) outlines).union(last, current);
                     }
 
@@ -361,21 +379,21 @@ public class DataFusionProcessor {
                     functions.addAll(parameters.getOrDefault(p, Collections.EMPTY_SET));
                 }
 
-                functions.remove(Function.UNION);
-                functions.remove(Function.CONSTRUCT);
-
                 Map<RDFNode, DataQualityAssessment> objects = new HashMap<>();
+
+                // Best object
+                RDFNode best = null;
 
                 for (Map<RDFNode, DataQualityAssessment> object : mapping.values()) {
                     for (Entry<RDFNode, DataQualityAssessment> value : object.entrySet()) {
 
-                        RDFNode o = value.getKey();
+                        RDFNode current = value.getKey();
                         DataQualityRecords v = (DataQualityRecords) value.getValue();
 
                         // Processing the absolute criteria
-                        objects.putIfAbsent(o, (DataQualityAssessment) new DataQualityInformation());
+                        objects.putIfAbsent(current, (DataQualityAssessment) new DataQualityInformation());
 
-                        DataQualityRecords records = (DataQualityRecords) objects.get(o);
+                        DataQualityRecords records = (DataQualityRecords) objects.get(current);
 
                         // Computing the absolute frequency
                         records.frequency += v.frequency;
@@ -385,6 +403,68 @@ public class DataFusionProcessor {
 
                         // Computing the absolute freshness and absolute reability
                         records.dataSources.addAll(v.dataSources);
+
+                        Float numeric = null;
+
+                        // Applying the functions
+                        if (best != null && current.isLiteral()) {
+                            if (functions.contains(Function.MIN)) {
+                                numeric = Math.max(best.asLiteral().getFloat(), current.asLiteral().getFloat());
+                            }
+                            if (functions.contains(Function.MAX)) {
+                                numeric = Math.min(best.asLiteral().getFloat(), current.asLiteral().getFloat());
+                            }
+                        } else if (current.isLiteral()) {
+                            best = current;
+                        }
+
+                        // Processing the  more precises
+                        if (numeric != null) {
+
+                            DataQualityRecords outstanding = (DataQualityRecords) object.get(best);
+
+                            if (numeric != best.asLiteral().getFloat()) {
+
+                                ((DataQualityInformation) records).trustiness = ((DataQualityInformation) outstanding).trustiness;
+
+                                ((DataQualityInformation) outstanding).trustiness = new Float(0);
+
+                                records.morePrecise.addAll(outstanding.morePrecise);
+
+                                outstanding.morePrecise.clear();
+
+                                outstanding = records;
+
+                            } else {
+                                outstanding.morePrecise.add(current);
+                            }
+
+                            ((DataQualityInformation) outstanding).trustiness++;
+
+                        } else {
+                            for (Entry<RDFNode, DataQualityAssessment> record : object.entrySet()) {
+
+                                RDFNode node = record.getKey();
+                                DataQualityRecords trustiness = (DataQualityRecords) record.getValue();
+
+                                if (!current.isLiteral()) {
+                                    break;
+                                }
+
+                                if (current.equals(node) || !node.isLiteral()) {
+                                    continue;
+                                }
+
+                                if (current.asLiteral().getString().contains(node.asLiteral().getString())) {
+                                    records.morePrecise.add(node);
+                                }
+
+                                if (node.asLiteral().getString().contains(current.asLiteral().getString())) {
+                                    trustiness.morePrecise.add(current);
+                                }
+
+                            }
+                        }
 
                     }
                 }
@@ -403,7 +483,12 @@ public class DataFusionProcessor {
             }
 
             for (Map<RDFNode, DataQualityAssessment> object : summary.values()) {
-                for (DataQualityAssessment value : object.values()) {
+
+                Collection<DataQualityAssessment> assessments = object.values();
+
+                float trustinesses = 0;
+
+                for (DataQualityAssessment value : assessments) {
 
                     DataQualityRecords records = (DataQualityRecords) value;
 
@@ -413,7 +498,27 @@ public class DataFusionProcessor {
                     // Computing the relative homogeneity
                     records.homogeneity /= count;
 
+                    // Computing the relative freshness
+                    if (records.getFreshness() != null) {
+                        ((DataQualityInformation) value).freshness = records.getFreshness() / durations;
+                    } else {
+                        ((DataQualityInformation) value).freshness = new Float(0.5);
+                    }
+
+                    // Computing the absolute trustiness
+                    if (((DataQualityInformation) value).trustiness == null) {
+                        ((DataQualityInformation) value).trustiness = value.getScore();
+                    }
+
+                    trustinesses += ((DataQualityInformation) value).trustiness;
+
                 }
+
+                // Computing the relative trustiness
+                for (DataQualityAssessment value : assessments) {
+                    ((DataQualityInformation) value).trustiness /= trustinesses;
+                }
+
             }
 
             data.values.put(subjects, summary);
