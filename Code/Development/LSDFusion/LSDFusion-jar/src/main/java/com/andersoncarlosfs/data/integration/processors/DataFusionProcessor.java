@@ -285,18 +285,18 @@ public class DataFusionProcessor {
         }
 
         // Size processing
-        int size = 0;
+        int statements_size = 0;
 
         for (Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>> subjects : statements.values()) {
             for (Map<RDFNode, Map<DataSource, Integer>> properties : subjects.values()) {
                 if (duplicatesAllowed) {
                     for (Map<DataSource, Integer> objects : properties.values()) {
                         for (Integer value : objects.values()) {
-                            size += value;
+                            statements_size += value;
                         }
                     }
                 }
-                size += properties.values().size();
+                statements_size += properties.values().size();
             }
         }
 
@@ -532,7 +532,7 @@ public class DataFusionProcessor {
                     DataQualityRecords records = (DataQualityRecords) value;
 
                     // Computing the relative frequency
-                    records.frequency /= size;
+                    records.frequency /= statements_size;
 
                     // Computing the relative homogeneity
                     records.homogeneity /= count;
