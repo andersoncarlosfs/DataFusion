@@ -440,6 +440,9 @@ public class DataFusionProcessor {
                         // Applying the functions
                         if (functions.contains(Function.MAX) || functions.contains(Function.MIN)) {
 
+                            // Computing the absolute trustiness
+                            ((DataQualityInformation) records).trustiness = new Float(1);
+
                             Float numeric = null;
                             Float a = null;
                             Float b = null;
@@ -472,15 +475,13 @@ public class DataFusionProcessor {
 
                                     current_object = best_object;
 
+                                } else {
+
+                                    ((DataQualityInformation) records).trustiness = new Float(0);
+
                                 }
 
                                 outstanding.morePrecise.add(current_object);
-
-                                if (((DataQualityInformation) outstanding).trustiness == null) {
-
-                                    ((DataQualityInformation) outstanding).trustiness = new Float(1);
-
-                                }
 
                                 ((DataQualityInformation) outstanding).trustiness++;
 
