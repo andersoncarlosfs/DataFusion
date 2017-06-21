@@ -214,19 +214,22 @@ public class DataFusionProcessor {
                 RDFNode object = statement.getObject();
 
                 //Equivalence classes processing     
-                Map classes = statements;
+                Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> subjects = statements;
 
-                classes.putIfAbsent(subject, new HashMap<>());
-                classes = (Map) classes.get(subject);
+                subjects.putIfAbsent(subject, new HashMap<>());
 
-                classes.putIfAbsent(property, new HashMap<>());
-                classes = (Map) classes.get(property);
+                Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>> subjects_predicates = subjects.get(subject);
 
-                classes.putIfAbsent(object, new HashMap<>());
-                classes = (Map) classes.get(object);
+                subjects_predicates.putIfAbsent(property, new HashMap<>());
+
+                Map<RDFNode, Map<DataSource, Integer>> subjects_predicates_objects = subjects_predicates.get(property);
+
+                subjects_predicates_objects.putIfAbsent(object, new HashMap<>());
+
+                Map<DataSource, Integer> subjects_predicates_objects_dataSources = subjects_predicates_objects.get(object);
 
                 // Warning, the statement is already present in the dataSouce           
-                Object present = classes.putIfAbsent(dataSource, 0);
+                Object present = subjects_predicates_objects_dataSources.putIfAbsent(dataSource, 0);
 
                 if (present == null && parameters.getOrDefault(property, Collections.EMPTY_SET).contains(Function.CONSTRUCT)) {
                     //
@@ -237,7 +240,7 @@ public class DataFusionProcessor {
                 }
 
                 // Computing the absolute number of duplicate statements
-                classes.put(dataSource, ((int) classes.get(dataSource)) + 1);
+                subjects_predicates_objects_dataSources.put(dataSource, ((int) subjects_predicates_objects_dataSources.get(dataSource)) + 1);
 
                 // Frequencies processing
                 Map frequencies = complements;
