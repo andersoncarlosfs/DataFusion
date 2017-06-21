@@ -408,66 +408,62 @@ public class DataFusionProcessor {
                         // Computing the absolute freshness and absolute reability
                         records.dataSources.addAll(v.dataSources);
 
-                        Float numeric = null;
-
-                        Float a = null;
-                        Float b = null;
-
                         // Applying the functions
-                        try {
-                            a = best.asLiteral().getFloat();
-                            b = current.asLiteral().getFloat();
+                        if (functions.contains(Function.MAX) || functions.contains(Function.MIN)) {
 
-                            if (functions.contains(Function.MIN)) {
-                                numeric = Math.min(a, b);
-                            }
-                            if (functions.contains(Function.MAX)) {
-                                numeric = Math.max(a, b);
-                            }
-                        } catch (LiteralRequiredException e) {
-                            // Do nothing                       
-                        } catch (NumberFormatException e) {
-                            if (a == null) {
+                            Float numeric = null;
+                            Float a = null;
+                            Float b = null;
+
+                            try {
+
+                                a = best.asLiteral().getFloat();
+                                b = current.asLiteral().getFloat();
+
+                                if (functions.contains(Function.MIN)) {
+                                    numeric = Math.min(a, b);
+                                }
+                                if (functions.contains(Function.MAX)) {
+                                    numeric = Math.max(a, b);
+                                }
+
+                                DataQualityRecords outstanding = (DataQualityRecords) objects.get(best);
+
+                                if (numeric != best.asLiteral().getFloat()) {
+
+                                    ((DataQualityInformation) records).trustiness = ((DataQualityInformation) outstanding).trustiness;
+
+                                    ((DataQualityInformation) outstanding).trustiness = new Float(0);
+
+                                    records.morePrecise.addAll(outstanding.morePrecise);
+
+                                    outstanding.morePrecise.clear();
+
+                                    outstanding = records;
+
+                                    current = best;
+
+                                }
+
+                                outstanding.morePrecise.add(current);
+
+                                if (((DataQualityInformation) outstanding).trustiness == null) {
+
+                                    ((DataQualityInformation) outstanding).trustiness = new Float(1);
+
+                                }
+
+                                ((DataQualityInformation) outstanding).trustiness++;
+
+                            } catch (LiteralRequiredException e) {
+                                // Do nothing                       
+                            } catch (NumberFormatException e) {
+                                if (a == null) {
+                                    best = current;
+                                }
+                            } catch (NullPointerException e) {
                                 best = current;
                             }
-                        } catch (NullPointerException e) {
-                            best = current;
-                        }
-
-                        // Processing the  more precises
-                        if (numeric != null) {
-
-                            DataQualityRecords outstanding = (DataQualityRecords) object.get(best);
-
-                            RDFNode less = current;
-
-                            if (numeric != best.asLiteral().getFloat()) {
-
-                                ((DataQualityInformation) records).trustiness = ((DataQualityInformation) outstanding).trustiness;
-
-                                ((DataQualityInformation) outstanding).trustiness = new Float(0);
-
-                                records.morePrecise.addAll(outstanding.morePrecise);
-
-                                outstanding.morePrecise.clear();
-
-                                outstanding = records;
-
-                                less = best;
-
-                                best = current;
-
-                            }
-
-                            outstanding.morePrecise.add(less);
-
-                            if (((DataQualityInformation) outstanding).trustiness == null) {
-
-                                ((DataQualityInformation) outstanding).trustiness = new Float(0);
-
-                            }
-
-                            ((DataQualityInformation) outstanding).trustiness++;
 
                         } else {
                             for (Entry<RDFNode, DataQualityAssessment> record : object.entrySet()) {
@@ -490,7 +486,6 @@ public class DataFusionProcessor {
                                 if (node.asLiteral().getString().contains(current.asLiteral().getString())) {
                                     trustiness.morePrecise.add(current);
                                 }
-
                             }
                         }
 
