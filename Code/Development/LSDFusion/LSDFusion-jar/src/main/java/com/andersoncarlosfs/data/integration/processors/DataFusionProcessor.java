@@ -213,7 +213,26 @@ public class DataFusionProcessor {
                 Property property = statement.getPredicate();
                 RDFNode object = statement.getObject();
 
-                //Equivalence classes processing     
+                // Escaping the predicates
+                if (parameters.getOrDefault(property, Collections.EMPTY_SET).contains(Function.ESCAPE)) {
+                    continue;
+                }
+
+                // Equivalence classes processing 
+                if (parameters.getOrDefault(property, Collections.EMPTY_SET).contains(Function.CONSTRUCT)) {
+
+                    //
+                    statements.putIfAbsent(object, new HashMap<>());
+
+                    // Grouping the subjects                    
+                    ((DisjointMap) statements).union(subject, object);
+
+                    //
+                    continue;
+
+                }
+
+                // Statements processing
                 Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> subjects = statements;
 
                 subjects.putIfAbsent(subject, new HashMap<>());
@@ -231,27 +250,20 @@ public class DataFusionProcessor {
                 // Warning, the statement is already present in the dataSouce           
                 Object present = subjects_predicates_objects_dataSources.putIfAbsent(dataSource, 0);
 
-                if (present == null && parameters.getOrDefault(property, Collections.EMPTY_SET).contains(Function.CONSTRUCT)) {
-                    //
-                    statements.putIfAbsent(object, new HashMap<>());
-
-                    // Grouping the subjects                    
-                    ((DisjointMap) statements).union(subject, object);
-                }
-
                 // Computing the absolute number of duplicate statements
                 subjects_predicates_objects_dataSources.put(dataSource, ((int) subjects_predicates_objects_dataSources.get(dataSource)) + 1);
 
-                // Frequencies processing
-                Map frequencies = complements;
+                // Complements processing
+                Map<RDFNode, Map<RDFNode, DataQualityRecords>> predicates = complements;
 
-                frequencies.putIfAbsent(property, new HashMap<>());
-                frequencies = (Map) frequencies.get(property);
+                predicates.putIfAbsent(property, new HashMap<>());
 
-                frequencies.putIfAbsent(object, new DataQualityInformation());
+                Map<RDFNode, DataQualityRecords> predicates_objects = predicates.get(property);
+
+                predicates_objects.putIfAbsent(object, new DataQualityInformation());
 
                 // Warning, the complement is already computed                   
-                DataQualityRecords records = (DataQualityRecords) frequencies.get(object);
+                DataQualityRecords records = (DataQualityRecords) predicates_objects.get(object);
 
                 if (present == null) {
                     // Computing the absolute frequency of the complements 
