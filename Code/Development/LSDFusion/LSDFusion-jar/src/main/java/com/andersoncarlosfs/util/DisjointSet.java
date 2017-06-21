@@ -99,20 +99,6 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
     }
 
     /**
-     * Union of the specified elements
-     *
-     * @param subject
-     * @param object
-     */
-    public void unionIfAbsent(E subject, E object) {
-        //
-        add(subject);
-        add(object);
-        // 
-        union(subject, object);
-    }
-
-    /**
      *
      * @return a view of the values contained in this set partitioned into
      * disjoint subsets

@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -78,7 +79,11 @@ public class DisjointMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, C
             return null;
         }
         //
-        K representative = null;
+        K representative = representative(value.getValue());
+        //
+        if ((key != null && key.equals(key)) || (key == representative)) {
+            representative = null;
+        }
         //
         for (Entry<K, Entry<V, K>> entry : data.entrySet()) {
             K k = entry.getKey();
@@ -90,9 +95,18 @@ public class DisjointMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, C
             if (representative == null) {
                 representative = k;
             }
-            e.setValue(k);
+            e.setValue(representative);
         }
         return value.getKey();
+    }
+
+    /**
+     *
+     * @param key
+     * @return
+     */
+    public boolean separate(Object key) {
+
     }
 
     /**
@@ -120,20 +134,45 @@ public class DisjointMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, C
      * @return
      */
     public Map<K, V> find(K key) {
-        K representative = representative(key);
-        //
         Map<K, V> map = new HashMap<>();
         //
-        for (Entry<K, Entry<V, K>> entry : data.entrySet()) {
+        for (Entry<K, Entry<V, K>> entry : find(data.get(key))) {
             K k = entry.getKey();
+            //
             Entry<V, K> e = entry.getValue();
             //
-            if (e.getValue().equals(representative)) {
+            V v = e.getKey();
+            //            
+            map.put(k, v);
+        }
+        return map.isEmpty() ? null : map;
+    }
+
+    /**
+     *
+     * @param key
+     * @return
+     */
+    private Collection<Entry<K, Entry<V, K>>> find(Entry<V, K> value) {
+        Set<Entry<K, Entry<V, K>>> set = new HashSet<>();
+        //
+        if (value != null) {
+            // 
+            K representative = representative(value.getValue());
+            //
+            for (Entry<K, Entry<V, K>> entry : data.entrySet()) {
+                Entry<V, K> e = entry.getValue();
                 //
-                map.put(k, e.getKey());
+                K k = e.getValue();
+                //
+                K r = representative(k);
+                //
+                if (representative.equals(r)) {
+                    set.add(entry);
+                }
             }
         }
-        return map;
+        return set;
     }
 
     /**
@@ -245,7 +284,7 @@ public class DisjointMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, C
     private Entry<K, Integer> search(K k, Entry<K, Integer> entry) {
         K representative = entry.getKey();
         //        
-        if ((k != null) && (!k.equals(representative))) {
+        if ((k == null && k != representative) || (k != null && !k.equals(representative))) {
             //
             Integer height = entry.getValue();
             //
@@ -263,7 +302,7 @@ public class DisjointMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, C
      * @param object
      */
     private void union(Entry<K, Integer> subject, Entry<K, Integer> object) {
-        if ((subject.getKey()) == null || (object.getKey() == null) || subject.getKey().equals(object.getKey())) {
+        if ((subject.getKey() == object.getKey()) || (subject.getKey() != null && subject.getKey().equals(object.getKey()))) {
             return;
         }
         //

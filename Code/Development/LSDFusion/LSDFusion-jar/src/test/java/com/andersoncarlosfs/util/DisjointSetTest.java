@@ -30,7 +30,7 @@ public class DisjointSetTest {
 
     private static final Collection equivaleceClass = Arrays.asList(7, 8);
 
-    private static final Collection equivaleceClasses = Arrays.asList(Arrays.asList(1, 2), Arrays.asList(3, 4), Arrays.asList(5, 6), Arrays.asList(7, 8), Arrays.asList(9, 10));
+    private static final Collection equivaleceClasses = Arrays.asList(Arrays.asList(1, 2), Arrays.asList(3, 4), Arrays.asList(5, 6), Arrays.asList(7, 8), Arrays.asList(9, 0));
 
     public DisjointSetTest() {
     }
@@ -45,13 +45,28 @@ public class DisjointSetTest {
 
     @Before
     public void setUp() {
+        instance.add(0);
         instance.add(1);
         instance.add(2);
-        instance.unionIfAbsent(3, 4);
+        instance.add(3);
+        instance.add(4);
         instance.add(5);
         instance.add(6);
-        instance.unionIfAbsent(7, 8);
-        instance.unionIfAbsent(9, 10);
+        instance.add(7);
+        instance.add(8);
+        instance.add(9);
+        /*
+        instance.add(null);
+        instance.add(10);
+        instance.add(11);
+         */
+        instance.union(3, 4);
+        instance.union(7, 8);
+        instance.union(9, 0);
+        /*
+        instance.union(null, 10);
+        instance.union(10, 11);
+         */
     }
 
     @After
@@ -79,13 +94,24 @@ public class DisjointSetTest {
     }
 
     /**
-     * Test of union method, of class DisjointSet.
+     * Test of remove method, of class DisjointSet.
+     */
+    //@Test
+    public void testRemove() {
+        System.out.println("remove");
+    }
+
+    /**
+     * Test of remove separate, of class DisjointSet.
      */
     @Test
-    public void testUnionIfAbsent() {
-        System.out.println("unionIfAbsent");
-        instance.unionIfAbsent(subject, object);
-        assertEquals(instance.representative(subject), instance.representative(object));
+    public void testSeparate() {
+        System.out.println("separate");
+        instance.union(subject, object);
+        System.out.println(instance.disjointValues());
+        assertTrue(instance.separate(representative));
+        System.out.println(instance.disjointValues());
+
     }
 
     /**
