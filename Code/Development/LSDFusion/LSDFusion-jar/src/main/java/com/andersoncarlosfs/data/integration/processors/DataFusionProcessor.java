@@ -229,7 +229,7 @@ public class DataFusionProcessor {
 
                 if (present == null && parameters.getOrDefault(property, Collections.EMPTY_SET).contains(Function.CONSTRUCT)) {
                     //
-                    classes.putIfAbsent(object, new HashMap<>());
+                    statements.putIfAbsent(object, new HashMap<>());
                     
                     // Grouping the subjects                    
                     ((DisjointMap) statements).union(subject, object);
