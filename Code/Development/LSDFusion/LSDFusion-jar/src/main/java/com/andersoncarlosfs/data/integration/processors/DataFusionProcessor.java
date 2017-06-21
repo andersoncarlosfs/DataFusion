@@ -221,13 +221,14 @@ public class DataFusionProcessor {
                 // Equivalence classes processing 
                 if (parameters.getOrDefault(property, Collections.EMPTY_SET).contains(Function.CONSTRUCT)) {
 
-                    //
+                    // Putting the equivalent members 
+                    statements.putIfAbsent(subject, new HashMap<>());
                     statements.putIfAbsent(object, new HashMap<>());
 
-                    // Grouping the subjects                    
+                    // Grouping the members                    
                     ((DisjointMap) statements).union(subject, object);
 
-                    //
+                    // Escaping
                     continue;
 
                 }
