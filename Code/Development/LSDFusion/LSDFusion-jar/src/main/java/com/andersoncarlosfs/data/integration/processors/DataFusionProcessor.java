@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.jena.graph.Triple;
+import org.apache.jena.rdf.model.LiteralRequiredException;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
@@ -230,7 +231,7 @@ public class DataFusionProcessor {
                 if (present == null && parameters.getOrDefault(property, Collections.EMPTY_SET).contains(Function.CONSTRUCT)) {
                     //
                     statements.putIfAbsent(object, new HashMap<>());
-                    
+
                     // Grouping the subjects                    
                     ((DisjointMap) statements).union(subject, object);
                 }
@@ -409,15 +410,27 @@ public class DataFusionProcessor {
 
                         Float numeric = null;
 
+                        Float a = null;
+                        Float b = null;
+
                         // Applying the functions
-                        if (best != null && current.isLiteral()) {
+                        try {
+                            a = best.asLiteral().getFloat();
+                            b = current.asLiteral().getFloat();
+
                             if (functions.contains(Function.MIN)) {
-                                numeric = Math.max(best.asLiteral().getFloat(), current.asLiteral().getFloat());
+                                numeric = Math.min(a, b);
                             }
                             if (functions.contains(Function.MAX)) {
-                                numeric = Math.min(best.asLiteral().getFloat(), current.asLiteral().getFloat());
+                                numeric = Math.max(a, b);
                             }
-                        } else if (current.isLiteral()) {
+                        } catch (LiteralRequiredException e) {
+                            // Do nothing                       
+                        } catch (NumberFormatException e) {
+                            if (a == null) {
+                                best = current;
+                            }
+                        } catch (NullPointerException e) {
                             best = current;
                         }
 
@@ -425,6 +438,8 @@ public class DataFusionProcessor {
                         if (numeric != null) {
 
                             DataQualityRecords outstanding = (DataQualityRecords) object.get(best);
+
+                            RDFNode less = current;
 
                             if (numeric != best.asLiteral().getFloat()) {
 
@@ -438,8 +453,18 @@ public class DataFusionProcessor {
 
                                 outstanding = records;
 
-                            } else {
-                                outstanding.morePrecise.add(current);
+                                less = best;
+
+                                best = current;
+
+                            }
+
+                            outstanding.morePrecise.add(less);
+
+                            if (((DataQualityInformation) outstanding).trustiness == null) {
+
+                                ((DataQualityInformation) outstanding).trustiness = new Float(0);
+
                             }
 
                             ((DataQualityInformation) outstanding).trustiness++;

@@ -21,7 +21,11 @@ public class Policy {
     public Policy() {
         rules = new DisjointMap<>();
     }
+    /*
+    public addRules
     
-    
-
+    public getRules(){
+        
+    }
+*/
 }

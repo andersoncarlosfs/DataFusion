@@ -22,6 +22,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import java.util.Arrays;
 import java.util.HashSet;
+import org.apache.jena.rdf.model.ResourceFactory;
 
 /**
  *
@@ -38,6 +39,8 @@ public class DataFusionProcessorTest {
     private Collection<Rule> rules = new HashSet<>();
 
     private Rule construct = new Rule(Arrays.asList(Function.CONSTRUCT), DataFusionProcessor.EQUIVALENCE_PROPERTIES);
+
+    private Rule min = new Rule(Arrays.asList(Function.MIN), Arrays.asList(ResourceFactory.createProperty("http://www.books.org/ontology_books1.owl#nb_pages")));
 
     private boolean duplicatesAllowed = false;
 
@@ -59,6 +62,7 @@ public class DataFusionProcessorTest {
         dataSources.add(link);
 
         rules.add(construct);
+        rules.add(min);
 
     }
 
@@ -108,6 +112,7 @@ public class DataFusionProcessorTest {
                     System.out.println("\t\t\t\t" + "Freshness=" + records.getFreshness());
                     System.out.println("\t\t\t\t" + "Reliability=" + records.getReliability());
                     System.out.println("\t\t\t\t" + "Score=" + records.getScore());
+                    System.out.println("\t\t\t\t" + "MorePrecise=" + records.getMorePrecise());
                     System.out.println("\t\t\t\t" + "Trustiness=" + records.getTrustiness());
 
                 }
