@@ -309,54 +309,60 @@ public class DataFusionProcessor {
         // Retrieving the equivalence classes 
         Collection<Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>>> classes = ((DisjointMap) statements).disjointValues();
 
-        for (Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> map : classes) {
+        for (Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> classe : classes) {
 
             Collection<RDFNode> subjects = new HashSet<>();
 
-            Map<RDFNode, Map<RDFNode, DataQualityAssessment>> outlines = new DisjointMap<>();
+            Map<RDFNode, Map<RDFNode, DataQualityAssessment>> classe_complements = new DisjointMap<>();
 
-            for (Map.Entry<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> subject : map.entrySet()) {
+            for (Map.Entry<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> classe_subject : classe.entrySet()) {
 
-                RDFNode s = subject.getKey();
+                RDFNode subject = classe_subject.getKey();
+
+                Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>> classe_subject_predicates = classe_subject.getValue();
 
                 // Grouping the subjects
-                subjects.add(s);
+                subjects.add(subject);
 
-                // Last property
-                RDFNode last = null;
+                // Last predicate
+                RDFNode last_predicate = null;
 
-                for (Map.Entry<RDFNode, Map<RDFNode, Map<DataSource, Integer>>> property : subject.getValue().entrySet()) {
+                for (Map.Entry<RDFNode, Map<RDFNode, Map<DataSource, Integer>>> classe_subject_predicate : classe_subject_predicates.entrySet()) {
 
                     // Current property
-                    RDFNode current = property.getKey();
+                    RDFNode current_predicate = classe_subject_predicate.getKey();
 
-                    outlines.putIfAbsent(current, new HashMap<>());
+                    Map<RDFNode, Map<DataSource, Integer>> classe_subject_predicate_objects = classe_subject_predicate.getValue();
 
-                    // Grouping the properties
-                    if (parameters.getOrDefault(current, Collections.EMPTY_SET).contains(Function.MAP)) {
-                        ((DisjointMap) outlines).union(last, current);
+                    classe_complements.putIfAbsent(current_predicate, new HashMap<>());
+
+                    // Grouping the predicates
+                    if (parameters.getOrDefault(current_predicate, Collections.EMPTY_SET).contains(Function.MAP)) {
+                        ((DisjointMap) classe_complements).union(last_predicate, current_predicate);
                     }
 
-                    last = current;
+                    last_predicate = current_predicate;
 
-                    Map<RDFNode, DataQualityAssessment> objects = outlines.get(current);
+                    Map<RDFNode, DataQualityAssessment> objects = classe_complements.get(last_predicate);
 
-                    for (Map.Entry<RDFNode, Map<DataSource, Integer>> object : property.getValue().entrySet()) {
+                    for (Map.Entry<RDFNode, Map<DataSource, Integer>> classe_subject_predicate_object : classe_subject_predicate_objects.entrySet()) {
 
-                        RDFNode o = object.getKey();
+                        RDFNode object = classe_subject_predicate_object.getKey();
+
+                        Map<DataSource, Integer> classe_subject_predicate_object_dataSources = classe_subject_predicate_object.getValue();
 
                         // Searching for duplicate statements
-                        Triple t = null;
+                        Triple triple = null;
 
-                        for (Entry<DataSource, Integer> record : object.getValue().entrySet()) {
+                        for (Entry<DataSource, Integer> record : classe_subject_predicate_object_dataSources.entrySet()) {
 
-                            if (record.getValue() > 1 || t != null) {
-                                t = new Triple(s.asNode(), current.asNode(), o.asNode());
+                            if (record.getValue() > 1 || triple != null) {
+                                triple = new Triple(subject.asNode(), last_predicate.asNode(), object.asNode());
                             }
 
-                            if (t != null) {
+                            if (triple != null) {
 
-                                data.duplicates.add(t);
+                                data.duplicates.add(triple);
 
                                 // Stopping duplicate detection
                                 break;
@@ -366,14 +372,20 @@ public class DataFusionProcessor {
                         }
 
                         // Processing the absolute criteria
-                        objects.putIfAbsent(o, (DataQualityAssessment) complements.get(current).get(o).clone());
+                        Map<RDFNode, DataQualityRecords> complement_objects = complements.get(last_predicate);
 
-                        DataQualityRecords records = (DataQualityRecords) objects.get(o);
+                        DataQualityRecords complement_object_records = (DataQualityRecords) complement_objects.get(object);
+
+                        DataQualityRecords complement_object_records_clone = (DataQualityRecords) complement_object_records.clone();
+
+                        objects.putIfAbsent(object, (DataQualityAssessment) complement_object_records_clone);
+
+                        DataQualityRecords records = (DataQualityRecords) objects.get(object);
 
                         // Computing the absolute homogeneity
                         if (duplicatesAllowed) {
-                            for (Integer value : object.getValue().values()) {
-                                records.homogeneity += value;
+                            for (Integer classe_subject_predicate_object_duplicates : classe_subject_predicate_object_dataSources.values()) {
+                                records.homogeneity += classe_subject_predicate_object_duplicates;
                             }
                         } else {
                             records.homogeneity++;
@@ -385,7 +397,7 @@ public class DataFusionProcessor {
             }
 
             // Retrieving the mappings
-            Collection<Map<RDFNode, Map<RDFNode, DataQualityAssessment>>> mappings = ((DisjointMap) outlines).disjointValues();
+            Collection<Map<RDFNode, Map<RDFNode, DataQualityAssessment>>> mappings = ((DisjointMap) classe_complements).disjointValues();
 
             Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>> summary = new DisjointMap<>();
 
@@ -402,18 +414,19 @@ public class DataFusionProcessor {
                 Map<RDFNode, DataQualityAssessment> objects = new HashMap<>();
 
                 // Best object
-                RDFNode best = null;
+                RDFNode best_object = null;
 
-                for (Map<RDFNode, DataQualityAssessment> object : mapping.values()) {
-                    for (Entry<RDFNode, DataQualityAssessment> value : object.entrySet()) {
+                for (Map<RDFNode, DataQualityAssessment> mapping_objects : mapping.values()) {
+                    for (Entry<RDFNode, DataQualityAssessment> mapping_object : mapping_objects.entrySet()) {
 
-                        RDFNode current = value.getKey();
-                        DataQualityRecords v = (DataQualityRecords) value.getValue();
+                        RDFNode current_object = mapping_object.getKey();
+
+                        DataQualityRecords v = (DataQualityRecords) mapping_object.getValue();
 
                         // Processing the absolute criteria
-                        objects.putIfAbsent(current, (DataQualityAssessment) new DataQualityInformation());
+                        objects.putIfAbsent(current_object, (DataQualityAssessment) new DataQualityInformation());
 
-                        DataQualityRecords records = (DataQualityRecords) objects.get(current);
+                        DataQualityRecords records = (DataQualityRecords) objects.get(current_object);
 
                         // Computing the absolute frequency
                         records.frequency += v.frequency;
@@ -433,8 +446,8 @@ public class DataFusionProcessor {
 
                             try {
 
-                                a = best.asLiteral().getFloat();
-                                b = current.asLiteral().getFloat();
+                                a = best_object.asLiteral().getFloat();
+                                b = current_object.asLiteral().getFloat();
 
                                 if (functions.contains(Function.MIN)) {
                                     numeric = Math.min(a, b);
@@ -443,9 +456,9 @@ public class DataFusionProcessor {
                                     numeric = Math.max(a, b);
                                 }
 
-                                DataQualityRecords outstanding = (DataQualityRecords) objects.get(best);
+                                DataQualityRecords outstanding = (DataQualityRecords) objects.get(best_object);
 
-                                if (numeric != best.asLiteral().getFloat()) {
+                                if (numeric != best_object.asLiteral().getFloat()) {
 
                                     ((DataQualityInformation) records).trustiness = ((DataQualityInformation) outstanding).trustiness;
 
@@ -457,11 +470,11 @@ public class DataFusionProcessor {
 
                                     outstanding = records;
 
-                                    current = best;
+                                    current_object = best_object;
 
                                 }
 
-                                outstanding.morePrecise.add(current);
+                                outstanding.morePrecise.add(current_object);
 
                                 if (((DataQualityInformation) outstanding).trustiness == null) {
 
@@ -475,34 +488,36 @@ public class DataFusionProcessor {
                                 // Do nothing                       
                             } catch (NumberFormatException e) {
                                 if (a == null) {
-                                    best = current;
+                                    best_object = current_object;
                                 }
                             } catch (NullPointerException e) {
-                                best = current;
+                                best_object = current_object;
                             }
 
                         } else {
-                            for (Entry<RDFNode, DataQualityAssessment> record : object.entrySet()) {
+                            for (Entry<RDFNode, DataQualityAssessment> complement : objects.entrySet()) {
 
-                                RDFNode node = record.getKey();
-                                DataQualityRecords trustiness = (DataQualityRecords) record.getValue();
+                                RDFNode complement_object = complement.getKey();
+                                DataQualityRecords complement_records = (DataQualityRecords) complement.getValue();
 
-                                if (!current.isLiteral()) {
+                                if (!current_object.isLiteral()) {
                                     break;
                                 }
 
-                                if (current.equals(node) || !node.isLiteral()) {
+                                if (!complement_object.isLiteral() || current_object.equals(complement_object)) {
                                     continue;
                                 }
 
-                                if (current.asLiteral().getString().contains(node.asLiteral().getString())) {
-                                    records.morePrecise.add(node);
+                                if (current_object.asLiteral().getString().contains(complement_object.asLiteral().getString())) {
+                                    records.morePrecise.add(complement_object);
                                 }
 
-                                if (node.asLiteral().getString().contains(current.asLiteral().getString())) {
-                                    trustiness.morePrecise.add(current);
+                                if (complement_object.asLiteral().getString().contains(current_object.asLiteral().getString())) {
+                                    complement_records.morePrecise.add(current_object);
                                 }
+
                             }
+
                         }
 
                     }
