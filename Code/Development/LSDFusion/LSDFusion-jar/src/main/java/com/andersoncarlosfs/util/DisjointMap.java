@@ -73,10 +73,22 @@ public class DisjointMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, C
      */
     @Override
     public V remove(Object key) {
-        Entry<V, K> value = data.remove(key);
+        if (separate(key)) {
+            return data.remove(key).getKey();
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param key
+     * @return
+     */
+    public boolean separate(Object key) {
+        Entry<V, K> value = data.get(key);
         //
         if (value == null) {
-            return null;
+            return false;
         }
         //
         K representative = representative(value.getValue());
@@ -92,21 +104,15 @@ public class DisjointMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, C
             if (e.getValue() != key) {
                 continue;
             }
-            if (representative == null) {
+            if (representative == null && key != k) {
                 representative = k;
             }
             e.setValue(representative);
         }
-        return value.getKey();
-    }
-
-    /**
-     *
-     * @param key
-     * @return
-     */
-    public boolean separate(Object key) {
-
+        //
+        value.setValue((K) key);
+        //
+        return true;
     }
 
     /**

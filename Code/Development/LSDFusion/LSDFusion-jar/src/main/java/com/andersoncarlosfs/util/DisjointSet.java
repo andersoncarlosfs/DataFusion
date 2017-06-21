@@ -99,6 +99,16 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
     }
 
     /**
+     * Separate of the specified element
+     *
+     * @param e
+     * @return 
+     */
+    public boolean separate(E e) {
+        return data.separate(e);
+    }
+    
+    /**
      *
      * @return a view of the values contained in this set partitioned into
      * disjoint subsets
