@@ -93,21 +93,22 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
      *
      * @param subject
      * @param object
+     * @return the previous representative
      */
-    public void union(E subject, E object) {
-        data.union(subject, object);
+    public E union(E subject, E object) {
+        return data.union(subject, object);
     }
 
     /**
      * Separate of the specified element
      *
      * @param e
-     * @return 
+     * @return
      */
     public boolean separate(E e) {
         return data.separate(e);
     }
-    
+
     /**
      *
      * @return a view of the values contained in this set partitioned into
