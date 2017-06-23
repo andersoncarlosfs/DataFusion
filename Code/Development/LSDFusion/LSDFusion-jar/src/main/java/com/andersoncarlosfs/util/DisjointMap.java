@@ -307,15 +307,15 @@ public class DisjointMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, C
      * @param subject
      * @param object
      */
-    private void union(Entry<K, Integer> subject, Entry<K, Integer> object) {
+    private K union(Entry<K, Integer> subject, Entry<K, Integer> object) {
         if ((subject.getKey() == object.getKey()) || (subject.getKey() != null && subject.getKey().equals(object.getKey()))) {
-            return;
+            return subject.getKey();
         }
         //
         if (subject.getValue() < object.getValue()) {
-            data.get(subject.getKey()).setValue(object.getKey());
+            return data.get(subject.getKey()).setValue(object.getKey());
         } else {
-            data.get(object.getKey()).setValue(subject.getKey());
+            return data.get(object.getKey()).setValue(subject.getKey());
         }
     }
 
