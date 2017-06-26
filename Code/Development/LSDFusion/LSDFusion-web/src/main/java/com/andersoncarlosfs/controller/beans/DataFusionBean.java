@@ -1,8 +1,6 @@
 package com.andersoncarlosfs.controller.beans;
 
 import com.andersoncarlosfs.annotations.scopes.ApplicationScope;
-import com.andersoncarlosfs.data.controller.services.DataFusionService;
-import com.andersoncarlosfs.data.integration.DataFusion;
 import com.andersoncarlosfs.data.model.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
@@ -291,7 +289,7 @@ public class DataFusionBean implements AutoCloseable {
      *
      */
     public void newDataSource() {
-
+/*
         complexProperties = new HashSet();
 
         List<Property> sourceEquivalencePropertie;
@@ -316,7 +314,7 @@ public class DataFusionBean implements AutoCloseable {
         syntax = null;
 
         result = null;
-
+*/
     }
 
     /**
@@ -336,10 +334,10 @@ public class DataFusionBean implements AutoCloseable {
      *
      */
     public void fuseDataSources() throws Exception {
-
+/*
         try {
 
-            DataFusionService service = new DataFusionService();
+           // DataFusionService service = new DataFusionService();
 
             File file = service.getFusedDataSet(path, dataSources);
 
@@ -371,7 +369,7 @@ public class DataFusionBean implements AutoCloseable {
             throw exception;
 
         }
-
+*/
     }
 
     /**
@@ -379,7 +377,7 @@ public class DataFusionBean implements AutoCloseable {
      * @param event
      */
     public void handleFileUpload(FileUploadEvent event) {
-
+/*
         try {
 
             Path path = Files.createTempDirectory(this.path, UUID.randomUUID().toString());
@@ -395,7 +393,7 @@ public class DataFusionBean implements AutoCloseable {
             NotificationBean.addErrorMessage(exception, exception.getStackTrace().toString());
 
         }
-
+*/
     }
 
     /**
@@ -480,7 +478,7 @@ public class DataFusionBean implements AutoCloseable {
      *
      */
     public void addDataSource() throws Exception {
-
+/*
         if (freshness != null) {
             selected.setFreshness(freshness);
         }
@@ -544,7 +542,7 @@ public class DataFusionBean implements AutoCloseable {
             throw exception;
 
         }
-
+*/
     }
 
     /**
