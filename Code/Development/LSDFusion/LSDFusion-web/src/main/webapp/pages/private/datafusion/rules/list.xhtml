@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pm="http://primefaces.org/mobile">
+
+    <f:view renderKitId="PRIMEFACES_MOBILE" />
+
+    <h:head></h:head>
+
+    <h:body>
+
+        <pm:page id="list">
+            <pm:header title="Rules" swatch="b">
+                <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="/pages/private/datafusion/main" />
+                <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Add" icon="ui-icon-plus" action="#{ruleBean.reset}" />
+            </pm:header>             
+            <pm:content>
+                <h:form id="listForm">
+                    <p:dataList id="dataSourcesList" value="#{dataFusionBean.rules}" var="rule" pt:data-inset="true">
+                        <p:commandLink value="Properties: #{rule.properties.size} Functions: #{dataSource.syntax}" action="edit">
+                            <f:setPropertyActionListener value="#{rule}" target="#{ruleBean.rule}" />           
+                        </p:commandLink> 
+                    </p:dataList>
+                </h:form>
+            </pm:content>
+        </pm:page>        
+
+    </h:body>
+
+</html>

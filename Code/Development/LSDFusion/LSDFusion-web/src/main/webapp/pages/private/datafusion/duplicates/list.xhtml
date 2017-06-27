@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pm="http://primefaces.org/mobile">
+
+    <f:view renderKitId="PRIMEFACES_MOBILE" />
+
+    <h:head></h:head>
+
+    <h:body>
+
+        <pm:page id="edit">
+            <pm:header title="Duplicates" swatch="b">
+                <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="/pages/private/datafusion/main" />
+            </pm:header>             
+            <pm:content>                 
+                <h:form id="editForm">
+                    <p:outputPanel id="editPanel">
+                        <pm:field>
+                            <p:outputLabel for="duplicatesAllowed" value="Duplicates is allowed" />
+                            <p:inputSwitch value="#{dataFusionBean.duplicatesAllowed}" id="duplicatesAllowed" />
+                        </pm:field>
+                    </p:outputPanel>
+                </h:form>                 
+            </pm:content>
+        </pm:page>
+
+    </h:body>
+
+</html>

@@ -14,99 +14,19 @@
 
         <pm:page id="mainPage">
             <pm:header title="Data fusion" swatch="b">
-                <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Reset" update=":duplicatesPage:duplicatesForm:duplicatesPanel" icon="ui-icon-refresh" />
+                <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Reset" actionListener="#{dataFusionBean.reset}" icon="ui-icon-refresh" />
             </pm:header>
             <pm:content>
                 <h:form id="mainForm">
                     <p:panel header="Settings">
                         <p:menu>
-                            <p:menuitem value="Data sources" outcome="pm:dataSourcesPage" />
-                            <p:menuitem value="Rules" outcome="rules" />
-                            <p:menuitem value="Duplicates" outcome="pm:duplicatesPage" />
+                            <p:menuitem value="Data sources" outcome="datasources/list" />
+                            <p:menuitem value="Rules" outcome="rules/list" />
+                            <p:menuitem value="Duplicates" outcome="duplicates/list" />
                         </p:menu>                        
                     </p:panel>
-                    <p:commandButton value="Process" type="button"/>
+                    <p:commandButton value="Process" type="button" rendered="#{not dataFusionBean.assessment}"/>
                 </h:form>
-            </pm:content>
-        </pm:page>
-
-        <pm:page id="dataSourcesPage">
-            <pm:header title="Data sources" swatch="b">
-                <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="pm:mainPage" />
-                <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Remove" icon="ui-icon-delete"  />
-            </pm:header>             
-            <pm:content>                 
-                <h:form id="dataSourcesForm">
-                    <p:outputPanel id="dataSourcesPanel">
-                        <pm:field>
-                            <p:outputLabel for="dataSourcesFile" value="File" />
-                            <p:fileUpload id="dataSourcesFile" mode="simple" required="true"/>
-                        </pm:field>
-                        <pm:field>
-                            <p:outputLabel for="dataSourcesSyntax" value="Syntax" />
-                            <p:selectOneMenu id="dataSourcesSyntax" required="true">
-                                <f:selectItem itemLabel="Remo" itemValue="1" />
-                            </p:selectOneMenu>
-                        </pm:field>
-                        <pm:field>
-                            <p:outputLabel for="dataSourcesReliability" value="Reliability" />
-                            <pm:inputSlider id="dataSourcesReliability" value="50"/>
-                        </pm:field>                        
-                        <pm:field>
-                            <p:outputLabel for="dataSourcesFreshness" value="Freshness" />
-                            <p:calendar id="dataSourcesFreshness" navigator="true" pattern="dd/MM/yyyy"/>
-                        </pm:field>                        
-                    </p:outputPanel>
-                    <p:commandButton value="Save" type="button"/>
-                </h:form>                 
-            </pm:content>
-        </pm:page>
-
-        <pm:page id="rulesPage">
-            <pm:header title="Rules" swatch="b">
-                <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="pm:mainPage" />
-                <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Remove" icon="ui-icon-delete"  />
-            </pm:header>             
-            <pm:content>                 
-                <h:form id="rulesForm">
-                    <p:outputPanel id="rulesPanel">
-                        <pm:field>
-                            <p:outputLabel for="rulesProperties" value="Properties" />
-                            <p:selectCheckboxMenu id="rulesProperties" required="true">   
-                                <f:selectItem itemLabel="Select Multiple" itemValue="" />
-                                <f:selectItem itemLabel="Option 1" itemValue="1" />
-                                <f:selectItem itemLabel="Option 2" itemValue="2" />
-                                <f:selectItem itemLabel="Option 3" itemValue="3" />
-                            </p:selectCheckboxMenu>
-                        </pm:field>       
-                        <pm:field>
-                            <p:outputLabel for="rulesFunctions" value="Functions" />
-                            <p:selectCheckboxMenu id="rulesFunctions" required="true">
-                                <f:selectItem itemLabel="Select Multiple" itemValue="" />
-                                <f:selectItem itemLabel="Option 1" itemValue="1" />
-                                <f:selectItem itemLabel="Option 2" itemValue="2" />
-                                <f:selectItem itemLabel="Option 3" itemValue="3" />
-                            </p:selectCheckboxMenu>
-                        </pm:field>       
-                    </p:outputPanel>
-                    <p:commandButton value="Save" type="button"/>
-                </h:form>                 
-            </pm:content>
-        </pm:page>        
-
-        <pm:page id="duplicatesPage">
-            <pm:header title="Duplicates" swatch="b">
-                <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="pm:mainPage" />
-            </pm:header>             
-            <pm:content>                 
-                <h:form id="duplicatesForm">
-                    <p:outputPanel id="duplicatesPanel">
-                        <pm:field>
-                            <p:outputLabel for="duplicatesAllowed" value="Duplicates is allowed" />
-                            <p:inputSwitch id="duplicatesAllowed" />
-                        </pm:field>
-                    </p:outputPanel>
-                </h:form>                 
             </pm:content>
         </pm:page>
 
