@@ -20,7 +20,7 @@
             <pm:content>
                 <h:form id="listForm">
                     
-                    <p:commandButton value="Add" type="button" disabled="#{empty dataFusionBean.dataSources}" rendered="#{empty dataFusionBean.rules}" />
+                    <p:commandButton value="Add" action="#{ruleBean.reset}" disabled="#{empty dataFusionBean.dataSources}" rendered="#{empty dataFusionBean.rules}" />
                     
                     <p:dataList id="dataSourcesList" value="#{dataFusionBean.rules}" var="rule" pt:data-inset="true">
                         <p:commandLink value="Properties: #{rule.properties.size} Functions: #{dataSource.syntax}" action="edit">

@@ -15,7 +15,7 @@
         <pm:page id="edit">
             <pm:header title="Rule" swatch="b">
                 <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="list" />
-                <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Remove" icon="ui-icon-delete"  />
+                <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Remove" icon="ui-icon-delete" rendered="#{not empty dataFusionBean.rules}" />
             </pm:header>             
             <pm:content>                 
                 <h:form id="editForm">
