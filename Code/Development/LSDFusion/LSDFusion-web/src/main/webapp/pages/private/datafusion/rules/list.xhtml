@@ -15,15 +15,19 @@
         <pm:page id="list">
             <pm:header title="Rules" swatch="b">
                 <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="/pages/private/datafusion/main" />
-                <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Add" icon="ui-icon-plus" action="#{ruleBean.reset}" />
+                <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Add" icon="ui-icon-plus" action="#{ruleBean.reset}" rendered="#{not empty dataFusionBean.rules}" />
             </pm:header>             
             <pm:content>
                 <h:form id="listForm">
+                    
+                    <p:commandButton value="Add" type="button" disabled="#{empty dataFusionBean.dataSources}" rendered="#{empty dataFusionBean.rules}" />
+                    
                     <p:dataList id="dataSourcesList" value="#{dataFusionBean.rules}" var="rule" pt:data-inset="true">
                         <p:commandLink value="Properties: #{rule.properties.size} Functions: #{dataSource.syntax}" action="edit">
                             <f:setPropertyActionListener value="#{rule}" target="#{ruleBean.rule}" />           
                         </p:commandLink> 
                     </p:dataList>
+                    
                 </h:form>
             </pm:content>
         </pm:page>        

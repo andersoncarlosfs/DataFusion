@@ -21,11 +21,11 @@
                     <p:panel header="Settings">
                         <p:menu>
                             <p:menuitem value="Data sources" outcome="datasources/list" />
-                            <p:menuitem value="Rules" outcome="rules/list" />
+                            <p:menuitem value="Rules" outcome="rules/list" disabled="#{empty dataFusionBean.dataSources}" />
                             <p:menuitem value="Duplicates" outcome="duplicates/list" />
                         </p:menu>                        
                     </p:panel>
-                    <p:commandButton value="Process" type="button" rendered="#{not dataFusionBean.assessment}"/>
+                    <p:commandButton value="Process" type="button" disabled="#{empty dataFusionBean.rules}" rendered="#{not dataFusionBean.assessment}" />
                 </h:form>
             </pm:content>
         </pm:page>
