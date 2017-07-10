@@ -29,7 +29,7 @@
                         <pm:field>
                             <p:outputLabel for="dataSourcesSyntax" value="Syntax" />
                             <p:selectOneMenu id="dataSourcesSyntax" required="true">
-                                <f:selectItems value="#{Coonstants.syntaxes}" var="syntax" itemLabel="#{syntax.label}" itemValue="#{syntax}" />
+                                <f:selectItems value="#{Constants.SYNTAXES}" var="syntax" itemLabel="#{syntax.getAltNames()}" itemValue="#{syntax}" />
                             </p:selectOneMenu>
                         </pm:field>
                         <pm:field>
