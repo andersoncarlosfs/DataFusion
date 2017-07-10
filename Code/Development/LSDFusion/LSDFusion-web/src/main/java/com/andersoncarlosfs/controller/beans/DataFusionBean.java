@@ -6,6 +6,7 @@ import com.andersoncarlosfs.data.model.Rule;
 import com.andersoncarlosfs.data.model.assessments.DataFusionAssessment;
 import com.andersoncarlosfs.data.util.Function;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ public class DataFusionBean {
     public static final class Constants {
 
         public static final Collection<Lang> SYNTAXES = getSyntaxes();
+        public static final Collection<Function> FUNCTIONS = getFunctions();
 
         /**
          *
@@ -49,6 +51,13 @@ public class DataFusionBean {
 
             return Collections.unmodifiableCollection(syntaxes);
 
+        }
+
+        /**
+         * @return the functions
+         */
+        private static final Collection<Function> getFunctions() {
+            return Collections.unmodifiableCollection(Arrays.asList(Function.values()));
         }
 
     }
@@ -90,13 +99,6 @@ public class DataFusionBean {
      */
     public void setDuplicatesAllowed(boolean duplicatesAllowed) {
         this.duplicatesAllowed = duplicatesAllowed;
-    }
-
-    /**
-     * @return the functions
-     */
-    public Function[] getFunctions() {
-        return Function.values();
     }
 
     /**

@@ -12,6 +12,8 @@
 
     <h:body>
 
+        <p:importConstants type="com.andersoncarlosfs.controller.DataFusionBean.Constants" var="Constants" />
+
         <pm:page id="edit">
             <pm:header title="Rule" swatch="b">
                 <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="#{empty dataFusionBean.rules ? '/pages/private/datafusion/main' : 'list'}" />
@@ -24,7 +26,7 @@
                             <p:outputLabel for="rulesProperties" value="Properties" />
                             <p:selectCheckboxMenu id="rulesProperties" label="Properties" required="true">   
                                 <f:selectItem itemLabel="Properties" itemValue="" />
-                                 <f:selectItems value="#{dataFusionBean.properties}" />
+                                <f:selectItems value="#{dataFusionBean.properties}" />
                             </p:selectCheckboxMenu>
                         </pm:field>       
                         <pm:field>
