@@ -26,6 +26,7 @@ public class DataSourceBean {
     }
 
     /**
+     *
      * @return the path
      */
     public Path getPath() {
@@ -33,6 +34,7 @@ public class DataSourceBean {
     }
 
     /**
+     *
      * @param path the path to set
      */
     public void setPath(Path path) {
@@ -40,6 +42,7 @@ public class DataSourceBean {
     }
 
     /**
+     *
      * @return the syntax
      */
     public Lang getSyntax() {
@@ -47,6 +50,7 @@ public class DataSourceBean {
     }
 
     /**
+     *
      * @param syntax the syntax to set
      */
     public void setSyntax(Lang syntax) {
@@ -54,6 +58,7 @@ public class DataSourceBean {
     }
 
     /**
+     *
      * @return the freshness
      */
     public Long getFreshness() {
@@ -61,6 +66,7 @@ public class DataSourceBean {
     }
 
     /**
+     *
      * @param freshness the freshness to set
      */
     public void setFreshness(Long freshness) {
@@ -68,6 +74,7 @@ public class DataSourceBean {
     }
 
     /**
+     *
      * @return the reliability
      */
     public Float getReliability() {
@@ -75,6 +82,7 @@ public class DataSourceBean {
     }
 
     /**
+     *
      * @param reliability the reliability to set
      */
     public void setReliability(Float reliability) {
@@ -82,6 +90,7 @@ public class DataSourceBean {
     }
 
     /**
+     *
      * @return the rule
      */
     public DataSource getDataSource() {
@@ -89,6 +98,7 @@ public class DataSourceBean {
     }
 
     /**
+     *
      * @param dataSource the dataSource to set
      */
     public void setDataSource(DataSource dataSource) {
