@@ -2,7 +2,7 @@ package com.andersoncarlosfs.x.controller.beans;
 
 import com.andersoncarlosfs.annotations.scopes.ApplicationScope;
 import com.andersoncarlosfs.controller.beans.NotificationBean;
-import com.andersoncarlosfs.data.model.DataSource;
+import com.andersoncarlosfs.model.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

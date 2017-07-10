@@ -12,7 +12,7 @@
 
     <h:body>
         
-        <p:importConstants type="com.andersoncarlosfs.controller.DataFusionBean.Constants" var="Constants" />
+        <p:importConstants type="com.andersoncarlosfs.model.Constants" var="Constants" />
         
         <pm:page id="edit">
             <pm:header title="Data source" swatch="b">
@@ -28,13 +28,13 @@
                         </pm:field>
                         <pm:field>
                             <p:outputLabel for="dataSourcesSyntax" value="Syntax" />
-                            <p:selectOneMenu id="dataSourcesSyntax" required="true">
+                            <p:selectOneMenu id="dataSourcesSyntax" value="#{dataSourceBean.dataSource.syntax}" required="true">
                                 <f:selectItems value="#{Constants.SYNTAXES}" var="syntax" itemLabel="#{syntax.getAltNames()}" itemValue="#{syntax}" />
                             </p:selectOneMenu>
                         </pm:field>
                         <pm:field>
                             <p:outputLabel for="dataSourcesReliability" value="Reliability" />
-                            <pm:inputSlider id="dataSourcesReliability" value="50"/>
+                            <pm:inputSlider id="dataSourcesReliability" value="#{dataSourceBean.dataSource.reliability}"/>
                         </pm:field>                        
                         <pm:field>
                             <p:outputLabel for="dataSourcesFreshness" value="Freshness" />
