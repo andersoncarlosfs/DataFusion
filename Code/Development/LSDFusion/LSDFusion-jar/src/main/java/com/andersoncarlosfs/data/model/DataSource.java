@@ -19,6 +19,9 @@ public class DataSource {
     private Long freshness;
     private Float reliability;
 
+    public DataSource() {
+    }
+
     public DataSource(Path path, Lang syntax) {
         this.path = path;
         this.syntax = syntax;
