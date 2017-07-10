@@ -5,12 +5,15 @@ import com.andersoncarlosfs.data.model.DataSource;
 import com.andersoncarlosfs.data.model.Rule;
 import com.andersoncarlosfs.data.model.assessments.DataFusionAssessment;
 import com.andersoncarlosfs.data.util.Function;
+import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 
 /**
@@ -19,6 +22,36 @@ import org.apache.jena.riot.RDFDataMgr;
  */
 @ApplicationScope
 public class DataFusionBean {
+
+    public static final class Constants {
+
+        public static final Collection<Lang> SYNTAXES = getSyntaxes();
+
+        /**
+         *
+         * @return
+         */
+        private static final Collection<Lang> getSyntaxes() {
+
+            Collection<Lang> syntaxes = new HashSet<>();
+
+            for (Field field : Lang.class.getFields()) {
+                if (field.getType().equals(Lang.class)) {
+                    try {
+                        syntaxes.add((Lang) field.get(Lang.class));
+                    } catch (IllegalArgumentException exception) {
+                        //Logger.getLogger(DataSourceBean.class.getName()).log(Level.SEVERE, null, exception);
+                    } catch (IllegalAccessException exception) {
+                        //Logger.getLogger(DataSourceBean.class.getName()).log(Level.SEVERE, null, exception);
+                    }
+                }
+            }
+
+            return Collections.unmodifiableCollection(syntaxes);
+
+        }
+
+    }
 
     private final Collection<DataSource> dataSources = new HashSet<>();
     private final Collection<Rule> rules = new HashSet<>();
