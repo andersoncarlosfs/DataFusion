@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.andersoncarlosfs.controller.services;
+package com.andersoncarlosfs.x.controller.services;
 
 import com.andersoncarlosfs.x.controller.services.DataFusionService;
 import com.andersoncarlosfs.x.data.integration.DataFusion;
