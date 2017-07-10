@@ -14,10 +14,10 @@ import org.apache.jena.riot.Lang;
  */
 public class DataSource {
 
-    private final Path path;
-    private final Lang syntax;
-    private final Long freshness;
-    private final Float reliability;
+    private Path path;
+    private Lang syntax;
+    private Long freshness;
+    private Float reliability;
 
     public DataSource(Path path, Lang syntax) {
         this.path = path;
@@ -44,10 +44,26 @@ public class DataSource {
 
     /**
      *
+     * @param path the path to set
+     */
+    protected void setPath(Path path) {
+        this.path = path;
+    }
+
+    /**
+     *
      * @return the syntax
      */
     public Lang getSyntax() {
         return syntax;
+    }
+
+    /**
+     *
+     * @param syntax the syntax to set
+     */
+    protected void setSyntax(Lang syntax) {
+        this.syntax = syntax;
     }
 
     /**
@@ -60,10 +76,26 @@ public class DataSource {
 
     /**
      *
+     * @param freshness the freshness to set
+     */
+    protected void setFreshness(Long freshness) {
+        this.freshness = freshness;
+    }
+
+    /**
+     *
      * @return the reliability
      */
     public Float getReliability() {
         return reliability;
+    }
+
+    /**
+     *
+     * @param reliability the reliability to set
+     */
+    protected void setReliability(Float reliability) {
+        this.reliability = reliability;
     }
 
 }
