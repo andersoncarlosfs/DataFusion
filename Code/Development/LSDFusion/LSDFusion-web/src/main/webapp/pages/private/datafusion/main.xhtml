@@ -20,8 +20,12 @@
                 <h:form id="mainForm">
                     <p:panel header="Settings">
                         <p:menu>
-                            <p:menuitem value="#{empty dataFusionBean.dataSources ? 'Add a data source' : 'Data sources'}" outcome="datasources/list" />
-                            <p:menuitem value="#{empty dataFusionBean.rules ? 'Add a rule' : 'Rules'}" outcome="rules/list" disabled="#{empty dataFusionBean.dataSources}" />
+                            <p:menuitem value="#{empty dataFusionBean.dataSources ? 'Add a data source' : 'Data sources'}" outcome="#{empty dataFusionBean.dataSources ? 'datasources/edit' : 'datasources/list'}">
+                                <f:actionListener binding="#{dataSourceBean.reset}" rendered="#{empty dataFusionBean.dataSources}" />
+                            </p:menuitem>
+                            <p:menuitem value="#{empty dataFusionBean.rules ? 'Add a rule' : 'Rules'}" outcome="#{empty dataFusionBean.dataSources ? 'rules/edit' : 'rules/list'}" disabled="#{empty dataFusionBean.dataSources}">
+                                <f:actionListener binding="#{ruleBean.reset}" rendered="#{empty dataFusionBean.rules}" />
+                            </p:menuitem>
                             <p:menuitem value="Duplicates" outcome="duplicates/list" />
                         </p:menu>                        
                     </p:panel>
