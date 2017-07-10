@@ -54,6 +54,7 @@ public class DataFusionBean {
         }
 
         /**
+         * 
          * @return the functions
          */
         private static final Collection<Function> getFunctions() {
