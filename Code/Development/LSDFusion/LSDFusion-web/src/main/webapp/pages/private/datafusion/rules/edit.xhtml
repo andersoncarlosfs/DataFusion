@@ -12,7 +12,11 @@
 
     <h:body>
 
-        <p:importConstants type="com.andersoncarlosfs.controller.DataFusionBean.Constants" var="Constants" />
+        <p:importConstants type="com.andersoncarlosfs.model.Constants" var="Constants" />
+        
+        <h:form rendered="#{empty dataFusionBean.rules}">
+            <p:remoteCommand actionListener="#{ruleBean.reset}" autoRun="#{empty dataFusionBean.rules}" />
+        </h:form>
 
         <pm:page id="edit">
             <pm:header title="Rule" swatch="b">
@@ -33,7 +37,7 @@
                             <p:outputLabel for="rulesFunctions" value="Functions" />
                             <p:selectCheckboxMenu id="rulesFunctions" label="Functions" required="true">
                                 <f:selectItem itemLabel="Functions" itemValue="" />
-                                <f:selectItems value="#{dataFusionBean.functions}" />
+                                <f:selectItems value="#{Constants.FUNCTIONS}" var="function" itemLabel="#{function.name()}" itemValue="#{function}" />
                             </p:selectCheckboxMenu>
                         </pm:field>       
                     </p:outputPanel>

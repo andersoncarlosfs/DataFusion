@@ -14,6 +14,10 @@
         
         <p:importConstants type="com.andersoncarlosfs.model.Constants" var="Constants" />
         
+        <h:form rendered="#{empty dataFusionBean.dataSources}">
+            <p:remoteCommand actionListener="#{dataSourceBean.reset}" autoRun="#{empty dataFusionBean.dataSources}" />
+        </h:form>
+        
         <pm:page id="edit">
             <pm:header title="Data source" swatch="b">
                 <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="#{empty dataFusionBean.dataSources ? '/pages/private/datafusion/main' : 'list'}" />
@@ -29,6 +33,7 @@
                         <pm:field>
                             <p:outputLabel for="dataSourcesSyntax" value="Syntax" />
                             <p:selectOneMenu id="dataSourcesSyntax" value="#{dataSourceBean.dataSource.syntax}" required="true">
+                                <f:selectItem itemLabel="Syntaxes" itemValue="" />
                                 <f:selectItems value="#{Constants.SYNTAXES}" var="syntax" itemLabel="#{syntax.getAltNames()}" itemValue="#{syntax}" />
                             </p:selectOneMenu>
                         </pm:field>
