@@ -8,16 +8,16 @@
 
     <f:view renderKitId="PRIMEFACES_MOBILE" />
 
+    <f:metadata rendered="#{empty dataFusionBean.dataSources}">
+        <f:viewAction action="#{dataSourceBean.reset}" immediate="true" />
+    </f:metadata>
+
     <h:head></h:head>
 
     <h:body>
-        
+
         <p:importConstants type="com.andersoncarlosfs.model.Constants" var="Constants" />
-        
-        <h:form rendered="#{empty dataFusionBean.dataSources}">
-            <p:remoteCommand actionListener="#{dataSourceBean.reset}" autoRun="#{empty dataFusionBean.dataSources}" />
-        </h:form>
-        
+
         <pm:page id="edit">
             <pm:header title="Data source" swatch="b">
                 <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="#{empty dataFusionBean.dataSources ? '/pages/private/datafusion/main' : 'list'}" />

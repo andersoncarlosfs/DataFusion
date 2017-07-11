@@ -8,15 +8,15 @@
 
     <f:view renderKitId="PRIMEFACES_MOBILE" />
 
+    <f:metadata rendered="#{empty dataFusionBean.rules}">
+        <f:viewAction action="#{ruleBean.reset}" immediate="true" />
+    </f:metadata>
+
     <h:head></h:head>
 
     <h:body>
 
         <p:importConstants type="com.andersoncarlosfs.model.Constants" var="Constants" />
-        
-        <h:form rendered="#{empty dataFusionBean.rules}">
-            <p:remoteCommand actionListener="#{ruleBean.reset}" autoRun="#{empty dataFusionBean.rules}" />
-        </h:form>
 
         <pm:page id="edit">
             <pm:header title="Rule" swatch="b">
