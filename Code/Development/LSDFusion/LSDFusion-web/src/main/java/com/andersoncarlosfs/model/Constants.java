@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import javax.faces.context.FacesContext;
 import org.apache.jena.riot.Lang;
 
 /**
@@ -19,39 +20,38 @@ import org.apache.jena.riot.Lang;
  */
 public final class Constants {
 
-        public static final Collection<Lang> SYNTAXES = getSyntaxes();
-        public static final Collection<Function> FUNCTIONS = getFunctions();
+    public static final Collection<Lang> SYNTAXES = getSyntaxes();
+    public static final Collection<Function> FUNCTIONS = getFunctions();
+    public static final String CONTEXT_NAME = FacesContext.getCurrentInstance().getExternalContext().getContextName();
 
-        /**
-         *
-         * @return
-         */
-        private static final Collection<Lang> getSyntaxes() {
+    /**
+     *
+     * @return
+     */
+    private static final Collection<Lang> getSyntaxes() {
 
-            Collection<Lang> syntaxes = new HashSet<>();
+        Collection<Lang> syntaxes = new HashSet<>();
 
-            for (Field field : Lang.class.getFields()) {
-                if (field.getType().equals(Lang.class)) {
-                    try {
-                        syntaxes.add((Lang) field.get(Lang.class));
-                    } catch (IllegalArgumentException exception) {
-                        //Logger.getLogger(DataSourceBean.class.getName()).log(Level.SEVERE, null, exception);
-                    } catch (IllegalAccessException exception) {
-                        //Logger.getLogger(DataSourceBean.class.getName()).log(Level.SEVERE, null, exception);
-                    }
+        for (Field field : Lang.class.getFields()) {
+            if (field.getType().equals(Lang.class)) {
+                try {
+                    syntaxes.add((Lang) field.get(Lang.class));
+                } catch (IllegalArgumentException | IllegalAccessException exception) {
+                    FacesContext.getCurrentInstance().getExternalContext().log(exception.getMessage(), exception);
                 }
             }
-
-            return Collections.unmodifiableCollection(syntaxes);
-
         }
 
-        /**
-         * 
-         * @return the functions
-         */
-        private static final Collection<Function> getFunctions() {
-            return Collections.unmodifiableCollection(Arrays.asList(Function.values()));
-        }
+        return Collections.unmodifiableCollection(syntaxes);
 
     }
+
+    /**
+     *
+     * @return the functions
+     */
+    private static final Collection<Function> getFunctions() {
+        return Collections.unmodifiableCollection(Arrays.asList(Function.values()));
+    }
+
+}

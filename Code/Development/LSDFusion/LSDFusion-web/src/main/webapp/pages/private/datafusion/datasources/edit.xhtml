@@ -23,12 +23,21 @@
                 <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="#{empty dataFusionBean.dataSources ? '/pages/private/datafusion/main' : 'list'}" />
                 <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Remove" icon="ui-icon-delete" rendered="#{not empty dataFusionBean.dataSources}" />
             </pm:header>             
-            <pm:content>                 
-                <h:form id="editForm">
+            <pm:content>     
+                <h:form rendered="#{empty dataSourceBean.file}">
+                    <p:outputPanel>
+                        <pm:field>
+                            <p:outputLabel for="dataSourcesFile" value="File" />
+                            <p:fileUpload id="dataSourcesFile" value="#{dataSourceBean.file}" mode="simple" required="true" />
+                        </pm:field>                 
+                    </p:outputPanel>
+                    <p:commandButton value="Upload" ajax="false" actionListener="#{dataSourceBean.upload}" />
+                </h:form>  
+                <h:form id="editForm" rendered="#{not empty dataSourceBean.file}">
                     <p:outputPanel id="editPanel">
                         <pm:field>
                             <p:outputLabel for="dataSourcesFile" value="File" />
-                            <p:fileUpload id="dataSourcesFile" mode="simple" required="true"/>
+                            <h:outputText id="dataSourcesFile" value="#{dataSourceBean.dataSource.path.FileName}"/>
                         </pm:field>
                         <pm:field>
                             <p:outputLabel for="dataSourcesSyntax" value="Syntax" />
@@ -39,14 +48,14 @@
                         </pm:field>
                         <pm:field>
                             <p:outputLabel for="dataSourcesReliability" value="Reliability" />
-                            <pm:inputSlider id="dataSourcesReliability" value="#{dataSourceBean.dataSource.reliability}"/>
+                            <pm:inputSlider id="dataSourcesReliability" value="#{dataSourceBean.dataSource.reliability}" />
                         </pm:field>                        
                         <pm:field>
                             <p:outputLabel for="dataSourcesFreshness" value="Freshness" />
-                            <p:calendar id="dataSourcesFreshness" navigator="true" pattern="dd/MM/yyyy"/>
+                            <p:calendar id="dataSourcesFreshness" navigator="true" pattern="dd/MM/yyyy" />
                         </pm:field>                        
                     </p:outputPanel>
-                    <p:commandButton value="Save" type="button"/>
+                    <p:commandButton value="Save" type="button" />
                 </h:form>                 
             </pm:content>
         </pm:page>
