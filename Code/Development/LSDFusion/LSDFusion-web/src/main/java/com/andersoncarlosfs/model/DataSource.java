@@ -14,8 +14,10 @@ import org.apache.jena.riot.Lang;
  */
 public class DataSource extends com.andersoncarlosfs.data.model.DataSource {
 
+    private final Float PERCENT = 100.0F;
+    
     public DataSource() {
-        super(null, Lang.RDFXML, null, 0.5F);
+        super(null, Lang.RDFXML, null, 50.0F);
     }
     
     @Override
@@ -34,8 +36,13 @@ public class DataSource extends com.andersoncarlosfs.data.model.DataSource {
     }
 
     @Override
+    public Float getReliability() {
+        return (super.getReliability() * PERCENT);
+    }
+    
+    @Override
     public void setReliability(Float reliability) {
-        super.setReliability(reliability); 
+        super.setReliability(reliability / PERCENT); 
     }
 
 }
