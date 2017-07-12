@@ -24,7 +24,7 @@
                 <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Remove" icon="ui-icon-delete" rendered="#{not empty dataFusionBean.dataSources}" />
             </pm:header>             
             <pm:content>     
-                <h:form rendered="#{empty dataSourceBean.file}">
+                <h:form enctype="multipart/form-data" rendered="#{empty dataSourceBean.file}">
                     <p:outputPanel>
                         <pm:field>
                             <p:outputLabel for="dataSourcesFile" value="File" />

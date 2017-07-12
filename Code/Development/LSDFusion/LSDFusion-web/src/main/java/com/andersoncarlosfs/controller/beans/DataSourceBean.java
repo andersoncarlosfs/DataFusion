@@ -6,15 +6,11 @@
 package com.andersoncarlosfs.controller.beans;
 
 import com.andersoncarlosfs.annotations.scopes.ApplicationScope;
-import com.andersoncarlosfs.model.Constants;
 import com.andersoncarlosfs.model.DataSource;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileAttribute;
+import java.nio.file.StandardCopyOption;
 import javax.faces.context.FacesContext;
-import org.apache.commons.io.FilenameUtils;
-import org.primefaces.model.DefaultUploadedFile;
 import org.primefaces.model.UploadedFile;
 
 /**
@@ -79,31 +75,13 @@ public class DataSourceBean {
      * @throws java.lang.Exception
      */
     public void upload() throws Exception {
-
-        FacesContext.getCurrentInstance().getExternalContext().log(file.getFileName());
-       
-        FacesContext.getCurrentInstance().getExternalContext().log(System.getProperty("java.io.tmpdir"));
         
-        String prefix = FilenameUtils.getBaseName(file.getFileName()); 
-        String suffix = FilenameUtils.getExtension(file.getFileName());
+        Path path = Files.createTempFile("-", file.getFileName());
         
-        file.write(prefix);
-        
-        DefaultUploadedFile
-        
-        Path file = Files.createTempFile(prefix, suffix);
-        
-        try (InputStream input = uploadedFile.getInputStream()) {
-    Files.copy(input, file, StandardCopyOption.REPLACE_EXISTING);
-}
-        
-        /*
-        Path path = Files.createTempFile(System.getProperty("java.io.tmpdir"), file.getFileName(), (FileAttribute<?>) null);
-/*
-        file.write(path.toString());
-
+        Files.copy(file.getInputstream(), path, StandardCopyOption.REPLACE_EXISTING);
+    
         dataSource.setPath(path);
-*/
+
     }
 
 }
