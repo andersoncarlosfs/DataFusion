@@ -6,6 +6,7 @@ import com.andersoncarlosfs.data.model.Rule;
 import com.andersoncarlosfs.data.model.assessments.DataFusionAssessment;
 import java.util.Collection;
 import java.util.HashSet;
+import javax.faces.context.FacesContext;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Statement;
@@ -106,6 +107,42 @@ public class DataFusionBean {
         duplicatesAllowed = false;
 
         assessment = null;
+
+    }
+
+    /**
+     *
+     * @param dataSource
+     * @return
+     */
+    public String save(DataSource dataSource) {
+
+        FacesContext.getCurrentInstance().getExternalContext().log(dataSource.toString());
+
+        if (dataSource == null || FacesContext.getCurrentInstance().isValidationFailed()) {
+            return null;
+        }
+
+        dataSources.add(dataSource);
+
+        return "/pages/private/datafusion/main";
+
+    }
+
+    /**
+     *
+     * @param rule
+     * @return
+     */
+    public String save(Rule rule) {
+
+        if (rule == null || FacesContext.getCurrentInstance().isValidationFailed()) {
+            return null;
+        }
+
+        rules.add(rule);
+
+        return "/pages/private/datafusion/main";
 
     }
 
