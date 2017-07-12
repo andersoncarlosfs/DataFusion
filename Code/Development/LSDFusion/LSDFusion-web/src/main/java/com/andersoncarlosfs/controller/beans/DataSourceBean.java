@@ -76,12 +76,20 @@ public class DataSourceBean {
      */
     public void upload() throws Exception {
         
-        Path path = Files.createTempFile("-", file.getFileName());
+        if (file.getSize() > 0) {
         
-        Files.copy(file.getInputstream(), path, StandardCopyOption.REPLACE_EXISTING);
-    
-        dataSource.setPath(path);
+            Path path = Files.createTempDirectory(null).resolve(file.getFileName());
+      
+            Files.copy(file.getInputstream(), path, StandardCopyOption.REPLACE_EXISTING);
 
+            dataSource.setPath(path);
+
+        } else {
+            
+            file = null;
+            
+        }
+        
     }
 
 }

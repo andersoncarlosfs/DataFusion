@@ -37,7 +37,7 @@
                     <p:outputPanel id="editPanel">
                         <pm:field>
                             <p:outputLabel for="dataSourcesFile" value="File" />
-                            <h:outputText id="dataSourcesFile" value="#{dataSourceBean.dataSource.path.FileName}"/>
+                            <h:outputText id="dataSourcesFile" value="#{dataSourceBean.dataSource.path.getFileName()}" />
                         </pm:field>
                         <pm:field>
                             <p:outputLabel for="dataSourcesSyntax" value="Syntax" />
