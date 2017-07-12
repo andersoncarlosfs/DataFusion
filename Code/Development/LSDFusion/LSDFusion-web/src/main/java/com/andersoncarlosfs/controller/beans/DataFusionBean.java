@@ -117,8 +117,6 @@ public class DataFusionBean {
      */
     public String save(DataSource dataSource) {
 
-        FacesContext.getCurrentInstance().getExternalContext().log(dataSource.toString());
-
         if (dataSource == null || FacesContext.getCurrentInstance().isValidationFailed()) {
             return null;
         }
