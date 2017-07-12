@@ -66,6 +66,8 @@ public class DataSourceBean {
 
         dataSource = new DataSource();
 
+        file = null;
+        
         return "edit";
 
     }

@@ -17,7 +17,7 @@ public class DataSource extends com.andersoncarlosfs.data.model.DataSource {
     private final Float PERCENT = 100.0F;
     
     public DataSource() {
-        super(null, Lang.RDFXML, null, 0.5F);
+        super(null, null, null, 0.5F);
     }
     
     @Override
