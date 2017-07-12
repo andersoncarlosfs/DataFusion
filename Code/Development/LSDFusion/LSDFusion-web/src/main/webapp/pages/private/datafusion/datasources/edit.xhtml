@@ -41,7 +41,7 @@
                         </pm:field>
                         <pm:field>
                             <p:outputLabel for="dataSourcesSyntax" value="Syntax" />
-                            <p:selectOneMenu id="dataSourcesSyntax" value="#{dataSourceBean.dataSource.syntax}" required="true">
+                            <p:selectOneMenu id="dataSourcesSyntax" value="#{dataSourceBean.dataSource.syntax}" required="true" converter="syntaxConverter">
                                 <f:selectItem itemLabel="Syntaxes" noSelectionOption="true" itemDisabled="true" />
                                 <f:selectItems value="#{Constants.SYNTAXES}" var="syntax" itemLabel="#{syntax.getAltNames()}" itemValue="#{syntax}" />
                             </p:selectOneMenu>
@@ -55,7 +55,7 @@
                             <p:calendar id="dataSourcesFreshness" navigator="true" pattern="dd/MM/yyyy" />
                         </pm:field>                        
                     </p:outputPanel>
-                    <p:commandButton value="Save" type="button" />
+                    <p:commandButton value="Save" action="#{dataFusionBean.save(dataSourceBean.dataSource)}" />
                 </h:form>                 
             </pm:content>
         </pm:page>
