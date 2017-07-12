@@ -19,7 +19,7 @@ import org.apache.jena.riot.Lang;
  *
  * @author anderson
  */
-public class Converters {
+public abstract class ConstantConverters {
 
     /**
      *

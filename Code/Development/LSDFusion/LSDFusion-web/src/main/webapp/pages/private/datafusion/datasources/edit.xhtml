@@ -52,7 +52,7 @@
                         </pm:field>                        
                         <pm:field>
                             <p:outputLabel for="dataSourcesFreshness" value="Freshness" />
-                            <p:calendar id="dataSourcesFreshness" navigator="true" pattern="dd/MM/yyyy" />
+                            <p:calendar id="dataSourcesFreshness" value="#{dataSourceBean.dataSource.date}" navigator="true" pattern="dd/MM/yyyy" />
                         </pm:field>                        
                     </p:outputPanel>
                     <p:commandButton value="Save" action="#{dataFusionBean.save(dataSourceBean.dataSource)}" />

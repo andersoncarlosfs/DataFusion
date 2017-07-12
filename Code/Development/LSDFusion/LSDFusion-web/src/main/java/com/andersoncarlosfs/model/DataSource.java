@@ -6,6 +6,7 @@
 package com.andersoncarlosfs.model;
 
 import java.nio.file.Path;
+import java.util.Date;
 import org.apache.jena.riot.Lang;
 
 /**
@@ -15,34 +16,44 @@ import org.apache.jena.riot.Lang;
 public class DataSource extends com.andersoncarlosfs.data.model.DataSource {
 
     private final Float PERCENT = 100.0F;
-    
+
     public DataSource() {
         super(null, null, null, 0.5F);
     }
-    
+
     @Override
     public void setPath(Path path) {
-        super.setPath(path); 
+        super.setPath(path);
     }
 
     @Override
     public void setSyntax(Lang syntax) {
-        super.setSyntax(syntax); 
+        super.setSyntax(syntax);
     }
 
-    @Override
-    public void setFreshness(Long freshness) {
-        super.setFreshness(freshness); 
+    public Date getDate() {
+        if (super.getFreshness() == null) {
+            return null;
+        }
+        return new Date(super.getFreshness());
+    }
+
+    public void setDate(Date freshness) {
+        if (freshness == null) {
+            super.setFreshness(null);
+        } else {
+            super.setFreshness(freshness.getTime());
+        }
     }
 
     @Override
     public Float getReliability() {
         return (super.getReliability() * PERCENT);
     }
-    
+
     @Override
     public void setReliability(Float reliability) {
-        super.setReliability(reliability / PERCENT); 
+        super.setReliability(reliability / PERCENT);
     }
 
 }

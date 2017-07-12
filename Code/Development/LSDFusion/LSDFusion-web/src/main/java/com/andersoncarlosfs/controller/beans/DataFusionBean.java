@@ -112,33 +112,32 @@ public class DataFusionBean {
 
     /**
      *
-     * @param dataSource
+     * @param object
      * @return
      */
-    public String save(DataSource dataSource) {
+    public String save(Object object) {
 
-        if (dataSource == null || FacesContext.getCurrentInstance().isValidationFailed()) {
+        if (object == null || FacesContext.getCurrentInstance().isValidationFailed()) {
             return null;
         }
 
-        dataSources.add(dataSource);
+        try {
+            
+            if (object instanceof DataSource) {
+                dataSources.add((DataSource) object);
+            }
 
-        return "/pages/private/datafusion/main";
-
-    }
-
-    /**
-     *
-     * @param rule
-     * @return
-     */
-    public String save(Rule rule) {
-
-        if (rule == null || FacesContext.getCurrentInstance().isValidationFailed()) {
+            if (object instanceof Rule) {
+                rules.add((Rule) object);
+            }
+            
+        } catch (ClassCastException exception) {
+            
+            FacesContext.getCurrentInstance().getExternalContext().log(exception.getMessage(), exception);
+            
             return null;
+            
         }
-
-        rules.add(rule);
 
         return "/pages/private/datafusion/main";
 
