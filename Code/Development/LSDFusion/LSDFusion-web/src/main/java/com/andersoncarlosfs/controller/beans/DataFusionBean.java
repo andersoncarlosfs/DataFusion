@@ -142,5 +142,38 @@ public class DataFusionBean {
         return "/pages/private/datafusion/main";
 
     }
+    
+    /**
+     *
+     * @param object
+     * @return
+     */
+    public String remove(Object object) {
+
+        if (object == null || FacesContext.getCurrentInstance().isValidationFailed()) {
+            return null;
+        }
+
+        try {
+            
+            if (object instanceof DataSource) {
+                dataSources.add((DataSource) object);
+            }
+
+            if (object instanceof Rule) {
+                rules.add((Rule) object);
+            }
+            
+        } catch (ClassCastException exception) {
+            
+            FacesContext.getCurrentInstance().getExternalContext().log(exception.getMessage(), exception);
+            
+            return null;
+            
+        }
+
+        return "/pages/private/datafusion/main";
+
+    }
 
 }

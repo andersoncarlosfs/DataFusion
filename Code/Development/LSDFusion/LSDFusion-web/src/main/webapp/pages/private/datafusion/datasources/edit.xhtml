@@ -21,7 +21,7 @@
         <pm:page id="edit">
             <pm:header title="Data source" swatch="b">
                 <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="#{empty dataFusionBean.dataSources ? '/pages/private/datafusion/main' : 'list'}" />
-                <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Remove" icon="ui-icon-delete" rendered="#{not empty dataFusionBean.dataSources}" />
+                <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Remove" icon="ui-icon-delete" action="#{dataFusionBean.remove(dataSourceBean.dataSource)}" rendered="#{not empty dataFusionBean.dataSources}" />
             </pm:header>             
             <pm:content>     
                 <h:form enctype="multipart/form-data" rendered="#{empty dataSourceBean.file}">
