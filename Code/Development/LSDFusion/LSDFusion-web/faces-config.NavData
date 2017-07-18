@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scene Scope="Project" version="2">
     <Scope Scope="Faces Configuration Only"/>
-    <Scope Scope="Project"/>
+    <Scope Scope="Project">
+        <Node id="pages/private/datafusion/datasources/edit.xhtml" x="969" y="135" zoom="true"/>
+        <Node id="pages/private/datafusion/rules/edit.xhtml" x="1121" y="256" zoom="true"/>
+        <Node id="pages/private/datafusion/rules/list.xhtml" x="1027" y="521" zoom="true"/>
+        <Node id="pages/private/datafusion/duplicates/list.xhtml" x="524" y="59" zoom="true"/>
+        <Node id="pages/private/datafusion/datasources/list.xhtml" x="740" y="398" zoom="false"/>
+        <Node id="pages/private/datafusion/main.xhtml" x="114" y="446" zoom="false"/>
+    </Scope>
     <Scope Scope="All Faces Configurations"/>
 </Scene>
