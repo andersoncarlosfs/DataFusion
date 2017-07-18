@@ -12,6 +12,7 @@ package com.andersoncarlosfs.model.enums;
 public enum Action {
 
     CREATE,
+    UPDATE,
     DELETE
 
 }

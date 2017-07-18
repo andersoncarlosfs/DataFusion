@@ -5,6 +5,7 @@ import com.andersoncarlosfs.controller.util.Notificator;
 import com.andersoncarlosfs.model.DataSource;
 import com.andersoncarlosfs.data.model.Rule;
 import com.andersoncarlosfs.data.model.assessments.DataFusionAssessment;
+import com.andersoncarlosfs.model.enums.Action;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
@@ -100,24 +101,76 @@ public class DataFusionBean {
      * @return
      */
     public String save(Object object) {
-
-        if (object == null || FacesContext.getCurrentInstance().isValidationFailed()) {
+        return persist(Action.UPDATE, object);
+    }
+    
+    /**
+     *
+     * @param object
+     * @return
+     */
+    public String remove(Object object) {
+        return persist(Action.DELETE, object);
+    }
+    
+    /**
+     * 
+     * @param action
+     * @param object
+     * @return 
+     */
+    private String persist(Action action, Object object) {
+        
+        if (FacesContext.getCurrentInstance().isValidationFailed()) {
             return null;
         }
+        
+        Collection collection = null;
+        
+        if (object instanceof DataSource) {
+                
+            DataSource dataSource = (DataSource) object;
+                
+            if (dataSource.getDate() != null && Calendar.getInstance().getTime().before(dataSource.getDate())) {
+                    
+                String message = "Freshness: Validation Warning: Date is in the future";
+                    
+                Notificator.addWarningMessage(message, message);
+                    
+            }
+                
+            collection = dataSources;
+                
+        }
 
-        try {
+        if (object instanceof Rule) {
             
-            if (object instanceof DataSource) {
+            collection = rules;
+            
+        }   
+        
+        
+        if (collection == object) {
+            
+            String message = "Object: Persistance Error: Object is null";           
+            
+            Notificator.addErrorMessage(message, message);
+            
+            return null;
+            
+        }
+        
+        try {
+          
+            switch (action) {
                 
-                DataSource dataSource = (DataSource) object;
+                case CREATE:
                 
-                if (dataSource.getDate() != null && Calendar.getInstance().getTime().before(dataSource.getDate())) {
-                    Notificator.addWarningMessage("Freshness: Validation Warning: Date is in the future", "Freshness: Validation Warning: Date is in the future");
-                }
-                
-                if (!dataSources.contains(dataSource)) {
-                  
-                    try {
+                case UPDATE:
+                    
+                    if (object instanceof DataSource && !dataSources.contains(object)) {
+                        
+                        DataSource dataSource = (DataSource) object;
                         
                         Model model = RDFDataMgr.loadModel(dataSource.getPath().toString(), dataSource.getSyntax());
                     
@@ -132,31 +185,68 @@ public class DataFusionBean {
                             properties.add(property);
 
                         }
-
-                    } catch (RiotException exception) {
                         
-                        String message = "File: Internal Error: File is unreadable";
-                        
-                        String details = "Please, check the file contents and syntax";
-
-                        Notificator.addErrorMessage(message, details);
-
-                        Notificator.log(message, exception);
-                        
-                        return null;
-                        
-                    } 
+                    }
                     
-                    dataSources.add(dataSource);
+                    collection.add(object);
+                
+                    break;
+                
+                case DELETE:
                     
-                }        
+                    collection.remove(object);
+                    
+                    if (object instanceof DataSource) {
+                        
+                        dataSources.clear();
+                        
+                        for (DataSource dataSource : dataSources) {
+                            
+                            Model model = RDFDataMgr.loadModel(dataSource.getPath().toString(), dataSource.getSyntax());
+                    
+                            StmtIterator iterator = model.listStatements();
+
+                            while (iterator.hasNext()) {
+
+                                Statement statement = iterator.next();
+
+                                Property property = statement.getPredicate();
+
+                                properties.add(property);
+
+                            }
+                            
+                        }
+                        
+                    }
+                    
+                    break;
+                    
+                default:
+                    
+                    String message = "Object: Internal Error: Action is undefined";
+                        
+                    String details = "Please, contact the administrator";
+
+                    Notificator.addErrorMessage(message, details);
+                        
+                    return null;
                 
             }
 
-            if (object instanceof Rule) {
-                rules.add((Rule) object);
-            }
-            
+        } catch (RiotException exception) {
+                        
+            String message = "File: Internal Error: File is unreadable";
+                        
+            String details = "Please, check the file contents and syntax";
+
+            Notificator.addErrorMessage(message, details);
+
+            Notificator.log(message, exception);
+                        
+            return null;
+                                   
+ 
         } catch (ClassCastException exception) {
             
             StringBuilder message = new StringBuilder(object.getClass().getSimpleName());
@@ -173,43 +263,10 @@ public class DataFusionBean {
             
             return null;
             
-        }
+        } 
 
-        return "/pages/private/datafusion/main";
-
-    }
-    
-    /**
-     *
-     * @param object
-     * @return
-     */
-    public String remove(Object object) {
-
-        if (object == null || FacesContext.getCurrentInstance().isValidationFailed()) {
-            return null;
-        }
-
-        try {
-            
-            if (object instanceof DataSource) {
-                dataSources.add((DataSource) object);
-            }
-
-            if (object instanceof Rule) {
-                rules.add((Rule) object);
-            }
-            
-        } catch (ClassCastException exception) {
-            
-            FacesContext.getCurrentInstance().getExternalContext().log(exception.getMessage(), exception);
-            
-            return null;
-            
-        }
-
-        return "/pages/private/datafusion/main";
-
+        return collection.isEmpty() ? "/pages/private/datafusion/main" : "list";
+        
     }
 
 }
