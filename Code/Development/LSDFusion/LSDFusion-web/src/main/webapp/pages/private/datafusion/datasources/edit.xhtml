@@ -8,7 +8,7 @@
 
     <f:view renderKitId="PRIMEFACES_MOBILE" />
 
-    <f:metadata rendered="#{empty dataFusionBean.dataSources}">
+    <f:metadata rendered="#{empty dataSourceBean.dataSource}">
         <f:viewAction action="#{dataSourceBean.reset}" immediate="true" />
     </f:metadata>
 
@@ -21,11 +21,11 @@
         <pm:page id="edit">
             <pm:header title="Data source" swatch="b">
                 <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="#{empty dataFusionBean.dataSources ? '/pages/private/datafusion/main' : 'list'}" />
-                <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Remove" icon="ui-icon-delete" action="#{dataFusionBean.remove(dataSourceBean.dataSource)}" rendered="#{not empty dataFusionBean.dataSources}" />
+                <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Remove" icon="ui-icon-delete" action="#{dataFusionBean.remove(dataSourceBean.dataSource)}" rendered="#{dataFusionBean.dataSources.contains(dataSourceBean.dataSource)}" />
             </pm:header>             
             <pm:content>     
                 
-                <h:form enctype="multipart/form-data" rendered="#{empty dataSourceBean.file}">
+                <h:form enctype="multipart/form-data" rendered="#{empty dataSourceBean.dataSource.path}">
                    
                     <p:outputPanel>
                         <pm:field>
@@ -34,11 +34,11 @@
                         </pm:field>                 
                     </p:outputPanel>
                    
-                    <p:commandButton value="Upload" ajax="false" actionListener="#{dataSourceBean.upload}" />
+                    <p:commandButton value="Upload" actionListener="#{dataSourceBean.upload}" ajax="false" />
                 
                 </h:form>  
                
-                <h:form id="editForm" rendered="#{not empty dataSourceBean.file}">
+                <h:form id="editForm" rendered="#{not empty dataSourceBean.dataSource.path}">
                     
                     <p:growl id="growl" showDetail="true" />
                     
