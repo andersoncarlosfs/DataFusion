@@ -8,8 +8,8 @@
 
     <f:view renderKitId="PRIMEFACES_MOBILE" />
 
-    <f:metadata rendered="#{empty dataSourceBean.dataSource}">
-        <f:viewAction action="#{dataSourceBean.reset}" immediate="true" />
+    <f:metadata>
+        <f:viewAction action="#{dataSourceBean.reset}" immediate="true" if="#{empty dataSourceBean.dataSource}" />
     </f:metadata>
 
     <h:head></h:head>

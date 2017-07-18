@@ -23,7 +23,7 @@
                     <p:commandButton value="Add" action="#{dataSourceBean.reset}" rendered="#{empty dataFusionBean.dataSources}" />
                     
                     <p:dataList id="dataSourcesList" value="#{dataFusionBean.dataSources}" var="dataSource" pt:data-inset="true">
-                        <p:commandLink value="File: #{dataSource.path.fileName} Syntax: #{dataSource.syntax.name}" action="edit">
+                        <p:commandLink value="File: #{dataSource.path.fileName} Syntax: #{dataSource.syntax.name}" action="edit?faces-redirect=true">
                             <f:setPropertyActionListener value="#{dataSource}" target="#{dataSourceBean.dataSource}" />           
                         </p:commandLink> 
                     </p:dataList>

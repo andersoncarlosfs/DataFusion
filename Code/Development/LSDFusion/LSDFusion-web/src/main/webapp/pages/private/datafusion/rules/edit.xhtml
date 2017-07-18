@@ -8,8 +8,8 @@
 
     <f:view renderKitId="PRIMEFACES_MOBILE" />
 
-    <f:metadata rendered="#{empty dataFusionBean.rules}">
-        <f:viewAction action="#{ruleBean.reset}" immediate="true" />
+    <f:metadata>
+        <f:viewAction action="#{ruleBean.reset}" immediate="true" if="#{empty ruleBean.rule}" />
     </f:metadata>
 
     <h:head></h:head>
