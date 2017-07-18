@@ -24,16 +24,24 @@
                 <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Remove" icon="ui-icon-delete" action="#{dataFusionBean.remove(dataSourceBean.dataSource)}" rendered="#{not empty dataFusionBean.dataSources}" />
             </pm:header>             
             <pm:content>     
+                
                 <h:form enctype="multipart/form-data" rendered="#{empty dataSourceBean.file}">
+                   
                     <p:outputPanel>
                         <pm:field>
                             <p:outputLabel for="dataSourcesFile" value="File" />
                             <p:fileUpload id="dataSourcesFile" value="#{dataSourceBean.file}" mode="simple" required="true" />
                         </pm:field>                 
                     </p:outputPanel>
+                   
                     <p:commandButton value="Upload" ajax="false" actionListener="#{dataSourceBean.upload}" />
+                
                 </h:form>  
+               
                 <h:form id="editForm" rendered="#{not empty dataSourceBean.file}">
+                    
+                    <p:growl id="growl" showDetail="true" />
+                    
                     <p:outputPanel id="editPanel">
                         <pm:field>
                             <p:outputLabel for="dataSourcesFile" value="File" />
@@ -41,7 +49,7 @@
                         </pm:field>
                         <pm:field>
                             <p:outputLabel for="dataSourcesSyntax" value="Syntax" />
-                            <p:selectOneMenu id="dataSourcesSyntax" value="#{dataSourceBean.dataSource.syntax}" required="true" converter="syntaxConverter">
+                            <p:selectOneMenu id="dataSourcesSyntax" value="#{dataSourceBean.dataSource.syntax}" required="true" converter="syntaxConverter" requiredMessage="Syntax: Validation Error: Syntax is required">
                                 <f:selectItem itemLabel="Syntaxes" noSelectionOption="true" itemDisabled="true" />
                                 <f:selectItems value="#{Constants.SYNTAXES}" var="syntax" itemLabel="#{syntax.getAltNames()}" itemValue="#{syntax}" />
                             </p:selectOneMenu>
@@ -52,11 +60,14 @@
                         </pm:field>                        
                         <pm:field>
                             <p:outputLabel for="dataSourcesFreshness" value="Freshness" />
-                            <p:calendar id="dataSourcesFreshness" value="#{dataSourceBean.dataSource.date}" navigator="true" pattern="dd/MM/yyyy" />
+                            <p:calendar id="dataSourcesFreshness" value="#{dataSourceBean.dataSource.date}" showTodayButton="true" navigator="true" pattern="dd/MM/yyyy" />
                         </pm:field>                        
                     </p:outputPanel>
-                    <p:commandButton value="Save" action="#{dataFusionBean.save(dataSourceBean.dataSource)}" />
-                </h:form>                 
+                    
+                    <p:commandButton value="Save" action="#{dataFusionBean.save(dataSourceBean.dataSource)}" update="growl" />
+                    
+                </h:form> 
+                
             </pm:content>
         </pm:page>
 
