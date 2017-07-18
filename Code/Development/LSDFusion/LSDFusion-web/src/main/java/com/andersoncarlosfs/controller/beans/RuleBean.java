@@ -76,7 +76,7 @@ public class RuleBean {
         functions = null;
         properties = null;
 
-        return "edit";
+        return "edit?faces-redirect=true";
 
     }
 

@@ -265,7 +265,7 @@ public class DataFusionBean {
             
         } 
 
-        return collection.isEmpty() ? "/pages/private/datafusion/main" : "list";
+        return collection.isEmpty() ? "/pages/private/datafusion/main?faces-redirect=true" : "list?faces-redirect=true";
         
     }
 

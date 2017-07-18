@@ -22,7 +22,7 @@
                         <p:menu>
                             <p:menuitem value="#{empty dataFusionBean.dataSources ? 'Add a data source' : 'Data sources'}" outcome="#{empty dataFusionBean.dataSources ? 'datasources/edit' : 'datasources/list'}" />
                             <p:menuitem value="#{empty dataFusionBean.rules ? 'Add a rule' : 'Rules'}" outcome="#{empty dataFusionBean.rules ? 'rules/edit' : 'rules/list'}" disabled="#{empty dataFusionBean.dataSources}" />
-                            <p:menuitem value="Duplicates" outcome="duplicates/list" />
+                            <p:menuitem value="Duplicates" outcome="duplicates/edit" />
                         </p:menu>                        
                     </p:panel>
                     <p:commandButton value="Process" type="button" disabled="#{empty dataFusionBean.rules}" rendered="#{not dataFusionBean.assessment}" />

@@ -25,6 +25,9 @@
             </pm:header>             
             <pm:content>                 
                 <h:form id="editForm">
+                   
+                    <p:growl id="growl" showDetail="true" />
+                    
                     <p:outputPanel id="editPanel">
                         <pm:field>
                             <p:outputLabel for="rulesProperties" value="Properties" />
@@ -41,7 +44,9 @@
                             </p:selectCheckboxMenu>
                         </pm:field>       
                     </p:outputPanel>
-                    <p:commandButton value="Save" type="button"/>
+                    
+                    <p:commandButton value="Save" action="#{dataFusionBean.save(dataSourceBean.dataSource)}" update="growl" />
+                    
                 </h:form>                 
             </pm:content>
         </pm:page>

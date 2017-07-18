@@ -18,12 +18,18 @@
             </pm:header>             
             <pm:content>                 
                 <h:form id="editForm">
+                    
+                    <p:growl id="growl" showDetail="true" />
+                    
                     <p:outputPanel id="editPanel">
                         <pm:field>
                             <p:outputLabel for="duplicatesAllowed" value="Duplicates is allowed" />
-                            <p:inputSwitch value="#{dataFusionBean.duplicatesAllowed}" id="duplicatesAllowed" />
+                            <p:inputSwitch value="#{dataFusionBean.duplicatesAllowed}" id="duplicatesAllowed" required="true"  />
                         </pm:field>
                     </p:outputPanel>
+                    
+                    <p:commandButton value="Save" action="/pages/private/datafusion/main?faces-redirect=true" update="growl" />
+                    
                 </h:form>                 
             </pm:content>
         </pm:page>

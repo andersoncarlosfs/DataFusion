@@ -67,7 +67,7 @@ public class DataSourceBean {
 
         file = null;
         
-        return "edit";
+        return "edit?faces-redirect=true";
 
     }
 
