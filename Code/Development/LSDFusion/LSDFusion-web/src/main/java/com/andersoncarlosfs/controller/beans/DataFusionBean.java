@@ -1,6 +1,7 @@
 package com.andersoncarlosfs.controller.beans;
 
 import com.andersoncarlosfs.annotations.scopes.ApplicationScope;
+import com.andersoncarlosfs.controller.ConstantConverters;
 import com.andersoncarlosfs.controller.util.Notificator;
 import com.andersoncarlosfs.model.DataSource;
 import com.andersoncarlosfs.data.model.Rule;
@@ -10,6 +11,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import javax.faces.context.FacesContext;
+import javax.faces.convert.FacesConverter;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Statement;
@@ -267,6 +269,19 @@ public class DataFusionBean {
 
         return collection.isEmpty() ? "/pages/private/datafusion/main?faces-redirect=true" : "list?faces-redirect=true";
         
+    }
+    
+    /**
+     *
+     */
+    @FacesConverter(value = "propertyConverter")
+    public class PropertyConverter extends ConstantConverters.AbstractConverter<Property> {
+
+        @Override
+        protected Collection<Property> getCollection() {
+            return properties;
+        }
+
     }
 
 }

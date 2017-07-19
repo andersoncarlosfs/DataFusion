@@ -25,7 +25,7 @@ public abstract class ConstantConverters {
      *
      * @param <T>
      */
-    private static abstract class AbstractConverter<T> implements Converter {
+    public static abstract class AbstractConverter<T> implements Converter {
 
         protected abstract Collection<T> getCollection();
 
