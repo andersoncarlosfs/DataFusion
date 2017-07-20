@@ -29,6 +29,7 @@ public class Rule extends com.andersoncarlosfs.data.model.Rule {
     }
 
     /**
+     * 
      * @param functions the functions to set
      */
     @Override
