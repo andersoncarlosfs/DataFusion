@@ -159,7 +159,7 @@ public class DataFusionProcessor {
      * @throws IOException
      * @throws java.lang.CloneNotSupportedException
      */
-    public DataFusionProcessor(Collection<DataSource> dataSources, Collection<Rule> rules, boolean duplicatesAllowed) throws IOException, CloneNotSupportedException {
+    public DataFusionProcessor(Collection<? extends DataSource> dataSources, Collection<Rule> rules, boolean duplicatesAllowed) throws IOException, CloneNotSupportedException {
         // Rules processing
         DisjointMap<Property, Collection<Function>> parameters = new DisjointMap<>();
 
@@ -582,7 +582,7 @@ public class DataFusionProcessor {
 
     }
 
-    public static DataFusionAssessment process(Collection<DataSource> dataSources, Collection<Rule> rules, boolean duplicatesAllowed) throws IOException, CloneNotSupportedException {
+    public static DataFusionAssessment process(Collection<? extends DataSource> dataSources, Collection<Rule> rules, boolean duplicatesAllowed) throws IOException, CloneNotSupportedException {
         return new DataFusionProcessor(dataSources, rules, true).data;
     }
 
