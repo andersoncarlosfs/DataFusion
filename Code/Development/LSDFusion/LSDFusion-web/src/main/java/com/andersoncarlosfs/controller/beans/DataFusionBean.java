@@ -30,7 +30,7 @@ public class DataFusionBean {
 
     private final Collection<DataSource> dataSources = new HashSet<>();
     
-    private final Collection<Property> properties = new HashSet<>();
+    private static final Collection<Property> properties = new HashSet<>();
     
     private final Collection<Rule> rules = new HashSet<>();
 
@@ -308,7 +308,7 @@ public class DataFusionBean {
      *
      */
     @FacesConverter(value = "propertyConverter")
-    public class PropertyConverter extends ConstantConverters.AbstractConverter<Property> {
+    public static class PropertyConverter extends ConstantConverters.AbstractConverter<Property> {
 
         @Override
         protected Collection<Property> getCollection() {
