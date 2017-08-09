@@ -21,6 +21,14 @@ public class DataSource extends com.andersoncarlosfs.data.model.DataSource {
         super(null, null, null, 0.5F);
     }
 
+    public DataSource(Path path, Lang syntax) {
+        super(path, syntax);
+    }
+
+    public DataSource(Path path, Lang syntax, Long freshness, Float reliability) {
+        super(path, syntax, freshness, reliability);
+    }
+
     @Override
     public void setPath(Path path) {
         super.setPath(path);

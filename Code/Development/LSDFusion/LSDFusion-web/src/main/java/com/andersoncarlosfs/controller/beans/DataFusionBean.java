@@ -3,13 +3,17 @@ package com.andersoncarlosfs.controller.beans;
 import com.andersoncarlosfs.annotations.scopes.ApplicationScope;
 import com.andersoncarlosfs.controller.ConstantConverters;
 import com.andersoncarlosfs.controller.util.Notificator;
+import com.andersoncarlosfs.data.integration.processors.DataFusionProcessor;
 import com.andersoncarlosfs.model.DataSource;
 import com.andersoncarlosfs.data.model.Rule;
 import com.andersoncarlosfs.data.model.assessments.DataFusionAssessment;
 import com.andersoncarlosfs.model.enums.Action;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.FacesConverter;
 import org.apache.jena.rdf.model.Model;
@@ -113,6 +117,19 @@ public class DataFusionBean {
      */
     public String remove(Object object) {
         return persist(Action.DELETE, object);
+    }
+    
+    /**
+     *
+     * 
+     * @return 
+     */
+    public String process() {
+        
+        assessment = DataFusionProcessor.process(dataSources, rules, duplicatesAllowed);
+        
+                    return "/pages/private/datafusion/classes/list?faces-redirect=true";
+        
     }
     
     /**

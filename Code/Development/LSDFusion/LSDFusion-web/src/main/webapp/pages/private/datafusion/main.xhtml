@@ -25,7 +25,7 @@
                             <p:menuitem value="Duplicates" outcome="duplicates/edit" />
                         </p:menu>                        
                     </p:panel>
-                    <p:commandButton value="Process" type="button" disabled="#{empty dataFusionBean.rules}" rendered="#{not dataFusionBean.assessment}" />
+                    <p:commandButton value="Process" action="#{dataFusionBean.process()}" disabled="#{empty dataFusionBean.rules}" rendered="#{not dataFusionBean.assessment}" />
                 </h:form>
             </pm:content>
         </pm:page>
