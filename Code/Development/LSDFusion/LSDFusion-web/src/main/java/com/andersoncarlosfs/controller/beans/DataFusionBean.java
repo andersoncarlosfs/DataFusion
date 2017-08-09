@@ -12,8 +12,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.FacesConverter;
 import org.apache.jena.rdf.model.Model;
@@ -127,7 +125,7 @@ public class DataFusionBean {
     public String process() {
         
         try {
-            
+             
             assessment = DataFusionProcessor.process(dataSources, rules, duplicatesAllowed);
             
         } catch (IOException | CloneNotSupportedException exception) {

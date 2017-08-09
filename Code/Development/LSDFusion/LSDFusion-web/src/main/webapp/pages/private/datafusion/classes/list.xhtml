@@ -17,11 +17,11 @@
                 <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="/pages/private/datafusion/main" />
             </pm:header>             
             <pm:content>
-                <h:form id="listForm">
+                <h:form id="listForm" rendered="#{not empty dataFusionBean.assessment}">
                    
-                    <p:dataList id="dataSourcesList" value="#{dataFusionBean.rules}" var="rule" pt:data-inset="true">
-                        <p:commandLink value="Properties: #{rule.properties} Functions: #{rule.functions}" action="edit?faces-redirect=true">
-                            <f:setPropertyActionListener value="#{rule}" target="#{ruleBean.rule}" />           
+                    <p:dataList id="dataSourcesList" value="#{dataFusionBean.assessment.computedDataQualityAssessment.entrySet()}" var="class" pt:data-inset="true">
+                        <p:commandLink value="Class #{class.key}" action="edit?faces-redirect=true">
+                            <f:setPropertyActionListener value="#{class}" target="#{ruleBean.rule}" />           
                         </p:commandLink> 
                     </p:dataList>
                     
