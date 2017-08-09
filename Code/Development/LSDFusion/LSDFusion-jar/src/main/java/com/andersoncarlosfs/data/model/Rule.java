@@ -16,8 +16,8 @@ import org.apache.jena.rdf.model.Property;
  */
 public class Rule {
 
-    private final Collection<Function> functions;
-    private final Collection<Property> properties;
+    private Collection<Function> functions;
+    private Collection<Property> properties;
 
     public Rule() {
         this.functions = new HashSet<>();
@@ -36,6 +36,14 @@ public class Rule {
     public Collection<Function> getFunctions() {
         return functions;
     }
+    
+    /**
+     *
+     * @param functions the functions to set
+     */
+    protected void setFunctions(Collection<Function> functions) {
+        this.functions = functions;
+    }
 
     /**
      *
@@ -43,6 +51,14 @@ public class Rule {
      */
     public Collection<Property> getProperties() {
         return properties;
+    }
+    
+    /**
+     *
+     * @param properties the properties to set
+     */
+    protected void setProperties(Collection<Property> properties) {
+        this.properties = properties;
     }
 
 }
