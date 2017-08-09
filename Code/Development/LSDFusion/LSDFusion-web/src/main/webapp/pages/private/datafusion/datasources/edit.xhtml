@@ -64,7 +64,7 @@
                         </pm:field>                        
                     </p:outputPanel>
                     
-                    <p:commandButton value="Save" action="#{dataFusionBean.save(dataSourceBean.dataSource)}" update="growl" />
+                    <p:commandButton value="Save" action="#{dataFusionBean.save(dataSourceBean.dataSource)}" update="growl" disabled="#{not empty dataFusionBean.assessment}" />
                     
                 </h:form> 
                 

@@ -126,9 +126,25 @@ public class DataFusionBean {
      */
     public String process() {
         
-        assessment = DataFusionProcessor.process(dataSources, rules, duplicatesAllowed);
+        try {
+            
+            assessment = DataFusionProcessor.process(dataSources, rules, duplicatesAllowed);
+            
+        } catch (IOException | CloneNotSupportedException exception) {
+
+            String message = "Assessment: Internal Error: Error is unknown";
+                        
+            String details = "Please, contact the administrator";
+
+            Notificator.addErrorMessage(message, details);
+            
+            Notificator.log(message, exception);
+                        
+            return null;
+            
+        }
         
-                    return "/pages/private/datafusion/classes/list?faces-redirect=true";
+        return "/pages/private/datafusion/classes/list?faces-redirect=true";
         
     }
     
@@ -274,9 +290,11 @@ public class DataFusionBean {
                 message.append("Object");
             }
             
-            message.append(": Persistance Error: Object is unknown");           
+            message.append(": Persistance Error: Object is unknown");     
             
-            Notificator.addErrorMessage(message.toString(), message.toString());
+            String details = "Please, contact the administrator";
+            
+            Notificator.addErrorMessage(message.toString(), details);
             
             Notificator.log(message.toString(), exception);
             

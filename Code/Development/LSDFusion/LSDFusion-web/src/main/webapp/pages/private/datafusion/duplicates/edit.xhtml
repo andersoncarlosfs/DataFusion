@@ -28,7 +28,7 @@
                         </pm:field>
                     </p:outputPanel>
                     
-                    <p:commandButton value="Save" action="/pages/private/datafusion/main?faces-redirect=true" update="growl" />
+                    <p:commandButton value="Save" action="/pages/private/datafusion/main?faces-redirect=true" update="growl" disabled="#{not empty dataFusionBean.assessment}" />
                     
                 </h:form>                 
             </pm:content>
