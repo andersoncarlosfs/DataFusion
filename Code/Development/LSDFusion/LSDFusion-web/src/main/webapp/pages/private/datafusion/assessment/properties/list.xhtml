@@ -15,7 +15,7 @@
         <pm:page id="list">
             <pm:header title="Properties" swatch="b">
                 <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="/pages/private/datafusion/assessment/classes/list" />
-                <p:button styleClass="ui-btn-right ui-btn-inline" value="Class" icon="ui-icon-search" outcome="/pages/private/datafusion/assessment/equivalenceClass/list" />
+                <p:button styleClass="ui-btn-right ui-btn-inline" value="Class" icon="ui-icon-search" outcome="/pages/private/datafusion/assessment/equivalenceClass/list" rendered="#{not empty dataQualityAssessmentBean.assessment and not empty dataQualityAssessmentBean.equivalenceClass}" />
             </pm:header>             
             <pm:content>
                 <h:form id="listForm" rendered="#{not empty dataQualityAssessmentBean.assessment and not empty dataQualityAssessmentBean.equivalenceClass}">
