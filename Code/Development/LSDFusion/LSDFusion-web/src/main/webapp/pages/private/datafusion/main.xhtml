@@ -15,7 +15,7 @@
         <pm:page id="mainPage">
             <pm:header title="Data fusion" swatch="b">
                 <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Reset" actionListener="#{dataFusionBean.reset}" update="@all" icon="ui-icon-refresh">
-                    <p:ajax listener="#{dataFusionAssessmentBean.reset()}" />
+                    <p:ajax listener="#{dataQualityAssessmentBean.reset()}" />
                     <p:ajax listener="#{dataSourceBean.reset()}" />
                     <p:ajax listener="#{ruleBean.reset()}" />
                 </p:commandButton> 
