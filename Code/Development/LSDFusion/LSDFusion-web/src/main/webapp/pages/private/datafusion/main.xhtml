@@ -14,7 +14,11 @@
 
         <pm:page id="mainPage">
             <pm:header title="Data fusion" swatch="b">
-                <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Reset" actionListener="#{dataFusionBean.reset}" icon="ui-icon-refresh" />
+                <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Reset" actionListener="#{dataFusionBean.reset}" update="@all" icon="ui-icon-refresh">
+                    <f:actionListener binding="#{dataFusionAssessmentBean.reset()}" />
+                    <f:actionListener binding="#{dataSourceBean.reset()}" />
+                    <f:actionListener binding="#{ruleBean.reset()}" />
+                </p:commandButton> 
             </pm:header>
             <pm:content>
                 <h:form id="mainForm">
@@ -25,8 +29,12 @@
                             <p:menuitem value="Duplicates" outcome="duplicates/edit" />
                         </p:menu>                        
                     </p:panel>
-                    <p:commandButton value="Process" action="#{dataFusionBean.process()}" disabled="#{empty dataFusionBean.rules}" rendered="#{empty dataFusionBean.assessment}" />
-                    <p:button value="Assessment" outcome="classes/list" rendered="#{not empty dataFusionBean.assessment}" />
+                    <p:commandButton value="Process" action="#{dataFusionBean.process()}" disabled="#{empty dataFusionBean.rules}" rendered="#{empty dataFusionBean.assessment}">
+                        <f:setPropertyActionListener value="#{dataFusionBean.assessment}" target="#{dataFusionAssessmentBean.assessment}" />           
+                    </p:commandButton> 
+                    <p:commandButton value="Assessment" action="classes/list?faces-redirect=true" rendered="#{not empty dataFusionBean.assessment}">
+                        <f:setPropertyActionListener value="#{dataFusionBean.assessment}" target="#{dataFusionAssessmentBean.assessment}" />           
+                    </p:commandButton> 
                 </h:form>
             </pm:content>
         </pm:page>
