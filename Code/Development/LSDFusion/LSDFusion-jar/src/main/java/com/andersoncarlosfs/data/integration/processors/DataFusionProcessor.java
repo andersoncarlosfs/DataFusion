@@ -85,13 +85,13 @@ public class DataFusionProcessor {
         public Float getFreshness() {
             Float value = null;
             for (DataSource d : dataSources) {
-                if (d.getReliability() == null) {
+                if (d.getFreshness() == null) {
                     continue;
                 }
                 if (value == null) {
-                    value = d.getReliability();
+                    value = d.getFreshness().floatValue();
                 }
-                value = Math.min(value, d.getReliability());
+                value = Math.min(value, d.getFreshness());
             }
             return value;
         }
