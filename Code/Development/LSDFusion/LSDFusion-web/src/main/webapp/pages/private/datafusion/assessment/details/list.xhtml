@@ -48,7 +48,7 @@
                                 </pm:field>
                             </p:outputPanel>
                         </p:tab>
-                        <p:tab title="More precise">
+                        <p:tab title="More precise" rendered="#{not empty dataQualityAssessmentBean.details.morePrecise}">
                             <p:dataList id="dataSourcesList" value="#{dataQualityAssessmentBean.details.morePrecise}" var="value" pt:data-inset="true">                                
                                 <h:outputText value = "#{value}" />                       
                             </p:dataList>
