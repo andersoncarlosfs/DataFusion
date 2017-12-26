@@ -19,7 +19,6 @@
             <pm:content>
                 <h:form id="listForm" rendered="#{not empty dataQualityAssessmentBean.assessment and not empty dataQualityAssessmentBean.details}">
 
-
                     <p:accordionPanel>
                         <p:tab title="Scores">
                             <p:outputPanel>
@@ -50,7 +49,7 @@
                             </p:outputPanel>
                         </p:tab>
                         <p:tab title="More precise">
-                            <p:dataList id="dataSourcesList" value="#{dataQualityAssessmentBean.morePrecise}" var="value" pt:data-inset="true">                        
+                            <p:dataList id="dataSourcesList" value="#{dataQualityAssessmentBean.details.morePrecise}" var="value" pt:data-inset="true">                        
                                 <f:facet name="header">More precise</f:facet>
                                 <h:outputText value = "#{value}" />                       
                             </p:dataList>
