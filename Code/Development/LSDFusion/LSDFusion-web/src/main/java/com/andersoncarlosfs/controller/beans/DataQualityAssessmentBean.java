@@ -16,14 +16,14 @@ import org.apache.jena.rdf.model.RDFNode;
  * @author Anderson Carlos Ferreira da Silva
  */
 @ApplicationScope
-public class DataFusionAssessmentBean {
+public class DataQualityAssessmentBean {
 
     private DataFusionAssessment assessment;
     private Collection<RDFNode> equivalenceClass;
     private Collection<RDFNode> equivalenceClassProperties;
     private DataQualityAssessment details;
 
-    public DataFusionAssessmentBean() {
+    public DataQualityAssessmentBean() {
     }
 
     /**
