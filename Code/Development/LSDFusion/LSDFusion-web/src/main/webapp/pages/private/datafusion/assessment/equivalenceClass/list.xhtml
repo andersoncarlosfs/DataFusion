@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pm="http://primefaces.org/mobile">
+
+    <f:view renderKitId="PRIMEFACES_MOBILE" />
+
+    <h:head></h:head>
+
+    <h:body>
+
+        <pm:page id="list">
+            <pm:header title="Equivalence class" swatch="b">
+                <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="/pages/private/datafusion/assessment/properties/list" />                
+            </pm:header>             
+            <pm:content>
+                <h:form id="listForm" rendered="#{not empty dataFusionAssessmentBean.assessment and not empty dataFusionAssessmentBean.equivalenceClass}">
+
+                    <p:dataList id="dataSourcesList" value="#{dataFusionAssessmentBean.equivalenceClass}" var="subject" pt:data-inset="true">
+                        <h:outputText value = "#{subject}" />
+                    </p:dataList>
+
+                </h:form>
+            </pm:content>
+        </pm:page>        
+
+    </h:body>
+
+</html>

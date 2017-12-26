@@ -14,17 +14,17 @@
 
         <pm:page id="list">
             <pm:header title="Classes" swatch="b">
-                <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="/pages/private/datafusion/classes/list" />
+                <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="/pages/private/datafusion/main" />
             </pm:header>             
             <pm:content>
                 <h:form id="listForm" rendered="#{not empty dataFusionAssessmentBean.assessment}">
-                   
-                    <p:dataList id="dataSourcesList" value="#{dataFusionAssessmentBean.equivalenceClasses}" var="class" pt:data-inset="true">
-                        <p:commandLink value="Class #{class.key}" action="/pages/private/datafusion/properties/list?faces-redirect=true">
+
+                    <p:dataList id="dataSourcesList" value="#{dataFusionAssessmentBean.classes}" var="class" pt:data-inset="true">
+                        <p:commandLink value="Class: #{class}" action="/pages/private/datafusion/assessment/properties/list?faces-redirect=true">
                             <f:setPropertyActionListener value="#{class}" target="#{dataFusionAssessmentBean.equivalenceClass}" />           
                         </p:commandLink> 
                     </p:dataList>
-                    
+
                 </h:form>
             </pm:content>
         </pm:page>        
