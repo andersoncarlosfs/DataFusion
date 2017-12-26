@@ -7,7 +7,9 @@ package com.andersoncarlosfs.controller.beans;
 
 import com.andersoncarlosfs.annotations.scopes.ApplicationScope;
 import com.andersoncarlosfs.data.model.assessments.DataFusionAssessment;
+import com.andersoncarlosfs.data.model.assessments.DataQualityAssessment;
 import java.util.Collection;
+import java.util.Map;
 import org.apache.jena.rdf.model.RDFNode;
 
 /**
@@ -19,6 +21,7 @@ public class DataFusionAssessmentBean {
 
     private DataFusionAssessment assessment;
     private Collection<RDFNode> equivalenceClass;
+    private Collection<RDFNode> equivalenceClassProperties;
 
     public DataFusionAssessmentBean() {
     }
@@ -42,10 +45,10 @@ public class DataFusionAssessmentBean {
     /**
      *
      */
-    public Collection<Collection<RDFNode>> getEquivalenceClasses() {
+    public Collection<Collection<RDFNode>> getClasses() {
         return assessment.getComputedDataQualityAssessment().keySet();
     }
-    
+
     /**
      *
      */
@@ -69,12 +72,34 @@ public class DataFusionAssessmentBean {
 
     /**
      *
+     */
+    public Collection<RDFNode> getEquivalenceClassProperties() {
+        return equivalenceClassProperties;
+    }
+
+    /**
+     *
+     */
+    public void setEquivalenceClassProperties(Collection<RDFNode> equivalenceClassProperties) {
+        this.equivalenceClassProperties = equivalenceClassProperties;
+    }
+
+    /**
+     *
+     */
+    public Map<RDFNode, DataQualityAssessment> getValues() {
+        return assessment.getComputedDataQualityAssessment().get(equivalenceClass).get(equivalenceClassProperties);
+    }
+
+    /**
+     *
      * @return
      */
     public void reset() {
 
         assessment = null;
         equivalenceClass = null;
+        equivalenceClassProperties = null;
 
     }
 
