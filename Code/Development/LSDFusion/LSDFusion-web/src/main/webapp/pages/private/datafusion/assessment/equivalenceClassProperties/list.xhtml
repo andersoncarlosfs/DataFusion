@@ -17,9 +17,9 @@
                 <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="/pages/private/datafusion/assessment/values/list" />                
             </pm:header>             
             <pm:content>
-                <h:form id="listForm" rendered="#{not empty dataFusionAssessmentBean.assessment and not empty dataFusionAssessmentBean.equivalenceClassProperties}">
+                <h:form id="listForm" rendered="#{not empty dataQualityAssessmentBean.assessment and not empty dataQualityAssessmentBean.equivalenceClassProperties}">
 
-                    <p:dataList id="dataSourcesList" value="#{dataFusionAssessmentBean.equivalenceClassProperties}" var="predicate" pt:data-inset="true">
+                    <p:dataList id="dataSourcesList" value="#{dataQualityAssessmentBean.equivalenceClassProperties}" var="predicate" pt:data-inset="true">
                         <h:outputText value = "#{predicate}" />
                     </p:dataList>
 

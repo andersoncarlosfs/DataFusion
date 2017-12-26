@@ -18,11 +18,11 @@
                 <p:button styleClass="ui-btn-right ui-btn-inline" value="Class" icon="ui-icon-search" outcome="/pages/private/datafusion/assessment/equivalenceClass/list" />
             </pm:header>             
             <pm:content>
-                <h:form id="listForm" rendered="#{not empty dataFusionAssessmentBean.assessment and not empty dataFusionAssessmentBean.equivalenceClass}">
+                <h:form id="listForm" rendered="#{not empty dataQualityAssessmentBean.assessment and not empty dataQualityAssessmentBean.equivalenceClass}">
 
-                    <p:dataList id="dataSourcesList" value="#{dataFusionAssessmentBean.properties}" var="properties" pt:data-inset="true">                        
+                    <p:dataList id="dataSourcesList" value="#{dataQualityAssessmentBean.properties}" var="properties" pt:data-inset="true">                        
                         <p:commandLink value="Properties #{properties}" action="/pages/private/datafusion/assessment/values/list?faces-redirect=true">
-                            <f:setPropertyActionListener value="#{properties}" target="#{dataFusionAssessmentBean.equivalenceClassProperties}" />           
+                            <f:setPropertyActionListener value="#{properties}" target="#{dataQualityAssessmentBean.equivalenceClassProperties}" />           
                         </p:commandLink>                         
                     </p:dataList>
 
