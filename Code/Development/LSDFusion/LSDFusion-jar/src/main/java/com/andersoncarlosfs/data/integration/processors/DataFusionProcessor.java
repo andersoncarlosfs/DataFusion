@@ -119,6 +119,11 @@ public class DataFusionProcessor {
         }
 
         @Override
+        public Float getScore() {
+            return DataQualityAssessment.super.getScore(); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
         public Float getTrustiness() {
             return trustiness;
         }
