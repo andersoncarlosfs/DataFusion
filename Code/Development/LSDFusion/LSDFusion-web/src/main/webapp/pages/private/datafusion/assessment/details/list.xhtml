@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pm="http://primefaces.org/mobile">
+
+    <f:view renderKitId="PRIMEFACES_MOBILE" />
+
+    <h:head></h:head>
+
+    <h:body>
+
+        <pm:page id="list">
+            <pm:header title="Details" swatch="b">
+                <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="/pages/private/datafusion/assessment/details/list" />                
+            </pm:header>             
+            <pm:content>
+                <h:form id="listForm" rendered="#{not empty dataFusionAssessmentBean.assessment and not empty dataFusionAssessmentBean.details}">
+
+
+                    <p:accordionPanel>
+                        <p:tab title="Scores">
+                            <p:outputPanel>
+                                <pm:field>
+                                    <p:outputLabel for="frequency" value="Frequency" />
+                                    <h:outputText id="frequency" value="#{dataFusionAssessmentBean.details.frequency}" />
+                                </pm:field>
+                                <pm:field>
+                                    <p:outputLabel for="homogeneity" value="Homogeneity" />
+                                    <h:outputText id="homogeneity" value="#{dataFusionAssessmentBean.details.homogeneity}" />
+                                </pm:field>
+                                <pm:field>
+                                    <p:outputLabel for="reliability" value="Reliability" />
+                                    <h:outputText id="reliability" value="#{dataFusionAssessmentBean.details.reliability}" />
+                                </pm:field>
+                                <pm:field>
+                                    <p:outputLabel for="freshness" value="Freshness" />
+                                    <h:outputText id="freshness" value="#{dataFusionAssessmentBean.details.freshness}" />
+                                </pm:field>
+                                <pm:field>
+                                    <p:outputLabel for="freshness" value="Freshness" />
+                                    <h:outputText id="freshness" value="#{dataFusionAssessmentBean.details.freshness}" />
+                                </pm:field>
+                                <pm:field>
+                                    <p:outputLabel for="trustiness" value="Trustiness" />
+                                    <h:outputText id="trustiness" value="#{dataFusionAssessmentBean.details.trustiness}" />
+                                </pm:field>
+                                <pm:field>
+                                    <p:outputLabel for="score" value="Score" />
+                                    <h:outputText id="score" value="#{dataFusionAssessmentBean.details.score}" />
+                                </pm:field>
+                            </p:outputPanel>
+                        </p:tab>
+                        <p:tab title="More precise">
+                            <p:dataList id="dataSourcesList" value="#{dataFusionAssessmentBean.morePrecise}" var="value" pt:data-inset="true">                        
+                                <f:facet name="header">More precise</f:facet>
+                                <h:outputText value = "#{value}" />                       
+                            </p:dataList>
+                        </p:tab>                        
+                    </p:accordionPanel>
+
+                </h:form>
+            </pm:content>
+        </pm:page>        
+
+    </h:body>
+
+</html>
