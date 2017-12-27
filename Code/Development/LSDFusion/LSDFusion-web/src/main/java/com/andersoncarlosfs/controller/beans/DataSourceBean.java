@@ -10,6 +10,11 @@ import com.andersoncarlosfs.model.DataSource;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Collection;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.convert.Converter;
+import javax.faces.convert.FacesConverter;
 import org.primefaces.model.UploadedFile;
 
 /**
@@ -66,7 +71,7 @@ public class DataSourceBean {
         dataSource = new DataSource();
 
         file = null;
-        
+
         return "edit?faces-redirect=true";
 
     }
@@ -76,21 +81,39 @@ public class DataSourceBean {
      * @throws java.lang.Exception
      */
     public void upload() throws Exception {
-        
+
         if (file.getSize() > 0) {
-        
+
             Path path = Files.createTempDirectory(null).resolve(file.getFileName());
-      
+
             Files.copy(file.getInputstream(), path, StandardCopyOption.REPLACE_EXISTING);
 
             dataSource.setPath(path);
 
         } else {
-            
+
             file = null;
-            
+
         }
-        
+
+    }
+
+    /**
+     *
+     */
+    @FacesConverter(value = "reliabilityConverter")
+    public static class ReliabilityConverter implements Converter {
+
+        @Override
+        public Object getAsObject(FacesContext context, UIComponent component, String value) {            
+            return new Float(value) / 100;
+        }
+
+        @Override
+        public String getAsString(FacesContext context, UIComponent component, Object value) {
+            return Float.toString((Float) value * 100);
+        }
+
     }
 
 }

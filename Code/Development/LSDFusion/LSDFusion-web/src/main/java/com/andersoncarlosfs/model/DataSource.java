@@ -52,4 +52,14 @@ public class DataSource extends com.andersoncarlosfs.data.model.DataSource {
         }
     }
 
+    @Override
+    public Float getReliability() {
+        return super.getReliability();
+    }
+
+    @Override
+    public void setReliability(Float reliability) {
+        super.setReliability(reliability);
+    }
+
 }
