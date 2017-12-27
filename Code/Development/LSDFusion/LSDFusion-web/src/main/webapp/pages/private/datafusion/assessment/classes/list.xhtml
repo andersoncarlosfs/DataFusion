@@ -15,6 +15,11 @@
         <pm:page id="list">
             <pm:header title="Classes" swatch="b">
                 <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="/pages/private/datafusion/main" />
+                <h:form>
+                    <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Download" ajax="false" icon="ui-icon-disk">
+                        <p:fileDownload value="#{dataQualityAssessmentBean.file}" />
+                    </p:commandButton>
+                </h:form>
             </pm:header>             
             <pm:content>
                 <h:form id="listForm" rendered="#{not empty dataQualityAssessmentBean.assessment}">
