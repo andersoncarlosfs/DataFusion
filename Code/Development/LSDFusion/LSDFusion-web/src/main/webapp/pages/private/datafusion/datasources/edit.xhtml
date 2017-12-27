@@ -56,7 +56,7 @@
                         </pm:field>
                         <pm:field>
                             <p:outputLabel for="dataSourcesReliability" value="Reliability" />
-                            <pm:inputSlider id="dataSourcesReliability" value="#{dataSourceBean.dataSource.reliability}" />
+                            <pm:inputSlider id="dataSourcesReliability" value="#{dataSourceBean.dataSource.reliability * 100}" />
                         </pm:field>                        
                         <pm:field>
                             <p:outputLabel for="dataSourcesFreshness" value="Freshness" />
