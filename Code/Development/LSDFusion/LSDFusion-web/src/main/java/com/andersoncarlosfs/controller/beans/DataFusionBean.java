@@ -29,9 +29,9 @@ import org.apache.jena.riot.RiotException;
 public class DataFusionBean {
 
     private final Collection<DataSource> dataSources = new HashSet<>();
-    
+
     private static final Collection<Property> properties = new HashSet<>();
-    
+
     private final Collection<Rule> rules = new HashSet<>();
 
     private boolean duplicatesAllowed;
@@ -107,7 +107,7 @@ public class DataFusionBean {
     public String save(Object object) {
         return persist(Action.UPDATE, object);
     }
-    
+
     /**
      *
      * @param object
@@ -116,97 +116,96 @@ public class DataFusionBean {
     public String remove(Object object) {
         return persist(Action.DELETE, object);
     }
-    
+
     /**
      *
-     * 
-     * @return 
+     *
+     * @return
      */
     public String process() {
-        
+
         try {
-             
+
             assessment = DataFusionProcessor.process(dataSources, rules, duplicatesAllowed);
-            
+
         } catch (IOException | CloneNotSupportedException exception) {
 
             String message = "Assessment: Internal Error: Error is unknown";
-                        
+
             String details = "Please, contact the administrator";
 
             Notificator.addErrorMessage(message, details);
-            
+
             Notificator.log(message, exception);
-                        
+
             return null;
-            
+
         }
-        
+
         return "/pages/private/datafusion/classes/list?faces-redirect=true";
-        
+
     }
-    
+
     /**
-     * 
+     *
      * @param action
      * @param object
-     * @return 
+     * @return
      */
     private String persist(Action action, Object object) {
-        
+
         if (FacesContext.getCurrentInstance().isValidationFailed()) {
             return null;
         }
-        
+
         Collection collection = null;
-        
+
         if (object instanceof DataSource) {
-                
+
             DataSource dataSource = (DataSource) object;
-                
+
             if (dataSource.getDate() != null && Calendar.getInstance().getTime().before(dataSource.getDate())) {
-                    
+
                 String message = "Freshness: Validation Warning: Date is in the future";
-                    
+
                 Notificator.addWarningMessage(message, message);
-                    
+
             }
-                
+
             collection = dataSources;
-                
+
         }
 
         if (object instanceof Rule) {
-            
+
             collection = rules;
-            
-        }   
-        
-        
-        if (collection == object) {
-            
-            String message = "Object: Persistance Error: Object is null";           
-            
-            Notificator.addErrorMessage(message, message);
-            
-            return null;
-            
+
         }
-        
+
+        if (collection == object) {
+
+            String message = "Object: Persistance Error: Object is null";
+
+            Notificator.addErrorMessage(message, message);
+
+            return null;
+
+        }
+
         try {
-          
+
             switch (action) {
-                
+
                 case CREATE:
-                
+
                 case UPDATE:
-                    
+
                     if (object instanceof DataSource && !dataSources.contains(object)) {
-                        
+
                         DataSource dataSource = (DataSource) object;
-                        
+
                         Model model = RDFDataMgr.loadModel(dataSource.getPath().toString(), dataSource.getSyntax());
-                    
+
                         StmtIterator iterator = model.listStatements();
 
                         while (iterator.hasNext()) {
@@ -218,25 +217,25 @@ public class DataFusionBean {
                             properties.add(property);
 
                         }
-                        
+
                     }
-                    
+
                     collection.add(object);
-                
+
                     break;
-                
+
                 case DELETE:
-                    
+
                     collection.remove(object);
-                    
+
                     if (object instanceof DataSource) {
-                        
-                        dataSources.clear();
-                        
+
+                        properties.clear();
+
                         for (DataSource dataSource : dataSources) {
-                            
+
                             Model model = RDFDataMgr.loadModel(dataSource.getPath().toString(), dataSource.getSyntax());
-                    
+
                             StmtIterator iterator = model.listStatements();
 
                             while (iterator.hasNext()) {
@@ -248,62 +247,66 @@ public class DataFusionBean {
                                 properties.add(property);
 
                             }
-                            
+
                         }
-                        
+
+                        ((DataSource) object).setPath(null);
+                        ((DataSource) object).setSyntax(null);
+                        ((DataSource) object).setDate(null);
+                        ((DataSource) object).setReliability(0.5F);
+
                     }
-                    
+
                     break;
-                    
+
                 default:
-                    
+
                     String message = "Object: Internal Error: Action is undefined";
-                        
+
                     String details = "Please, contact the administrator";
 
                     Notificator.addErrorMessage(message, details);
-                        
+
                     return null;
-                
+
             }
 
         } catch (RiotException exception) {
-                        
+
             String message = "File: Internal Error: File is unreadable";
-                        
+
             String details = "Please, check the file contents and syntax";
 
             Notificator.addErrorMessage(message, details);
 
             Notificator.log(message, exception);
-                        
+
             return null;
-                                   
- 
+
         } catch (ClassCastException exception) {
-            
+
             StringBuilder message = new StringBuilder(object.getClass().getSimpleName());
-            
+
             if (message.toString().isEmpty()) {
                 message.append("Object");
             }
-            
-            message.append(": Persistance Error: Object is unknown");     
-            
+
+            message.append(": Persistance Error: Object is unknown");
+
             String details = "Please, contact the administrator";
-            
+
             Notificator.addErrorMessage(message.toString(), details);
-            
+
             Notificator.log(message.toString(), exception);
-            
+
             return null;
-            
-        } 
+
+        }
 
         return collection.isEmpty() ? "/pages/private/datafusion/main?faces-redirect=true" : "list?faces-redirect=true";
-        
+
     }
-    
+
     /**
      *
      */
