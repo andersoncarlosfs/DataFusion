@@ -7,6 +7,7 @@ package com.andersoncarlosfs.parser;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -37,9 +38,9 @@ public class Dataset {
                 if (triple.length >= 2 && triple.length <= 3) {
                     n3++;
                     if (triple[2].matches("([\\\"'])(?:\\\\\\1|.)*?\\1")) {
-                        writer.write("<" + prefix[1] + triple[0] + ">\t<" + prefix[2] + triple[1] + ">\t" + triple[2] + "\t.\n");
+                        writer.write("<" + prefix[1] + URLEncoder.encode(triple[0], charset.name()) + ">\t<" + prefix[2] + URLEncoder.encode(triple[1], charset.name()) + ">\t" + triple[2] + "\t.\n");
                     } else {
-                        writer.write("<" + prefix[1] + triple[0] + ">\t<" + prefix[2] + triple[1] + ">\t<" + prefix[1] + triple[2] + ">\t.\n");
+                        writer.write("<" + prefix[1] + URLEncoder.encode(triple[0], charset.name()) + ">\t<" + prefix[2] + URLEncoder.encode(triple[1], charset.name()) + ">\t<" + prefix[1] + URLEncoder.encode(triple[2], charset.name()) + ">\t.\n");
                     }
                 }
             }
