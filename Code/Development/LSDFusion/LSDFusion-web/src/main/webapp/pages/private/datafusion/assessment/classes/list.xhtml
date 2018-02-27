@@ -25,7 +25,7 @@
                 <h:form id="listForm" rendered="#{not empty dataQualityAssessmentBean.assessment}">
 
                     <p:dataList id="dataSourcesList" value="#{dataQualityAssessmentBean.classes}" var="class" pt:data-inset="true">
-                        <p:commandLink value="Class: #{class}" action="/pages/private/datafusion/assessment/properties/list?faces-redirect=true" rendered="#{class.size gt 1}">
+                        <p:commandLink value="Class: #{class}" action="/pages/private/datafusion/assessment/properties/list?faces-redirect=true" rendered="#{class.size() gt 1}">
                             <f:setPropertyActionListener value="#{class}" target="#{dataQualityAssessmentBean.equivalenceClass}" />           
                         </p:commandLink> 
                     </p:dataList>
