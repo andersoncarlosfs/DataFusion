@@ -19,9 +19,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.LiteralRequiredException;
 import org.apache.jena.rdf.model.Model;
@@ -593,6 +595,35 @@ public class DataFusionProcessor {
             data.values.put(subjects, summary);
 
         }
+        
+        // Ordering the values
+        Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> values = new HashMap<>();
+        
+        for (Entry<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> value : data.values.entrySet()) {
+             
+            Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>> summary = new HashMap<>();                    
+            
+            for (Entry<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>> complement : value.getValue().entrySet()) {
+                
+                List<Map.Entry<RDFNode, DataQualityAssessment>> list = new LinkedList<>(complement.getValue().entrySet());
+                
+                Collections.sort(list, comparator);
+                
+                Map<RDFNode, DataQualityAssessment> objects = new LinkedHashMap<>();
+                
+                for (Entry<RDFNode, DataQualityAssessment> entry : list) {
+                    objects.put(entry.getKey(), entry.getValue());
+                }
+                
+                summary.put(complement.getKey(), objects);
+                
+            }
+                    
+            values.put(value.getKey(), summary);
+            
+        }
+        
+        data.values = values;
 
     }
 
