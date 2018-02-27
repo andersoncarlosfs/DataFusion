@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -154,6 +155,13 @@ public class DataFusionProcessor {
     }
 
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
+    
+    private static final Comparator comparator = new Comparator<Map.Entry<RDFNode, DataQualityAssessment>>() {
+        @Override
+        public int compare(Entry<RDFNode, DataQualityAssessment> o1, Entry<RDFNode, DataQualityAssessment> o2) {
+            return o1.getValue().getScore().compareTo(o2.getValue().getScore());
+        }
+    };
 
     private DataFusionInformation data = new DataFusionInformation();
 
@@ -340,7 +348,7 @@ public class DataFusionProcessor {
 
                     Map<RDFNode, Map<DataSource, Integer>> classe_subject_predicate_objects = classe_subject_predicate.getValue();
 
-                    classe_complements.putIfAbsent(current_predicate, new TreeMap<>());
+                    classe_complements.putIfAbsent(current_predicate, new TreeMap<>(comparator));
 
                     // Grouping the predicates
                     if (parameters.getOrDefault(current_predicate, Collections.EMPTY_SET).contains(Function.MAP)) {
