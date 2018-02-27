@@ -348,7 +348,7 @@ public class DataFusionProcessor {
 
                     Map<RDFNode, Map<DataSource, Integer>> classe_subject_predicate_objects = classe_subject_predicate.getValue();
 
-                    classe_complements.putIfAbsent(current_predicate, new TreeMap<>(comparator));
+                    classe_complements.putIfAbsent(current_predicate, new HashMap<>());
 
                     // Grouping the predicates
                     if (parameters.getOrDefault(current_predicate, Collections.EMPTY_SET).contains(Function.MAP)) {
