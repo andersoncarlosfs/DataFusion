@@ -32,14 +32,14 @@
                         <pm:field>
                             <p:outputLabel for="rulesProperties" value="Properties" />
                             <p:selectCheckboxMenu id="rulesProperties" value="#{ruleBean.rule.properties}" label="Properties" converter="propertyConverter" required="true">   
-                                <f:selectItem itemLabel="Properties" noSelectionOption="true" />
+                                <f:selectItem itemLabel="Properties" itemValue="" noSelectionOption="true" />
                                 <f:selectItems value="#{dataFusionBean.properties}" />
                             </p:selectCheckboxMenu>
                         </pm:field>       
                         <pm:field>
                             <p:outputLabel for="rulesFunctions" value="Functions" />
                             <p:selectCheckboxMenu id="rulesFunctions" value="#{ruleBean.rule.functions}" label="Functions" converter="functionConverter" required="true">
-                                <f:selectItem itemLabel="Functions" itemValue="" />
+                                <f:selectItem itemLabel="Functions" itemValue="" noSelectionOption="true" />
                                 <f:selectItems value="#{Constants.FUNCTIONS}" var="function" itemLabel="#{function.name()}" itemValue="#{function}" />
                             </p:selectCheckboxMenu>
                         </pm:field>       

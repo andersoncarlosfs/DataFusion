@@ -11,6 +11,7 @@ import com.andersoncarlosfs.data.model.assessments.DataQualityAssessment;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import org.apache.jena.rdf.model.Model;
@@ -31,6 +32,7 @@ import org.primefaces.model.StreamedContent;
 public class DataQualityAssessmentBean {
 
     private DataFusionAssessment assessment;
+    private Collection<Collection<RDFNode>> classes;
     private Collection<RDFNode> equivalenceClass;
     private Collection<RDFNode> equivalenceClassProperties;
     private DataQualityAssessment details;
@@ -52,15 +54,32 @@ public class DataQualityAssessmentBean {
      * @param assessment the assessment to set
      */
     public void setAssessment(DataFusionAssessment assessment) throws Exception {
+        
         this.assessment = assessment;
+        
         setFile();
     }
 
     /**
+     * 
+     */
+    private void setClasses(){
+        
+        classes = new ArrayList<>();
+        
+        for (Collection<RDFNode> collection : assessment.getComputedDataQualityAssessment().keySet()) {
+            if (collection.size() > 1) {
+                classes.add(collection);
+            }
+        }
+        
+    }
+    
+    /**
      *
      */
-    public Collection<Collection<RDFNode>> getClasses() {
-        return assessment.getComputedDataQualityAssessment().keySet();
+    public Collection<Collection<RDFNode>> getClasses() {               
+        return classes; 
     }
 
     /**
