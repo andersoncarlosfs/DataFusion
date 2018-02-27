@@ -161,7 +161,7 @@ public class DataFusionProcessor {
     private static final Comparator comparator = new Comparator<Map.Entry<RDFNode, DataQualityAssessment>>() {
         @Override
         public int compare(Entry<RDFNode, DataQualityAssessment> o1, Entry<RDFNode, DataQualityAssessment> o2) {
-            return o1.getValue().getScore().compareTo(o2.getValue().getScore());
+            return o2.getValue().getScore().compareTo(o1.getValue().getScore());
         }
     };
 

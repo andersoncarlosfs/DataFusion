@@ -13,14 +13,14 @@
     <h:body>
 
         <pm:page id="list">
-            <pm:header title="Values" swatch="b">
+            <pm:header title="#{dataQualityAssessmentBean.equivalenceClassProperties}" swatch="b">
                 <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="/pages/private/datafusion/assessment/properties/list" />                
             </pm:header>             
             <pm:content>
                 <h:form id="listForm" rendered="#{not empty dataQualityAssessmentBean.assessment and not empty dataQualityAssessmentBean.equivalenceClassProperties}">
 
                     <p:dataList id="dataSourcesList" value="#{dataQualityAssessmentBean.values}" var="value" pt:data-inset="true">                        
-                        <p:commandLink value="Values: #{value}" actionListener="#{dataQualityAssessmentBean.setDetails(value)}" action="/pages/private/datafusion/assessment/details/list?faces-redirect=true" />                        
+                        <p:commandLink value="Values: #{value}" actionListener="#{dataQualityAssessmentBean.setValue(value)}" action="/pages/private/datafusion/assessment/details/list?faces-redirect=true" />                        
                     </p:dataList>
 
                 </h:form>

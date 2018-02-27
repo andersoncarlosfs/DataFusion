@@ -35,6 +35,7 @@ public class DataQualityAssessmentBean {
     private Collection<Collection<RDFNode>> classes;
     private Collection<RDFNode> equivalenceClass;
     private Collection<RDFNode> equivalenceClassProperties;
+    private RDFNode value;
     private DataQualityAssessment details;
     private StreamedContent file;
 
@@ -130,16 +131,27 @@ public class DataQualityAssessmentBean {
     /**
      *
      */
-    public DataQualityAssessment getDetails() {
-        return details;
-    }
-
+    public RDFNode getValue() {
+        return value;
+    }   
+    
     /**
      *
      */
-    public void setDetails(RDFNode value) {
+    public void setValue(RDFNode value) {
+        
+        this.value = value;
+        
         this.details = assessment.getComputedDataQualityAssessment().get(equivalenceClass).get(equivalenceClassProperties).get(value);
+        
     }
+    
+    /**
+     *
+     */
+    public DataQualityAssessment getDetails() {
+        return details;
+    }    
 
     /**
      *
