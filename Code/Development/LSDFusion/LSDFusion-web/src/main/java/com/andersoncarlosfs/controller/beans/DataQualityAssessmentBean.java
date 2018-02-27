@@ -57,7 +57,10 @@ public class DataQualityAssessmentBean {
         
         this.assessment = assessment;
         
+        setClasses();
+        
         setFile();
+        
     }
 
     /**
