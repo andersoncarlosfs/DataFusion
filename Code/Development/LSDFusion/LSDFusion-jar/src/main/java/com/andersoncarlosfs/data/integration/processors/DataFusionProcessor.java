@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.LiteralRequiredException;
 import org.apache.jena.rdf.model.Model;
@@ -339,7 +340,7 @@ public class DataFusionProcessor {
 
                     Map<RDFNode, Map<DataSource, Integer>> classe_subject_predicate_objects = classe_subject_predicate.getValue();
 
-                    classe_complements.putIfAbsent(current_predicate, new HashMap<>());
+                    classe_complements.putIfAbsent(current_predicate, new TreeMap<>());
 
                     // Grouping the predicates
                     if (parameters.getOrDefault(current_predicate, Collections.EMPTY_SET).contains(Function.MAP)) {
