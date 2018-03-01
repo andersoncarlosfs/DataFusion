@@ -536,6 +536,11 @@ public class DataFusionProcessor {
 
                     }
                 }
+                
+                // Applying the functions
+                if (functions.contains(Function.AVG)) {
+                    
+                }
 
                 summary.put(predicates, objects);
 
