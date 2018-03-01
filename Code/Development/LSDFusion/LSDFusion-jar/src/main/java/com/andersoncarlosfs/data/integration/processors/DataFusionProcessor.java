@@ -459,24 +459,22 @@ public class DataFusionProcessor {
 
                             // Computing the absolute trustiness
                             ((DataQualityInformation) records).trustiness = new Float(1);
-
-                            Float numeric = null;
                             
                             try {
 
-                                Float a = best_object.asLiteral().getFloat();
-                                Float b = current_object.asLiteral().getFloat();
+                                Float elect = best_object.asLiteral().getFloat();
+                                Float candidate = current_object.asLiteral().getFloat();
 
                                 if (functions.contains(Function.MIN)) {
-                                    numeric = Math.min(a, b);
+                                    elect = Math.min(elect, candidate);
                                 }
                                 if (functions.contains(Function.MAX)) {
-                                    numeric = Math.max(a, b);
+                                    elect = Math.max(elect, candidate);
                                 }
 
                                 DataQualityRecords outstanding = (DataQualityRecords) objects.get(best_object);
 
-                                if (numeric != best_object.asLiteral().getFloat()) {
+                                if (elect != best_object.asLiteral().getFloat()) {
 
                                     ((DataQualityInformation) records).trustiness = ((DataQualityInformation) outstanding).trustiness;
 
