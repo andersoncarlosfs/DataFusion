@@ -474,6 +474,9 @@ public class DataFusionProcessor {
                                 if (functions.contains(Function.MAX)) {
                                     numeric = Math.max(a, b);
                                 }
+                                if (functions.contains(Function.AVG)) {
+                                    
+                                }
 
                                 DataQualityRecords outstanding = (DataQualityRecords) objects.get(best_object);
 
