@@ -547,12 +547,13 @@ public class DataFusionProcessor {
                     
                     DataQualityInformation records = new DataQualityInformation();
                     
-                    records.morePrecise = objects.keySet();
-                    records.trustiness = 1;
+                    ((DataQualityRecords) records).morePrecise = objects.keySet();
                     
-                    Float average = 0;
+                    ((DataQualityInformation) records).trustiness = new Float(1);
                     
-                    for (RDFNode object : records.morePrecise) {
+                    Float average = new Float(0);
+                    
+                    for (RDFNode object : ((DataQualityRecords) records).morePrecise) {
                         try {
                             average += object.asLiteral().getFloat();
                         } catch (NumberFormatException e) {
