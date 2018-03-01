@@ -454,7 +454,7 @@ public class DataFusionProcessor {
                         records.dataSources.addAll(v.dataSources);
 
                         // Applying the functions
-                        if (functions.contains(Function.MAX) || functions.contains(Function.MIN)) {
+                        if (functions.contains(Function.MAX) || functions.contains(Function.MIN) || functions.contains(Function.AVG)) {
 
                             // Computing the absolute trustiness
                             ((DataQualityInformation) records).trustiness = new Float(1);
