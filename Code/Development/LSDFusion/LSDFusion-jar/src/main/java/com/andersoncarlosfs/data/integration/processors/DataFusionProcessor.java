@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.LiteralRequiredException;
 import org.apache.jena.rdf.model.Model;
@@ -460,13 +461,11 @@ public class DataFusionProcessor {
                             ((DataQualityInformation) records).trustiness = new Float(1);
 
                             Float numeric = null;
-                            Float a = null;
-                            Float b = null;
-
+                            
                             try {
 
-                                a = best_object.asLiteral().getFloat();
-                                b = current_object.asLiteral().getFloat();
+                                Float a = best_object.asLiteral().getFloat();
+                                Float b = current_object.asLiteral().getFloat();
 
                                 if (functions.contains(Function.MIN)) {
                                     numeric = Math.min(a, b);
@@ -507,11 +506,11 @@ public class DataFusionProcessor {
                             } catch (LiteralRequiredException e) {
                                 // Do nothing                       
                             } catch (NumberFormatException e) {
-                                if (a == null) {
+                                // Do nothing 
+                            } catch (NullPointerException e) {
+                                if (NumberUtils.isCreatable(current_object.asLiteral().getValue().toString())) {
                                     best_object = current_object;
                                 }
-                            } catch (NullPointerException e) {
-                                best_object = current_object;
                             }
 
                         } else {
