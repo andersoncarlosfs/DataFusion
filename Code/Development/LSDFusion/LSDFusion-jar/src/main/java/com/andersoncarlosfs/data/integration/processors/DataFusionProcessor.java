@@ -455,7 +455,7 @@ public class DataFusionProcessor {
                         records.dataSources.addAll(v.dataSources);
 
                         // Applying the functions
-                        if (functions.contains(Function.MAX) || functions.contains(Function.MIN) || functions.contains(Function.AVG)) {
+                        if (functions.contains(Function.MAX) || functions.contains(Function.MIN)) {
 
                             // Computing the absolute trustiness
                             ((DataQualityInformation) records).trustiness = new Float(1);
@@ -472,9 +472,6 @@ public class DataFusionProcessor {
                                 }
                                 if (functions.contains(Function.MAX)) {
                                     numeric = Math.max(a, b);
-                                }
-                                if (functions.contains(Function.AVG)) {
-                                    
                                 }
 
                                 DataQualityRecords outstanding = (DataQualityRecords) objects.get(best_object);
