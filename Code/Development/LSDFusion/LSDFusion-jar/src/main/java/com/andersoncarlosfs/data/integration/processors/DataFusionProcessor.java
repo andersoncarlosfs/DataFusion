@@ -31,6 +31,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RDFDataMgr;
@@ -455,6 +456,10 @@ public class DataFusionProcessor {
                         records.dataSources.addAll(v.dataSources);
 
                         // Applying the functions
+                        if (functions.contains(Function.AVG)) {
+                            continue;
+                        }
+                        
                         if (functions.contains(Function.MAX) || functions.contains(Function.MIN)) {
 
                             // Computing the absolute trustiness
@@ -539,6 +544,23 @@ public class DataFusionProcessor {
                 
                 // Applying the functions
                 if (functions.contains(Function.AVG)) {
+                    
+                    DataQualityInformation records = new DataQualityInformation();
+                    
+                    records.morePrecise = objects.keySet();
+                    records.trustiness = 1;
+                    
+                    Float average = 0;
+                    
+                    for (RDFNode object : records.morePrecise) {
+                        try {
+                            average += object.asLiteral().getFloat();
+                        } catch (NumberFormatException e) {
+                            // Do nothing 
+                        }
+                    }
+                    
+                    objects.put(ResourceFactory.createTypedLiteral(average), records);
                     
                 }
 
