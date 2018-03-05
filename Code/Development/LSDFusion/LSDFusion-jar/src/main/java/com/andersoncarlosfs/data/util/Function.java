@@ -11,6 +11,6 @@ package com.andersoncarlosfs.data.util;
  */
 public enum Function {
 
-    MIN, MAX, AVG, MAP, CONSTRUCT, ESCAPE
+    MIN, MAX, AVG, IDENTITY, CONSTRUCT, ESCAPE, CUSTOM
 
 }
