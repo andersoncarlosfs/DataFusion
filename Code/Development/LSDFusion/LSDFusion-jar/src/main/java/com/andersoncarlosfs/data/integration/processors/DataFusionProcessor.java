@@ -13,6 +13,7 @@ import com.andersoncarlosfs.data.model.assessments.DataQualityAssessment;
 import com.andersoncarlosfs.data.model.control.DataQualityControl;
 import com.andersoncarlosfs.data.util.Function;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -180,11 +181,12 @@ public class DataFusionProcessor {
     public DataFusionProcessor(Collection<? extends DataSource> dataSources, Collection<Rule> rules, boolean duplicatesAllowed) throws IOException, CloneNotSupportedException {
         // Rules processing
         DisjointMap<Property, Collection<Function>> parameters = new DisjointMap<>();
+        DisjointMap<Property, Collection<Path>> arguments = new DisjointMap<>();
 
         for (Rule rule : rules) {
 
             Collection<Function> functions = rule.getFunctions();
-
+                        
             Property last = null;
 
             for (Property current : rule.getProperties()) {
@@ -193,10 +195,17 @@ public class DataFusionProcessor {
                 parameters.putIfAbsent(current, new HashSet<>());
                 parameters.get(current).addAll(functions);
 
-                // Grouping the properties
-                if (functions.contains(Function.MAP)) {
-                    parameters.union(last, current);
+                //
+                if (functions.contains(Function.CUSTOM)) {
+                    arguments.putIfAbsent(current, new HashSet<>());
+                    arguments.get(current).add(rule.getPath());
                 }
+                
+                // Grouping the properties
+                if (functions.contains(Function.IDENTITY)) {
+                    parameters.union(last, current);
+                    arguments.union(last, current);
+                }                                
 
                 last = current;
 
@@ -355,7 +364,7 @@ public class DataFusionProcessor {
                     classe_complements.putIfAbsent(current_predicate, new HashMap<>());
 
                     // Grouping the predicates
-                    if (parameters.getOrDefault(current_predicate, Collections.EMPTY_SET).contains(Function.MAP)) {
+                    if (parameters.getOrDefault(current_predicate, Collections.EMPTY_SET).contains(Function.IDENTITY)) {
                         ((DisjointMap) classe_complements).union(last_predicate, current_predicate);
                     }
 
@@ -424,6 +433,7 @@ public class DataFusionProcessor {
                 Collection<RDFNode> predicates = mapping.keySet();
 
                 Collection<Function> functions = new HashSet<>();
+                Collection<Function> customs = new HashSet<>();
 
                 for (RDFNode p : predicates) {
                     functions.addAll(parameters.getOrDefault(p, Collections.EMPTY_SET));
