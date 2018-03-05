@@ -6,6 +6,7 @@
 package com.andersoncarlosfs.data.model;
 
 import com.andersoncarlosfs.data.util.Function;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import org.apache.jena.rdf.model.Property;
@@ -16,6 +17,7 @@ import org.apache.jena.rdf.model.Property;
  */
 public class Rule {
 
+    private Path path;
     private Collection<Function> functions;
     private Collection<Property> properties;
 
@@ -29,6 +31,28 @@ public class Rule {
         this.properties = properties;
     }
 
+    public Rule(Path path, Collection<Function> functions, Collection<Property> properties) {
+        this.path = path;
+        this.functions = functions;
+        this.properties = properties;
+    }
+
+    /**
+     *
+     * @return the path
+     */
+    public Path getPath() {
+        return path;
+    }
+
+    /**
+     *
+     * @param path the path to set
+     */
+    protected void setPath(Path path) {
+        this.path = path;
+    }
+
     /**
      *
      * @return the functions
@@ -36,7 +60,7 @@ public class Rule {
     public Collection<Function> getFunctions() {
         return functions;
     }
-    
+
     /**
      *
      * @param functions the functions to set
@@ -52,7 +76,7 @@ public class Rule {
     public Collection<Property> getProperties() {
         return properties;
     }
-    
+
     /**
      *
      * @param properties the properties to set
