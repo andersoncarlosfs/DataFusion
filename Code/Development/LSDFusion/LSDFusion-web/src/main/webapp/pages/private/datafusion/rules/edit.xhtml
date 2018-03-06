@@ -55,9 +55,13 @@
                                 <f:selectItems value="#{dataFusionBean.properties}" />
                             </p:selectCheckboxMenu>
                         </pm:field>       
-                        <pm:field>
-                            <p:outputLabel for="rulesFunctions" value="Functions" />
-                            <p:selectCheckboxMenu id="rulesFunctions" value="#{ruleBean.rule.functions}" label="Functions" converter="functionConverter" required="true" disabled="#{not empty ruleBean.rule.path}">
+                        <pm:field rendered="#{not empty ruleBean.rule.path}">
+                            <p:outputLabel for="rulesFunction" value="Functions" />
+                            <h:outputText id="rulesFunction" value="#{ruleBean.rule.functions}" />                            
+                        </pm:field>       
+                        <pm:field rendered="#{empty ruleBean.rule.path}">
+                            <p:outputLabel for="rulesFunctions" value="Functions" />                            
+                            <p:selectCheckboxMenu id="rulesFunctions" value="#{ruleBean.rule.functions}" label="Functions" converter="functionConverter" required="true">
                                 <f:selectItem itemLabel="Functions" itemValue="" noSelectionOption="true" />
                                 <f:selectItems value="#{Constants.FUNCTIONS}" var="function" itemLabel="#{function.name()}" itemValue="#{function}" />
                             </p:selectCheckboxMenu>
