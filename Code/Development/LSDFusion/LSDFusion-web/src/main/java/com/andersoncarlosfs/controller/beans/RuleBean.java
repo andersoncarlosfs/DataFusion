@@ -38,9 +38,21 @@ public class RuleBean {
      *
      * @return
      */
-    public String reset() {
+    public String skip() {
 
         rule = new Rule();
+
+        return "edit?faces-redirect=true";
+
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public String reset() {
+
+        rule = null;
 
         return "edit?faces-redirect=true";
 
