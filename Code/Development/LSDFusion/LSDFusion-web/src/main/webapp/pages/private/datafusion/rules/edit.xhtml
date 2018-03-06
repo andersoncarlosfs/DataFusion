@@ -31,11 +31,11 @@
                     <p:outputPanel>
                         <pm:field>
                             <p:outputLabel for="file" value="File" />
-                            <p:fileUpload id="file" value="#{dataSourceBean.file}" mode="simple" required="true" />
+                            <p:fileUpload id="file" value="#{ruleBean.file}" mode="simple" required="true" />
                         </pm:field>                 
                     </p:outputPanel>
 
-                    <p:commandButton value="Upload" actionListener="#{dataSourceBean.upload}" ajax="false" />
+                    <p:commandButton value="Upload" actionListener="#{ruleBean.upload}" ajax="false" />
 
                 </h:form> 
                 

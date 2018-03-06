@@ -6,6 +6,7 @@
 package com.andersoncarlosfs.model;
 
 import com.andersoncarlosfs.data.util.Function;
+import java.nio.file.Path;
 import java.util.Collection;
 import org.apache.jena.rdf.model.Property;
 
@@ -19,6 +20,15 @@ public class Rule extends com.andersoncarlosfs.data.model.Rule {
         super();
     }
 
+    /**
+     * 
+     * @param path the path to set
+     */
+    @Override
+    public void setPath(Path path) {
+        super.setPath(path);
+    }
+    
     /**
      *
      * @return the functions

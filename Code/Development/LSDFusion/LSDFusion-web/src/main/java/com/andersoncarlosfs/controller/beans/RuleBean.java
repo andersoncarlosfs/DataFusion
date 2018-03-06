@@ -7,6 +7,10 @@ package com.andersoncarlosfs.controller.beans;
 
 import com.andersoncarlosfs.annotations.scopes.ApplicationScope;
 import com.andersoncarlosfs.model.Rule;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import org.primefaces.model.UploadedFile;
 
 /**
  *
@@ -16,6 +20,7 @@ import com.andersoncarlosfs.model.Rule;
 public class RuleBean {
 
     private Rule rule;
+    private UploadedFile file;
     
     public RuleBean() {
     }
@@ -32,6 +37,22 @@ public class RuleBean {
      */
     public void setRule(Rule rule) {
         this.rule = rule;
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public UploadedFile getFile() {
+        return file;
+    }
+
+    /**
+     *
+     * @param file
+     */
+    public void setFile(UploadedFile file) {
+        this.file = file;
     }
 
     /**
@@ -53,8 +74,34 @@ public class RuleBean {
     public String reset() {
 
         rule = null;
+        
+        file = null;
 
         return "edit?faces-redirect=true";
+
+    }
+    
+    /**
+     *
+     * @throws java.lang.Exception
+     */
+    public void upload() throws Exception {
+
+        if (file.getSize() > 0) {
+            
+            rule = new Rule();
+
+            Path path = Files.createTempDirectory(null).resolve(file.getFileName());
+
+            Files.copy(file.getInputstream(), path, StandardCopyOption.REPLACE_EXISTING);
+
+            rule.setPath(path);
+
+        } else {
+
+            file = null;
+
+        }
 
     }
 
