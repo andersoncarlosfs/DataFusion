@@ -9,7 +9,7 @@
     <f:view renderKitId="PRIMEFACES_MOBILE" />
 
     <f:metadata>
-        <f:viewAction action="#{ruleBean.reset}" immediate="true" if="#{empty ruleBean.rule}" />
+        <f:viewAction action="#{ruleBean.reset}" immediate="true" if="#{empty ruleBean.rule}" rendered="false"/>
     </f:metadata>
 
     <h:head></h:head>
@@ -23,8 +23,22 @@
                 <p:button styleClass="ui-btn-left ui-btn-inline" value="Back" icon="ui-icon-arrow-l" outcome="#{empty dataFusionBean.rules ? '/pages/private/datafusion/main' : 'list'}" />
                 <p:commandButton styleClass="ui-btn-right ui-btn-inline" value="Remove" icon="ui-icon-delete" action="#{dataFusionBean.remove(ruleBean.rule)}" rendered="#{not empty ruleBean.rule and not empty ruleBean.rule.properties and not empty ruleBean.rule.functions}" />
             </pm:header>             
-            <pm:content>                 
-                <h:form id="editForm">
+            <pm:content>   
+                                
+                <h:form enctype="multipart/form-data" rendered="#{empty ruleBean.rule}">
+
+                    <p:outputPanel>
+                        <pm:field>
+                            <p:outputLabel for="file" value="File" />
+                            <p:fileUpload id="file" value="#{dataSourceBean.file}" mode="simple" required="true" />
+                        </pm:field>                 
+                    </p:outputPanel>
+
+                    <p:commandButton value="Upload" actionListener="#{dataSourceBean.upload}" ajax="false" />
+
+                </h:form> 
+                
+                <h:form id="editForm" rendered="#{not empty ruleBean.rule}">
                    
                     <p:growl id="growl" showDetail="true" />
                     
