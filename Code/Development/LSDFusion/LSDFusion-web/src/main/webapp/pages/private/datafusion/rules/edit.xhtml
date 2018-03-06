@@ -44,6 +44,10 @@
                     <p:growl id="growl" showDetail="true" />
                     
                     <p:outputPanel id="editPanel">
+                        <pm:field rendered="#{not empty ruleBean.rule.path}">
+                            <p:outputLabel for="file" value="File" />
+                            <h:outputText id="file" value="#{ruleBean.rule.path.getFileName()}" />
+                        </pm:field>                        
                         <pm:field>
                             <p:outputLabel for="rulesProperties" value="Properties" />
                             <p:selectCheckboxMenu id="rulesProperties" value="#{ruleBean.rule.properties}" label="Properties" converter="propertyConverter" required="true">   
@@ -53,7 +57,7 @@
                         </pm:field>       
                         <pm:field>
                             <p:outputLabel for="rulesFunctions" value="Functions" />
-                            <p:selectCheckboxMenu id="rulesFunctions" value="#{ruleBean.rule.functions}" label="Functions" converter="functionConverter" required="true">
+                            <p:selectCheckboxMenu id="rulesFunctions" value="#{ruleBean.rule.functions}" label="Functions" converter="functionConverter" required="true" disabled="#{not empty ruleBean.rule.path}">
                                 <f:selectItem itemLabel="Functions" itemValue="" noSelectionOption="true" />
                                 <f:selectItems value="#{Constants.FUNCTIONS}" var="function" itemLabel="#{function.name()}" itemValue="#{function}" />
                             </p:selectCheckboxMenu>

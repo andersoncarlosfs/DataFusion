@@ -6,10 +6,12 @@
 package com.andersoncarlosfs.controller.beans;
 
 import com.andersoncarlosfs.annotations.scopes.ApplicationScope;
+import com.andersoncarlosfs.data.util.Function;
 import com.andersoncarlosfs.model.Rule;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import org.primefaces.model.UploadedFile;
 
 /**
@@ -96,6 +98,8 @@ public class RuleBean {
             Files.copy(file.getInputstream(), path, StandardCopyOption.REPLACE_EXISTING);
 
             rule.setPath(path);
+            
+            rule.setFunctions(Arrays.asList(Function.CUSTOM));
 
         } else {
 
