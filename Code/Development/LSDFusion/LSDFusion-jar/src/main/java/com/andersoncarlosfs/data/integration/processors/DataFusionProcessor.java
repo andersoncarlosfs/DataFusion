@@ -197,6 +197,7 @@ public class DataFusionProcessor {
 
                 //
                 if (functions.contains(Function.CUSTOM)) {
+                    // TO DO: Checking if the rule contais a file
                     arguments.putIfAbsent(current, new HashSet<>());
                     arguments.get(current).add(rule.getPath());
                 }
@@ -433,10 +434,11 @@ public class DataFusionProcessor {
                 Collection<RDFNode> predicates = mapping.keySet();
 
                 Collection<Function> functions = new HashSet<>();
-                Collection<Function> customs = new HashSet<>();
+                Collection<Path> knowledge = new HashSet<>();
 
                 for (RDFNode p : predicates) {
                     functions.addAll(parameters.getOrDefault(p, Collections.EMPTY_SET));
+                    knowledge.addAll(arguments.getOrDefault(p, Collections.EMPTY_SET));
                 }
 
                 Map<RDFNode, DataQualityAssessment> objects = new HashMap<>();
@@ -466,7 +468,7 @@ public class DataFusionProcessor {
                         records.dataSources.addAll(v.dataSources);
 
                         // Applying the functions
-                        if (functions.contains(Function.AVG)) {
+                        if (functions.contains(Function.AVG) || functions.contains(Function.CUSTOM)) {
                             continue;
                         }
                         
@@ -572,6 +574,12 @@ public class DataFusionProcessor {
                     }
                     
                     objects.put(ResourceFactory.createTypedLiteral(average), records);
+                    
+                }
+                
+                if(functions.contains(Function.CUSTOM)) {
+                    
+                    Path file = knowledge.iterator().next();
                     
                 }
 
