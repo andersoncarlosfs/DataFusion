@@ -591,6 +591,9 @@ public class DataFusionProcessor {
                                                                                 
                     while (!nodes.isEmpty()) {                        
                     
+                        DataQualityInformation records = new DataQualityInformation();
+                        ((DataQualityInformation) records).trustiness = new Float(1);
+                        
                         // Getting the object
                         RDFNode previous_object = nodes.poll();                        
                         String previous_value = previous_object.asLiteral().getString();
@@ -611,38 +614,51 @@ public class DataFusionProcessor {
                             // Computing the precision of the object
                             int previous_position = values.length - 1;
                             
-                            for (; previous_position >= 0 ; previous_position--) {
-                                if (previous_value.equals(values[previous_position])) {
-                                    break;
-                                }
+                            while (!previous_value.equals(values[previous_position])) {
+                                previous_position--;
                             }
+                            
+                            Queue<RDFNode> temp = new LinkedList<>();
                             
                             while (!nodes.isEmpty()) {    
                             
                                 // Getting the object
-                                RDFNode current_object = nodes.peek();
+                                RDFNode current_object = nodes.poll();
                                 String current_value = current_object.asLiteral().getString();
                                 
-                                if (!line.contains(current_value)) {
+                                if (!line.contains(current_value) && temp.add(current_object)) {
                                     continue;
-                                }                           
+                                }      
 
                                 // Computing the precision of the object
-                                int current_position = previous_position;
+                                int current_position = values.length - 1;
 
-                                for (; current_position >= 0 ; current_position--) {
-                                    if (current_value.equals(values[current_position])) {
-                                        break;
-                                    }
+                                while (!current_value.equals(values[current_position])) {
+                                    current_position--;
                                 }
                                 
                                 // Updating the best object
+                                if (current_position > previous_position) {
+                                    
+                                    records.getMorePrecise().add(previous_object);
+                                    
+                                    previous_object = current_object;
+                                    
+                                } else {
+                                    
+                                    records.getMorePrecise().add(current_object);
+                                    
+                                }
                             
                             }
+                            
+                            nodes = temp;
                         
                         }
                         
-                        reader.close();                        
+                        reader.close();      
+                        
+                        objects.put(previous_object, records);
                         
                     }
                     
