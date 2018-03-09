@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.LiteralRequiredException;
@@ -579,7 +580,12 @@ public class DataFusionProcessor {
                 
                 if(functions.contains(Function.CUSTOM)) {
                     
-                    Path file = knowledge.iterator().next();
+                    Path path = knowledge.iterator().next();
+                    
+                    RDFNode previous = null;
+                    RDFNode current = null;
+                    
+                    Queue<RDFNode> nodes = new LinkedList<>(objects.keySet());
                     
                 }
 
