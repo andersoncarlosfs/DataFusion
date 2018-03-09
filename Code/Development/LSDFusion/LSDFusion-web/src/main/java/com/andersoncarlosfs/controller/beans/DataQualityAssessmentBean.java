@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
@@ -121,6 +122,13 @@ public class DataQualityAssessmentBean {
         this.equivalenceClassProperties = equivalenceClassProperties;
     }
 
+    /**
+     *
+     */
+    public Set<Map.Entry<RDFNode, DataQualityAssessment>> getEntrySet() {
+        return assessment.getComputedDataQualityAssessment().get(equivalenceClass).get(equivalenceClassProperties).entrySet();
+    }
+    
     /**
      *
      */
