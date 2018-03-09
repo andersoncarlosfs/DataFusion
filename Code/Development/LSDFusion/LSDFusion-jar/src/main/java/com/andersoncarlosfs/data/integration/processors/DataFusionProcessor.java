@@ -12,7 +12,10 @@ import com.andersoncarlosfs.data.model.assessments.DataFusionAssessment;
 import com.andersoncarlosfs.data.model.assessments.DataQualityAssessment;
 import com.andersoncarlosfs.data.model.control.DataQualityControl;
 import com.andersoncarlosfs.data.util.Function;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
@@ -582,10 +585,29 @@ public class DataFusionProcessor {
                     
                     Path path = knowledge.iterator().next();
                     
-                    RDFNode previous = null;
-                    RDFNode current = null;
-                    
                     Queue<RDFNode> nodes = new LinkedList<>(objects.keySet());
+                                                                                
+                    while (!nodes.isEmpty()) {                        
+                        
+                        RDFNode previous = nodes.poll();
+                        
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(path))); 
+    
+                        String line = null;
+
+                        while ((line = reader.readLine()) != null) {
+
+                            while (!nodes.isEmpty() && previous != null) {    
+                            
+                                RDFNode current = nodes.poll();
+                            
+                            }
+                        
+                        }
+                        
+                        reader.close();                        
+                        
+                    }
                     
                 }
 
