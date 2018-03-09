@@ -581,25 +581,62 @@ public class DataFusionProcessor {
                     
                 }
                 
+                // TO REDO:
                 if(functions.contains(Function.CUSTOM)) {
                     
+                    // Getting the extra knowledge
                     Path path = knowledge.iterator().next();
-                    
+                                        
                     Queue<RDFNode> nodes = new LinkedList<>(objects.keySet());
                                                                                 
                     while (!nodes.isEmpty()) {                        
-                        
-                        RDFNode previous = nodes.poll();
+                    
+                        // Getting the object
+                        RDFNode previous_object = nodes.poll();                        
+                        String previous_value = previous_object.asLiteral().getString();
                         
                         BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(path))); 
     
                         String line = null;
 
+                        // Searching for the hierarchy
                         while ((line = reader.readLine()) != null) {
-
-                            while (!nodes.isEmpty() && previous != null) {    
+                                                        
+                            if (!line.contains(previous_value)) {
+                                continue;
+                            }
                             
-                                RDFNode current = nodes.poll();
+                            String[] values = line.split("\\t");
+                        
+                            // Computing the precision of the object
+                            int previous_position = values.length - 1;
+                            
+                            for (; previous_position >= 0 ; previous_position--) {
+                                if (previous_value.equals(values[previous_position])) {
+                                    break;
+                                }
+                            }
+                            
+                            while (!nodes.isEmpty()) {    
+                            
+                                // Getting the object
+                                RDFNode current_object = nodes.peek();
+                                String current_value = current_object.asLiteral().getString();
+                                
+                                if (!line.contains(current_value)) {
+                                    continue;
+                                }                           
+
+                                // Computing the precision of the object
+                                int current_position = previous_position;
+
+                                for (; current_position >= 0 ; current_position--) {
+                                    if (current_value.equals(values[current_position])) {
+                                        break;
+                                    }
+                                }
+                                
+                                // Updating the best object
                             
                             }
                         
