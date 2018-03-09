@@ -51,7 +51,7 @@ public final class Constants {
      * @return the functions
      */
     private static final Collection<Function> getFunctions() {
-        return Collections.unmodifiableCollection(Arrays.asList(Function.MIN, Function.MAX, Function.IDENTITY, Function.ESCAPE, Function.CONSTRUCT, Function.AVG));
+        return Collections.unmodifiableCollection(Arrays.asList(Function.IDENTITY, Function.MAPPING, Function.ESCAPE,Function.MIN, Function.MAX, Function.AVG));
     }
 
 }

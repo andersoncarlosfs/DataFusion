@@ -99,7 +99,7 @@ public class RuleBean {
 
             rule.setPath(path);
             
-            rule.setFunctions(Arrays.asList(Function.CUSTOM));
+            rule.setFunctions(Arrays.asList(Function.EXTRA_KNOWLEDGE));
 
         } else {
 
