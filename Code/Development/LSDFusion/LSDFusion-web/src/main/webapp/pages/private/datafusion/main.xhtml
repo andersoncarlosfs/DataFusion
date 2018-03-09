@@ -29,7 +29,7 @@
                             <p:menuitem value="Duplicates" outcome="duplicates/edit" />
                         </p:menu>                        
                     </p:panel>
-                    <p:commandButton value="Process" actionListener="#{dataFusionBean.process}" update="@form" disabled="#{empty dataFusionBean.rules}" rendered="#{empty dataFusionBean.assessment}" /> 
+                    <p:commandButton value="#{empty dataFusionBean.assessment ? "P" : "Rep"}rocess" actionListener="#{dataFusionBean.process}" update="@form" disabled="#{empty dataFusionBean.rules}" rendered="#{empty dataFusionBean.assessment}" /> 
                     <p:commandButton value="Result" action="assessment/classes/list?faces-redirect=true" rendered="#{not empty dataFusionBean.assessment}">
                         <f:setPropertyActionListener value="#{dataFusionBean.assessment}" target="#{dataQualityAssessmentBean.assessment}" />           
                     </p:commandButton> 
