@@ -38,7 +38,7 @@ public class DataFusionProcessorTest {
 
     private Collection<Rule> rules = new HashSet<>();
 
-    private Rule construct = new Rule(Arrays.asList(Function.CONSTRUCT), DataFusionProcessor.EQUIVALENCE_PROPERTIES);
+    private Rule construct = new Rule(Arrays.asList(Function.IDENTITY), DataFusionProcessor.EQUIVALENCE_PROPERTIES);
 
     private Rule min = new Rule(Arrays.asList(Function.MIN), Arrays.asList(ResourceFactory.createProperty("http://www.books.org/ontology_books1.owl#nb_pages")));
 

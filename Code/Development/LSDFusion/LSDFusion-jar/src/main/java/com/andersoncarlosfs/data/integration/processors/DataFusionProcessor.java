@@ -200,14 +200,14 @@ public class DataFusionProcessor {
                 parameters.get(current).addAll(functions);
 
                 //
-                if (functions.contains(Function.CUSTOM)) {
+                if (functions.contains(Function.EXTRA_KNOWLEDGE)) {
                     // TO DO: Checking if the rule contais a file
                     arguments.putIfAbsent(current, new HashSet<>());
                     arguments.get(current).add(rule.getPath());
                 }
                 
                 // Grouping the properties
-                if (functions.contains(Function.IDENTITY)) {
+                if (functions.contains(Function.MAPPING)) {
                     parameters.union(last, current);
                     arguments.union(last, current);
                 }                                
@@ -251,7 +251,7 @@ public class DataFusionProcessor {
                 }
 
                 // Equivalence classes processing 
-                if (parameters.getOrDefault(property, Collections.EMPTY_SET).contains(Function.CONSTRUCT)) {
+                if (parameters.getOrDefault(property, Collections.EMPTY_SET).contains(Function.IDENTITY)) {
 
                     // Putting the equivalent members 
                     statements.putIfAbsent(subject, new HashMap<>());
@@ -369,7 +369,7 @@ public class DataFusionProcessor {
                     classe_complements.putIfAbsent(current_predicate, new HashMap<>());
 
                     // Grouping the predicates
-                    if (parameters.getOrDefault(current_predicate, Collections.EMPTY_SET).contains(Function.IDENTITY)) {
+                    if (parameters.getOrDefault(current_predicate, Collections.EMPTY_SET).contains(Function.MAPPING)) {
                         ((DisjointMap) classe_complements).union(last_predicate, current_predicate);
                     }
 
@@ -472,7 +472,7 @@ public class DataFusionProcessor {
                         records.dataSources.addAll(v.dataSources);
 
                         // Applying the functions
-                        if (functions.contains(Function.AVG) || functions.contains(Function.CUSTOM)) {
+                        if (functions.contains(Function.AVG) || functions.contains(Function.EXTRA_KNOWLEDGE)) {
                             continue;
                         }
                         
@@ -582,7 +582,7 @@ public class DataFusionProcessor {
                 }
                 
                 // TO REDO:
-                if(functions.contains(Function.CUSTOM)) {
+                if(functions.contains(Function.EXTRA_KNOWLEDGE)) {
                     
                     // Getting the extra knowledge
                     Path path = knowledge.iterator().next();
