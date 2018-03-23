@@ -207,7 +207,7 @@ public class DataFusionProcessor {
                 }
                 
                 // Grouping the properties
-                if (functions.contains(Function.MAPPING)) {
+                if (functions.contains(Function.MAPPING) && last != null) {
                     parameters.union(last, current);
                     arguments.union(last, current);
                 }                                
