@@ -563,9 +563,12 @@ public class DataFusionProcessor {
                     
                     DataQualityInformation records = new DataQualityInformation();
                     
-                    ((DataQualityRecords) records).morePrecise = objects.keySet();
+                    //((DataQualityRecords) records).frequency = new Float(1);   
+                    //((DataQualityRecords) records).homogeneity = new Float(1);   
+                    ((DataQualityRecords) records).morePrecise = objects.keySet();                     
                     
-                    ((DataQualityInformation) records).trustiness = new Float(1);
+                    records.freshness = new Float(1);
+                    records.trustiness = new Float(1);
                     
                     Float average = new Float(0);
                     
