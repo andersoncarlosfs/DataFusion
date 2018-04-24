@@ -209,13 +209,13 @@ public class DataQualityAssessmentBean {
 
         }
 
-        Path path = Files.createTempFile(null, ".ttl");
+        Path path = Files.createTempFile(null, ".nt");
 
-        RDFDataMgr.write(Files.newOutputStream(path), model, Lang.TURTLE);
+        RDFDataMgr.write(Files.newOutputStream(path), model, Lang.NTRIPLES);
 
         InputStream stream = Files.newInputStream(path);
 
-        file = new DefaultStreamedContent(stream, "text/turtle", "fusion.ttl");
+        file = new DefaultStreamedContent(stream, "application/n-triples", "fusion.nt");
 
     }
 
