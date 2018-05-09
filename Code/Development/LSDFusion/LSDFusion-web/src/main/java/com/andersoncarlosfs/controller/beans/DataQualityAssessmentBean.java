@@ -168,18 +168,20 @@ public class DataQualityAssessmentBean {
      */
     private void setFile() throws Exception {
 
+        final String root = "http://www.fusion.com/properties/";
+        
         Model model = ModelFactory.createDefaultModel();
 
-        Property equivalentPredicate = model.createProperty("equivalentSubject");
-        Property equivalentProperty = model.createProperty("equivalentPredicate");
-        Property valueProperty = model.createProperty("value");
-        Property frequencyProperty = model.createProperty("frequency");
-        Property homogeneityProperty = model.createProperty("homogeneity");
-        Property reliabilityProperty = model.createProperty("reliability");
-        Property freshnessProperty = model.createProperty("freshness");
-        //Property trustinessProperty = model.createProperty("trustiness");
-        Property scoreProperty = model.createProperty("score");
-        Property morePrecise = model.createProperty("morePrecise");
+        Property equivalentPredicate = model.createProperty(root + "equivalentSubject");
+        Property equivalentProperty = model.createProperty(root + "equivalentPredicate");
+        Property valueProperty = model.createProperty(root + "value");
+        Property frequencyProperty = model.createProperty(root + "frequency");
+        Property homogeneityProperty = model.createProperty(root + "homogeneity");
+        Property reliabilityProperty = model.createProperty(root + "reliability");
+        Property freshnessProperty = model.createProperty(root + "freshness");
+        //Property trustinessProperty = model.createProperty(root + "trustiness");
+        Property scoreProperty = model.createProperty(root + "score");
+        Property morePrecise = model.createProperty(root + "morePrecise");
 
         for (Map.Entry<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> classes : assessment.getComputedDataQualityAssessment().entrySet()) {
 
