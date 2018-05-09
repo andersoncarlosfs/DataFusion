@@ -208,7 +208,7 @@ public class DataQualityAssessmentBean {
                     DataQualityAssessment assessment = values.getValue();
 
                     model.add(representativeResource, representativeProperty, representativeValue);
-                    model.add(representativeResource, valueProperty, values.getKey());
+                    model.add(representativeValue, valueProperty, values.getKey());
                     model.add(representativeValue, frequencyProperty, assessment.getFrequency().toString());
                     model.add(representativeValue, homogeneityProperty, assessment.getHomogeneity().toString());
                     model.add(representativeValue, reliabilityProperty, assessment.getReliability().toString());
