@@ -13,7 +13,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -56,35 +58,35 @@ public class DataQualityAssessmentBean {
      * @param assessment the assessment to set
      */
     public void setAssessment(DataFusionAssessment assessment) throws Exception {
-        
+
         this.assessment = assessment;
-        
+
         setClasses();
-        
+
         setFile();
-        
+
     }
 
     /**
-     * 
+     *
      */
-    private void setClasses(){
-        
+    private void setClasses() {
+
         classes = new ArrayList<>();
-        
+
         for (Collection<RDFNode> collection : assessment.getComputedDataQualityAssessment().keySet()) {
             if (collection.size() > 1) {
                 classes.add(collection);
             }
         }
-        
+
     }
-    
+
     /**
      *
      */
-    public Collection<Collection<RDFNode>> getClasses() {               
-        return classes; 
+    public Collection<Collection<RDFNode>> getClasses() {
+        return classes;
     }
 
     /**
@@ -128,7 +130,7 @@ public class DataQualityAssessmentBean {
     public Set<Map.Entry<RDFNode, DataQualityAssessment>> getEntrySet() {
         return assessment.getComputedDataQualityAssessment().get(equivalenceClass).get(equivalenceClassProperties).entrySet();
     }
-    
+
     /**
      *
      */
@@ -141,25 +143,25 @@ public class DataQualityAssessmentBean {
      */
     public RDFNode getValue() {
         return value;
-    }   
-    
+    }
+
     /**
      *
      */
     public void setValue(RDFNode value) {
-        
+
         this.value = value;
-        
+
         this.details = assessment.getComputedDataQualityAssessment().get(equivalenceClass).get(equivalenceClassProperties).get(value);
-        
+
     }
-    
+
     /**
      *
      */
     public DataQualityAssessment getDetails() {
         return details;
-    }    
+    }
 
     /**
      *
@@ -168,8 +170,8 @@ public class DataQualityAssessmentBean {
 
         Model model = ModelFactory.createDefaultModel();
 
-        Property equivalenceClass = model.createProperty("equivalenceClass");
-        Property equivalentProperty = model.createProperty("equivalentProperty");
+        Property equivalentPredicate = model.createProperty("equivalentSubject");
+        Property equivalentProperty = model.createProperty("equivalentPredicate");
         Property frequencyProperty = model.createProperty("frequency");
         Property homogeneityProperty = model.createProperty("homogeneity");
         Property reliabilityProperty = model.createProperty("reliability");
@@ -179,17 +181,21 @@ public class DataQualityAssessmentBean {
 
         for (Map.Entry<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> classes : assessment.getComputedDataQualityAssessment().entrySet()) {
 
-            Resource representativeResource = model.createResource();
+            Queue<RDFNode> classesNodes = new LinkedList<RDFNode>(classes.getKey());
 
-            for (RDFNode node : classes.getKey()) {
-                model.add(representativeResource, equivalenceClass, node);
+            Resource representativeResource = (Resource) classesNodes.poll();
+
+            for (RDFNode node : classesNodes) {
+                model.add(representativeResource, equivalentPredicate, node);
             }
-
-            Property representativeProperty = model.createProperty(model.createResource().toString());
 
             for (Map.Entry<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>> properties : classes.getValue().entrySet()) {
 
-                for (RDFNode node : properties.getKey()) {
+                Queue<RDFNode> propertiesNodes = new LinkedList<RDFNode>(properties.getKey());
+
+                Property representativeProperty = (Property) propertiesNodes.poll();
+
+                for (RDFNode node : propertiesNodes) {
                     model.add(representativeProperty, equivalentProperty, node);
                 }
 
