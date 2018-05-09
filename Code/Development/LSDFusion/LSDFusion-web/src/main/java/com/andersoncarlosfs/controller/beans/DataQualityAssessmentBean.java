@@ -172,12 +172,14 @@ public class DataQualityAssessmentBean {
 
         Property equivalentPredicate = model.createProperty("equivalentSubject");
         Property equivalentProperty = model.createProperty("equivalentPredicate");
+        Property valueProperty = model.createProperty("value");
         Property frequencyProperty = model.createProperty("frequency");
         Property homogeneityProperty = model.createProperty("homogeneity");
         Property reliabilityProperty = model.createProperty("reliability");
         Property freshnessProperty = model.createProperty("freshness");
-        Property trustinessProperty = model.createProperty("trustiness");
+        //Property trustinessProperty = model.createProperty("trustiness");
         Property scoreProperty = model.createProperty("score");
+        Property morePrecise = model.createProperty("morePrecise");
 
         for (Map.Entry<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> classes : assessment.getComputedDataQualityAssessment().entrySet()) {
 
@@ -201,13 +203,24 @@ public class DataQualityAssessmentBean {
 
                 for (Map.Entry<RDFNode, DataQualityAssessment> values : properties.getValue().entrySet()) {
 
-                    model.add(representativeResource, representativeProperty, values.getKey());
-                    model.add(representativeResource, frequencyProperty, values.getKey());
-                    model.add(representativeResource, homogeneityProperty, values.getKey());
-                    model.add(representativeResource, reliabilityProperty, values.getKey());
-                    model.add(representativeResource, freshnessProperty, values.getKey());
-                    model.add(representativeResource, trustinessProperty, values.getKey());
-                    model.add(representativeResource, scoreProperty, values.getKey());
+                    Resource representativeValue = model.createResource();
+
+                    DataQualityAssessment assessment = values.getValue();
+
+                    model.add(representativeResource, representativeProperty, representativeValue);
+                    model.add(representativeResource, valueProperty, values.getKey());
+                    model.add(representativeValue, frequencyProperty, assessment.getFrequency().toString());
+                    model.add(representativeValue, homogeneityProperty, assessment.getHomogeneity().toString());
+                    model.add(representativeValue, reliabilityProperty, assessment.getReliability().toString());
+                    model.add(representativeValue, freshnessProperty, assessment.getFreshness().toString());
+                    //model.add(representativeValue, trustinessProperty, assessment.getTrustiness().toString());
+                    model.add(representativeValue, scoreProperty, assessment.getScore().toString());
+
+                    for (RDFNode lessPreciseNode : assessment.getMorePrecise()) {
+
+                        model.add(representativeValue, morePrecise, lessPreciseNode);
+
+                    }
 
                 }
 
