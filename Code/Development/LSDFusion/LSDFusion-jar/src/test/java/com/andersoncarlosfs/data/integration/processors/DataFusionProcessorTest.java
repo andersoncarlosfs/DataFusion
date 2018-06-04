@@ -55,7 +55,7 @@ public class DataFusionProcessorTest {
         for (Property property : DataFusionProcessor.EQUIVALENCE_PROPERTIES) {
             rules.add(new Rule(Function.IDENTITY, property));
         }
-
+        
     }
 
     @After

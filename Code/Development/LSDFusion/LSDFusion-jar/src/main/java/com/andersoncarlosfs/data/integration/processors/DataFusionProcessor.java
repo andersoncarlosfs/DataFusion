@@ -52,14 +52,12 @@ public class DataFusionProcessor {
     private class DataQualityRecords implements DataQualityControl, Cloneable {
 
         private Float frequency;
-        //private Integer duplicates;
         private Float homogeneity;
         private Collection<DataSource> dataSources;
         private Collection<RDFNode> morePrecise;
 
         public DataQualityRecords() {
             this.frequency = new Float(0);
-            //this.duplicates = new Integer(0);
             this.homogeneity = new Float(0);
             this.dataSources = new HashSet<>();
             this.morePrecise = new HashSet<>();
@@ -162,7 +160,7 @@ public class DataFusionProcessor {
     }
 
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
-    
+
     private static final Comparator comparator = new Comparator<Map.Entry<RDFNode, DataQualityAssessment>>() {
         @Override
         public int compare(Entry<RDFNode, DataQualityAssessment> o1, Entry<RDFNode, DataQualityAssessment> o2) {
@@ -183,39 +181,33 @@ public class DataFusionProcessor {
     public DataFusionProcessor(Collection<? extends DataSource> dataSources, Collection<Rule> rules, boolean duplicatesAllowed) throws IOException, CloneNotSupportedException {
         // Rules processing
         DisjointMap<Property, Collection<Function>> parameters = new DisjointMap<>();
-        DisjointMap<Property, Collection<Path>> arguments = new DisjointMap<>();
-/*
+        DisjointMap<Property, Collection<Object>> arguments = new DisjointMap<>();
+
         for (Rule rule : rules) {
 
-            Collection<Function> functions = rule.getFunctions();
-                        
-            Property last = null;
+            Function function = rule.getFunction();
+            Property property = rule.getProperty();
+            Object value = rule.getValue();
 
-            for (Property current : rule.getProperties()) {
+            // Attaching zero or more functions a property 
+            parameters.putIfAbsent(property, new HashSet<>());
+            parameters.get(property).add(function);
 
-                // Attaching zero or more functions a property 
-                parameters.putIfAbsent(current, new HashSet<>());
-                parameters.get(current).addAll(functions);
-
-                //
-                if (functions.contains(Function.EXTRA_KNOWLEDGE)) {
-                    // TO DO: Checking if the rule contais a file
-                    arguments.putIfAbsent(current, new HashSet<>());
-                    arguments.get(current).add(rule.getPath());
-                }
-                
+            switch (function) {
+                // Attaching zero or more arguments a property 
+                case EXTRA_KNOWLEDGE:
+                    arguments.putIfAbsent(property, new HashSet<>());
+                    arguments.get(property).add(rule.getValue());
+                    break;
                 // Grouping the properties
-                if (functions.contains(Function.MAPPING) && last != null) {
-                    parameters.union(last, current);
-                    arguments.union(last, current);
-                }                                
-
-                last = current;
-
+                case MAPPING:
+                    parameters.union(property, (Property) value);
+                    arguments.union(property, (Property) value);
+                    break;
             }
 
         }
-*/
+
         // Data souces processing
         Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> statements = new DisjointMap<>();
 
@@ -299,7 +291,7 @@ public class DataFusionProcessor {
                 // Computing the absolute frequency of the complements 
                 if (present == null) {
                     records.frequency++;
-                } 
+                }
 
                 // Computing the absolute number of duplicate complements 
                 if (duplicatesAllowed) {
@@ -471,12 +463,12 @@ public class DataFusionProcessor {
                         if (functions.contains(Function.AVG) || functions.contains(Function.EXTRA_KNOWLEDGE)) {
                             continue;
                         }
-                        
+
                         if (functions.contains(Function.MAX) || functions.contains(Function.MIN)) {
 
                             // Computing the absolute trustiness
                             ((DataQualityInformation) records).trustiness = new Float(1);
-                            
+
                             try {
 
                                 Float elect = best_object.asLiteral().getFloat();
@@ -553,21 +545,21 @@ public class DataFusionProcessor {
 
                     }
                 }
-                
+
                 // Applying the functions
                 if (functions.contains(Function.AVG)) {
-                    
+
                     DataQualityInformation records = new DataQualityInformation();
-                    
+
                     //((DataQualityRecords) records).frequency = new Float(1);   
                     //((DataQualityRecords) records).homogeneity = new Float(1);   
-                    ((DataQualityRecords) records).morePrecise = objects.keySet();                     
-                    
+                    ((DataQualityRecords) records).morePrecise = objects.keySet();
+
                     records.freshness = new Float(1);
                     records.trustiness = new Float(1);
-                    
+
                     Float average = new Float(0);
-                    
+
                     for (RDFNode object : ((DataQualityRecords) records).morePrecise) {
                         try {
                             average += object.asLiteral().getFloat();
@@ -575,59 +567,59 @@ public class DataFusionProcessor {
                             // Do nothing 
                         }
                     }
-                    
+
                     objects.put(ResourceFactory.createTypedLiteral(average), records);
-                    
+
                 }
-                
+
                 // TO REDO:
-                if(functions.contains(Function.EXTRA_KNOWLEDGE)) {
-                    
+                if (functions.contains(Function.EXTRA_KNOWLEDGE)) {
+
                     // Getting the extra knowledge
                     Path path = knowledge.iterator().next();
-                                        
+
                     Queue<RDFNode> nodes = new LinkedList<>(objects.keySet());
-                                                                                
-                    while (!nodes.isEmpty()) {                        
-                    
+
+                    while (!nodes.isEmpty()) {
+
                         DataQualityInformation records = new DataQualityInformation();
                         ((DataQualityInformation) records).trustiness = new Float(1);
-                        
+
                         // Getting the object
-                        RDFNode previous_object = nodes.poll();                        
+                        RDFNode previous_object = nodes.poll();
                         String previous_value = previous_object.asLiteral().getString();
-                        
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(path))); 
-    
+
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(path)));
+
                         String line = null;
 
                         // Searching for the hierarchy
                         while ((line = reader.readLine()) != null) {
-                                                        
+
                             if (!line.contains(previous_value)) {
                                 continue;
                             }
-                            
+
                             String[] values = line.split("\\t");
-                        
+
                             // Computing the precision of the object
                             int previous_position = values.length - 1;
-                            
+
                             while (!previous_value.equals(values[previous_position])) {
                                 previous_position--;
                             }
-                            
+
                             Queue<RDFNode> temp = new LinkedList<>();
-                            
-                            while (!nodes.isEmpty()) {    
-                            
+
+                            while (!nodes.isEmpty()) {
+
                                 // Getting the object
                                 RDFNode current_object = nodes.poll();
                                 String current_value = current_object.asLiteral().getString();
-                                
+
                                 if (!line.contains(current_value) && temp.add(current_object)) {
                                     continue;
-                                }      
+                                }
 
                                 // Computing the precision of the object
                                 int current_position = values.length - 1;
@@ -635,32 +627,32 @@ public class DataFusionProcessor {
                                 while (!current_value.equals(values[current_position])) {
                                     current_position--;
                                 }
-                                
+
                                 // Updating the best object
                                 if (current_position > previous_position) {
-                                    
+
                                     records.getMorePrecise().add(previous_object);
-                                    
+
                                     previous_object = current_object;
-                                    
+
                                 } else {
-                                    
+
                                     records.getMorePrecise().add(current_object);
-                                    
+
                                 }
-                            
+
                             }
-                            
+
                             nodes = temp;
-                        
+
                         }
-                        
-                        reader.close();      
-                        
+
+                        reader.close();
+
                         objects.put(previous_object, records);
-                        
+
                     }
-                    
+
                 }
 
                 summary.put(predicates, objects);
@@ -718,34 +710,34 @@ public class DataFusionProcessor {
             data.values.put(subjects, summary);
 
         }
-        
+
         // Ordering the values
         Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> values = new HashMap<>();
-        
+
         for (Entry<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> value : data.values.entrySet()) {
-             
-            Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>> summary = new HashMap<>();                    
-            
+
+            Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>> summary = new HashMap<>();
+
             for (Entry<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>> complement : value.getValue().entrySet()) {
-                
+
                 List<Map.Entry<RDFNode, DataQualityAssessment>> list = new LinkedList<>(complement.getValue().entrySet());
-                
+
                 Collections.sort(list, comparator);
-                
+
                 Map<RDFNode, DataQualityAssessment> objects = new LinkedHashMap<>();
-                
+
                 for (Entry<RDFNode, DataQualityAssessment> entry : list) {
                     objects.put(entry.getKey(), entry.getValue());
                 }
-                
+
                 summary.put(complement.getKey(), objects);
-                
+
             }
-                    
+
             values.put(value.getKey(), summary);
-            
+
         }
-        
+
         data.values = values;
 
     }
