@@ -298,7 +298,6 @@ public class DataFusionProcessor {
 
                 // Computing the absolute frequency of the complements 
                 if (present == null) {
-
                     records.frequency++;
                 } 
 
