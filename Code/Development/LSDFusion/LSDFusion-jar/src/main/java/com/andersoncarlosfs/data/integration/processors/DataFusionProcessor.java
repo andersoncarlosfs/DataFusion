@@ -75,32 +75,26 @@ public class DataFusionProcessor {
 
         @Override
         public Float getReliability() {
-            Float value = null;
+            Float value = Float.NEGATIVE_INFINITY;
             for (DataSource d : dataSources) {
                 if (d.getReliability() == null) {
                     continue;
                 }
-                if (value == null) {
-                    value = d.getReliability();
-                }
                 value = Math.max(value, d.getReliability());
             }
-            return value == null ? new Float(0.5) : value;
+            return value == Float.NEGATIVE_INFINITY ? null : value;
         }
 
         @Override
         public Float getFreshness() {
-            Float value = null;
+            Float value = Float.POSITIVE_INFINITY;
             for (DataSource d : dataSources) {
                 if (d.getFreshness() == null) {
                     continue;
                 }
-                if (value == null) {
-                    value = d.getFreshness().floatValue();
-                }
                 value = Math.min(value, d.getFreshness());
             }
-            return value;
+            return value == Float.POSITIVE_INFINITY ? null : value;
         }
 
         @Override
@@ -117,12 +111,18 @@ public class DataFusionProcessor {
 
     private class DataQualityInformation extends DataQualityRecords implements DataQualityAssessment {
 
+        private Float reliability;
         private Float freshness;
         private Float trustiness;
 
         @Override
+        public Float getReliability() {
+            return reliability;
+        }
+
+        @Override
         public Float getFreshness() {
-            return freshness == null ? super.getFreshness() : freshness;
+            return freshness;
         }
 
         @Override
@@ -677,6 +677,7 @@ public class DataFusionProcessor {
                 for (DataQualityAssessment value : assessments) {
 
                     DataQualityRecords records = (DataQualityRecords) value;
+                    DataQualityInformation information = (DataQualityInformation) value;
 
                     // Computing the relative frequency
                     records.frequency /= statements_size;
@@ -684,19 +685,26 @@ public class DataFusionProcessor {
                     // Computing the relative homogeneity
                     records.homogeneity /= count;
 
+                    // Computing the relative reliability
+                    information.reliability = records.getReliability();
+                    if (information.reliability == null) {
+                        information.reliability = new Float(0.5);
+                    }
+
                     // Computing the relative freshness
-                    if (records.getFreshness() != null) {
-                        ((DataQualityInformation) value).freshness = records.getFreshness() / durations;
+                    information.freshness = records.getFreshness();
+                    if (information.freshness == null) {
+                        information.freshness = new Float(0.5);
                     } else {
-                        ((DataQualityInformation) value).freshness = new Float(0.5);
+                        information.freshness /= durations;
                     }
 
                     // Computing the absolute trustiness
-                    if (((DataQualityInformation) value).trustiness == null) {
-                        ((DataQualityInformation) value).trustiness = value.getScore();
+                    if (information.trustiness == null) {
+                        information.trustiness = value.getScore();
                     }
 
-                    trustinesses += ((DataQualityInformation) value).trustiness;
+                    trustinesses += information.trustiness;
 
                 }
 
