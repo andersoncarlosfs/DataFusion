@@ -5,13 +5,47 @@
  */
 package com.andersoncarlosfs.data.model.assessments;
 
-import com.andersoncarlosfs.data.model.control.DataQualityControl;
+import java.util.Collection;
+import org.apache.jena.rdf.model.RDFNode;
 
 /**
  *
  * @author Anderson Carlos Ferreira da Silva
  */
-public interface DataQualityAssessment extends DataQualityControl {
+public interface DataQualityAssessment {
+
+    static final long serialVersionUID = 1L;
+
+    /**
+     *
+     * @return the frequency
+     */
+    public Float getFrequency();
+
+    /**
+     *
+     * @return the homogeneity
+     */
+    public Float getHomogeneity();
+
+    /**
+     *
+     * @return the reliability
+     */
+    public Float getReliability();
+
+    /**
+     * Returns the timestamp.
+     *
+     * @return the freshness
+     */
+    public Float getFreshness();
+
+    /**
+     *
+     * @return the morePrecise
+     */
+    public Collection<RDFNode> getMorePrecise();
 
     /**
      *
@@ -20,11 +54,5 @@ public interface DataQualityAssessment extends DataQualityControl {
     default Float getScore() {
         return (getFreshness() + getFrequency() + getHomogeneity() + getReliability() + (getMorePrecise().size())) / (4 + getMorePrecise().size());
     }
-
-    /**
-     *
-     * @return the trustiness
-     */
-    public Float getTrustiness();
 
 }

@@ -104,8 +104,7 @@ public class DataFusionProcessorTest {
                     System.out.println("\t\t\t\t" + "Freshness=" + records.getFreshness());
                     System.out.println("\t\t\t\t" + "Reliability=" + records.getReliability());
                     System.out.println("\t\t\t\t" + "Score=" + records.getScore());
-                    System.out.println("\t\t\t\t" + "MorePrecise=" + records.getMorePrecise());
-                    System.out.println("\t\t\t\t" + "Trustiness=" + records.getTrustiness());
+                    System.out.println("\t\t\t\t" + "MorePrecise=" + records.getMorePrecise());                    
 
                 }
             }

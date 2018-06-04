@@ -10,7 +10,6 @@ import com.andersoncarlosfs.data.model.DataSource;
 import com.andersoncarlosfs.data.model.Rule;
 import com.andersoncarlosfs.data.model.assessments.DataFusionAssessment;
 import com.andersoncarlosfs.data.model.assessments.DataQualityAssessment;
-import com.andersoncarlosfs.data.model.control.DataQualityControl;
 import com.andersoncarlosfs.data.util.Function;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -49,7 +48,7 @@ import org.apache.jena.vocabulary.SKOS;
  */
 public class DataFusionProcessor {
 
-    private class DataQualityRecords implements DataQualityControl, Cloneable {
+    private class DataQualityRecords implements DataQualityAssessment, Cloneable {
 
         private Float frequency;
         private Float homogeneity;
@@ -113,7 +112,6 @@ public class DataFusionProcessor {
 
         private Float reliability;
         private Float freshness;
-        private Float trustiness;
 
         @Override
         public Float getReliability() {
@@ -128,11 +126,6 @@ public class DataFusionProcessor {
         @Override
         public Float getScore() {
             return DataQualityAssessment.super.getScore(); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public Float getTrustiness() {
-            return trustiness;
         }
 
     }
@@ -466,9 +459,6 @@ public class DataFusionProcessor {
 
                         if (functions.contains(Function.MAX) || functions.contains(Function.MIN)) {
 
-                            // Computing the absolute trustiness
-                            ((DataQualityInformation) records).trustiness = new Float(1);
-
                             try {
 
                                 Float elect = best_object.asLiteral().getFloat();
@@ -485,10 +475,6 @@ public class DataFusionProcessor {
 
                                 if (elect != best_object.asLiteral().getFloat()) {
 
-                                    ((DataQualityInformation) records).trustiness = ((DataQualityInformation) outstanding).trustiness;
-
-                                    ((DataQualityInformation) outstanding).trustiness = new Float(0);
-
                                     records.morePrecise.addAll(outstanding.morePrecise);
 
                                     outstanding.morePrecise.clear();
@@ -497,15 +483,9 @@ public class DataFusionProcessor {
 
                                     current_object = best_object;
 
-                                } else {
-
-                                    ((DataQualityInformation) records).trustiness = new Float(0);
-
                                 }
 
                                 outstanding.morePrecise.add(current_object);
-
-                                ((DataQualityInformation) outstanding).trustiness++;
 
                             } catch (LiteralRequiredException e) {
                                 // Do nothing                       
@@ -556,7 +536,6 @@ public class DataFusionProcessor {
                     ((DataQualityRecords) records).morePrecise = objects.keySet();
 
                     records.freshness = new Float(1);
-                    records.trustiness = new Float(1);
 
                     Float average = new Float(0);
 
@@ -583,7 +562,6 @@ public class DataFusionProcessor {
                     while (!nodes.isEmpty()) {
 
                         DataQualityInformation records = new DataQualityInformation();
-                        ((DataQualityInformation) records).trustiness = new Float(1);
 
                         // Getting the object
                         RDFNode previous_object = nodes.poll();
@@ -672,8 +650,6 @@ public class DataFusionProcessor {
 
                 Collection<DataQualityAssessment> assessments = object.values();
 
-                float trustinesses = 0;
-
                 for (DataQualityAssessment value : assessments) {
 
                     DataQualityRecords records = (DataQualityRecords) value;
@@ -699,18 +675,6 @@ public class DataFusionProcessor {
                         information.freshness /= durations;
                     }
 
-                    // Computing the absolute trustiness
-                    if (information.trustiness == null) {
-                        information.trustiness = value.getScore();
-                    }
-
-                    trustinesses += information.trustiness;
-
-                }
-
-                // Computing the relative trustiness
-                for (DataQualityAssessment value : assessments) {
-                    ((DataQualityInformation) value).trustiness /= trustinesses;
                 }
 
             }
