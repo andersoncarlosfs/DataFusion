@@ -45,8 +45,6 @@ import org.apache.jena.vocabulary.SKOS;
 
 /**
  *
- * http://algs4.cs.princeton.edu/42digraph/
- *
  * @author Anderson Carlos Ferreira da Silva
  */
 public class DataFusionProcessor {
@@ -301,10 +299,7 @@ public class DataFusionProcessor {
                 if (present == null) {
                     // Computing the absolute frequency of the complements 
                     records.frequency++;
-                } else {
-                    // Computing the absolute number of duplicate complements 
-                    //records.duplicates++;
-                }
+                } 
 
                 if (duplicatesAllowed) {
                     records.frequency++;
