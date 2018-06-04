@@ -184,7 +184,7 @@ public class DataFusionProcessor {
         // Rules processing
         DisjointMap<Property, Collection<Function>> parameters = new DisjointMap<>();
         DisjointMap<Property, Collection<Path>> arguments = new DisjointMap<>();
-
+/*
         for (Rule rule : rules) {
 
             Collection<Function> functions = rule.getFunctions();
@@ -215,7 +215,7 @@ public class DataFusionProcessor {
             }
 
         }
-
+*/
         // Data souces processing
         Map<RDFNode, Map<RDFNode, Map<RDFNode, Map<DataSource, Integer>>>> statements = new DisjointMap<>();
 

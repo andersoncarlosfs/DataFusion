@@ -20,9 +20,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import java.util.Arrays;
 import java.util.HashSet;
-import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.Property;
 
 /**
  *
@@ -32,15 +31,7 @@ public class DataFusionProcessorTest {
 
     private Collection<DataSource> dataSources = new HashSet<>();
 
-    private DataSource dataSet = new DataSource(Paths.get("../../../../Datasets/Books/dataset.rdf"), Lang.N3, null, null);
-
-    private DataSource link = new DataSource(Paths.get("../../../../Datasets/Books/links.rdf"), Lang.N3, null, null);
-
     private Collection<Rule> rules = new HashSet<>();
-
-    private Rule construct = new Rule(Arrays.asList(Function.IDENTITY), DataFusionProcessor.EQUIVALENCE_PROPERTIES);
-
-    private Rule min = new Rule(Arrays.asList(Function.MIN), Arrays.asList(ResourceFactory.createProperty("http://www.books.org/ontology_books1.owl#nb_pages")));
 
     private boolean duplicatesAllowed = false;
 
@@ -58,11 +49,12 @@ public class DataFusionProcessorTest {
     @Before
     public void setUp() {
 
-        dataSources.add(dataSet);
-        dataSources.add(link);
+        dataSources.add(new DataSource(Paths.get("../../../../Datasets/Books/dataset.rdf"), Lang.N3, null, null));
+        dataSources.add(new DataSource(Paths.get("../../../../Datasets/Books/links.rdf"), Lang.N3, null, null));
 
-        rules.add(construct);
-        rules.add(min);
+        for (Property property : DataFusionProcessor.EQUIVALENCE_PROPERTIES) {
+            rules.add(new Rule(Function.IDENTITY, property));
+        }
 
     }
 

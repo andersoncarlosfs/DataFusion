@@ -97,5 +97,48 @@ public class DataSource {
     protected void setReliability(Float reliability) {
         this.reliability = reliability;
     }
+    
+        /**
+     *
+     * @see java.lang.Object#hashCode()
+     * @return
+     */
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (path != null ? path.hashCode() : 0);
+        hash += (syntax != null ? syntax.hashCode() : 0);
+        hash += (freshness != null ? freshness.hashCode() : 0);
+        hash += (reliability != null ? reliability.hashCode() : 0);
+        return hash;
+    }
+
+    /**
+     *
+     * @see java.lang.Object#equals(java.lang.Object)
+     * @param object
+     * @return
+     */
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof Rule)) {
+            return false;
+        }
+        DataSource other = (DataSource) object;
+        if ((this.path == null && other.path != null) || (this.path != null && !this.path.equals(other.path))) {
+            return false;
+        }
+        if ((this.syntax == null && other.syntax != null) || (this.syntax != null && !this.syntax.equals(other.syntax))) {
+            return false;
+        }
+        if ((this.freshness == null && other.freshness != null) || (this.freshness != null && !this.freshness.equals(other.freshness))) {
+            return false;
+        }
+        if ((this.reliability == null && other.reliability != null) || (this.reliability != null && !this.reliability.equals(other.reliability))) {
+            return false;
+        }
+        return true;
+    }
 
 }
