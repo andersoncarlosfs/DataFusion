@@ -296,11 +296,13 @@ public class DataFusionProcessor {
                 // Warning, the complement is already computed                   
                 DataQualityRecords records = (DataQualityRecords) predicates_objects.get(object);
 
+                // Computing the absolute frequency of the complements 
                 if (present == null) {
-                    // Computing the absolute frequency of the complements 
+
                     records.frequency++;
                 } 
 
+                // Computing the absolute number of duplicate complements 
                 if (duplicatesAllowed) {
                     records.frequency++;
                 }
