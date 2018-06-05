@@ -106,7 +106,7 @@ public class DataFusionProcessor {
 
     }
 
-    private class DataQualityInformation extends DataQualityRecords implements DataQualityAssessment {
+    private class DataQualityInformation extends DataQualityRecords {
 
         private Float frequency;
         private Float reliability;
@@ -122,7 +122,7 @@ public class DataFusionProcessor {
         public Float getFrequency() {
             return frequency;
         }
-        
+
         public Float getFrequency(Boolean isAbsolute) {
             if (isAbsolute) {
                 return super.getFrequency();
@@ -134,7 +134,7 @@ public class DataFusionProcessor {
         public Float getReliability() {
             return reliability;
         }
-        
+
         public Float getReliability(Boolean isAbsolute) {
             if (isAbsolute) {
                 return super.getReliability();
@@ -146,17 +146,12 @@ public class DataFusionProcessor {
         public Float getFreshness() {
             return freshness;
         }
-        
+
         public Float getFreshness(Boolean isAbsolute) {
             if (isAbsolute) {
                 return super.getFreshness();
             }
             return freshness;
-        }
-
-        @Override
-        public Float getScore() {
-            return DataQualityAssessment.super.getScore(); //To change body of generated methods, choose Tools | Templates.
         }
 
     }
@@ -376,7 +371,7 @@ public class DataFusionProcessor {
                     for (Map.Entry<RDFNode, Collection<DataSource>> classe_subject_predicate_object : classe_subject_predicate_objects.entrySet()) {
 
                         RDFNode object = classe_subject_predicate_object.getKey();
-                                                
+
                         // Processing the absolute criteria
                         Map<RDFNode, DataQualityRecords> complement_objects = complements.get(last_predicate);
 
@@ -387,7 +382,7 @@ public class DataFusionProcessor {
                         objects.putIfAbsent(object, (DataQualityAssessment) complement_object_records_clone);
 
                         DataQualityRecords records = (DataQualityRecords) objects.get(object);
-                        
+
                         int duplicates = classe_subject_predicate_object.getValue().size();
 
                         // Searching for duplicate statements
@@ -397,7 +392,7 @@ public class DataFusionProcessor {
 
                         // Computing the absolute homogeneity
                         if (duplicatesAllowed) {
-                            records.homogeneity += duplicates;                            
+                            records.homogeneity += duplicates;
                         } else {
                             records.homogeneity++;
                         }
