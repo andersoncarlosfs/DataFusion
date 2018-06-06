@@ -158,11 +158,11 @@ public class DataFusionProcessor {
 
     private class DataFusionInformation implements DataFusionAssessment {
 
-        private Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> values;
+        private Map<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>>> values;
         private Collection<Triple> duplicates;
 
         @Override
-        public Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> getComputedDataQualityAssessment() {
+        public Map<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>>> getComputedDataQualityAssessment() {
             return values;
         }
 
@@ -334,7 +334,7 @@ public class DataFusionProcessor {
 
         for (Map<RDFNode, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>> classe : classes) {
 
-            Collection<RDFNode> subjects = new HashSet<>();
+            Map<RDFNode, Collection<DataSource>> subjects = new HashMap<>();
 
             Map<RDFNode, Map<RDFNode, DataQualityAssessment>> classe_complements = new DisjointMap<>();
 
@@ -345,7 +345,7 @@ public class DataFusionProcessor {
                 Map<RDFNode, Map<RDFNode, Collection<DataSource>>> classe_subject_predicates = classe_subject.getValue();
 
                 // Grouping the subjects
-                subjects.add(subject);
+                subjects.putIfAbsent(subject, new HashSet<>());
 
                 // Last predicate
                 RDFNode last_predicate = null;
@@ -405,18 +405,24 @@ public class DataFusionProcessor {
             // Retrieving the mappings
             Collection<Map<RDFNode, Map<RDFNode, DataQualityAssessment>>> mappings = ((DisjointMap) classe_complements).disjointValues();
 
-            Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>> summary = new DisjointMap<>();
+            Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>> summary = new DisjointMap<>();
 
             for (Map<RDFNode, Map<RDFNode, DataQualityAssessment>> mapping : mappings) {
 
-                Collection<RDFNode> predicates = mapping.keySet();
-
+                Map<RDFNode, Collection<DataSource>> predicates = new HashMap<>();
+               
                 Collection<Function> functions = new HashSet<>();
+               
                 Collection<Path> knowledge = new HashSet<>();
-
-                for (RDFNode p : predicates) {
-                    functions.addAll(parameters.getOrDefault(p, Collections.EMPTY_SET));
-                    knowledge.addAll(arguments.getOrDefault(p, Collections.EMPTY_SET));
+                                
+                for (RDFNode predicate : mapping.keySet()) {
+                    
+                    predicates.put(predicate, null);
+                    
+                    functions.addAll(parameters.getOrDefault(predicate, Collections.EMPTY_SET));
+                   
+                    knowledge.addAll(arguments.getOrDefault(predicate, Collections.EMPTY_SET));
+                    
                 }
 
                 Map<RDFNode, DataQualityAssessment> objects = new HashMap<>();
@@ -676,13 +682,13 @@ public class DataFusionProcessor {
         }
 
         // Ordering the values
-        Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> values = new HashMap<>();
+        Map<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>>> values = new HashMap<>();
 
-        for (Entry<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> value : data.values.entrySet()) {
+        for (Entry<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>>> value : data.values.entrySet()) {
 
-            Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>> summary = new HashMap<>();
+            Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>> summary = new HashMap<>();
 
-            for (Entry<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>> complement : value.getValue().entrySet()) {
+            for (Entry<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>> complement : value.getValue().entrySet()) {
 
                 List<Map.Entry<RDFNode, DataQualityAssessment>> list = new LinkedList<>(complement.getValue().entrySet());
 

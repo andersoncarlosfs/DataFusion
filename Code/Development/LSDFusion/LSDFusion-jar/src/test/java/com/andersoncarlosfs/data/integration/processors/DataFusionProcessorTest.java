@@ -73,19 +73,19 @@ public class DataFusionProcessorTest {
 
         DataFusionAssessment assessment = DataFusionProcessor.process(dataSources, rules, duplicatesAllowed);
 
-        Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> values = assessment.getComputedDataQualityAssessment();
+        Map<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>>> values = assessment.getComputedDataQualityAssessment();
 
-        for (Map.Entry<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> classes : values.entrySet()) {
+        for (Map.Entry<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>>> classes : values.entrySet()) {
 
-            Collection<RDFNode> subjects = classes.getKey();
+            Collection<RDFNode> subjects = classes.getKey().keySet();
 
             System.out.println("{\n\t" + "Subjects=" + subjects);
 
-            Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>> complements = classes.getValue();
+            Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>> complements = classes.getValue();
 
-            for (Map.Entry<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>> complement : complements.entrySet()) {
+            for (Map.Entry<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>> complement : complements.entrySet()) {
 
-                Collection<RDFNode> predicates = complement.getKey();
+                Collection<RDFNode> predicates = complement.getKey().keySet();
 
                 System.out.println("\t\t" + "Predicates=" + predicates);
 

@@ -5,6 +5,7 @@
  */
 package com.andersoncarlosfs.data.model.assessments;
 
+import com.andersoncarlosfs.data.model.DataSource;
 import java.util.Collection;
 import java.util.Map;
 import org.apache.jena.graph.Triple;
@@ -21,7 +22,7 @@ public interface DataFusionAssessment {
      *
      * @return
      */
-    public Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, DataQualityAssessment>>> getComputedDataQualityAssessment();
+    public Map<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>>> getComputedDataQualityAssessment();
 
     /**
      *
