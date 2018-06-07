@@ -407,14 +407,10 @@ public class DataFusionProcessor {
 
                 // TO REDO:
                 for (RDFNode predicate : mapping.keySet()) {
-
-                    predicates.putIfAbsent(predicate, new HashSet<>());
-
                     for (Entry<Function, Collection<Object>> entry : parameters.getOrDefault(predicate, new HashMap<>()).entrySet()) {
                         functions.putIfAbsent(entry.getKey(), entry.getValue());
                         functions.get(entry.getKey()).add(entry.getValue());
                     }
-
                 }
 
                 Map<RDFNode, DataQualityAssessment> objects = new HashMap<>();
@@ -422,12 +418,24 @@ public class DataFusionProcessor {
                 // Best object
                 RDFNode best_object = null;
 
-                for (Map<RDFNode, DataQualityInformation> mapping_objects : mapping.values()) {
-                    for (Entry<RDFNode, DataQualityInformation> mapping_object : mapping_objects.entrySet()) {
+                for (Entry<RDFNode, Map<RDFNode, DataQualityInformation>> mapping_objects : mapping.entrySet()) {
+
+                    RDFNode predicate = mapping_objects.getKey();
+
+                    // Grouping the predicates
+                    predicates.putIfAbsent(predicate, new HashSet<>());
+
+                    // Retrieving the subject provenance 
+                    Collection<DataSource> predicate_provenance = predicates.get(predicate);
+
+                    for (Entry<RDFNode, DataQualityInformation> mapping_object : mapping_objects.getValue().entrySet()) {
 
                         RDFNode current_object = mapping_object.getKey();
 
                         DataQualityRecords values = (DataQualityRecords) mapping_object.getValue();
+
+                        // Adding the provenance
+                        predicate_provenance.addAll(values.dataSources);
 
                         // Processing the absolute criteria
                         objects.putIfAbsent(current_object, new DataQualityInformation());
