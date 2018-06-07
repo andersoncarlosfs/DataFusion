@@ -288,20 +288,15 @@ public class DataFusionProcessor {
                 Collection<DataSource> subjects_predicates_objects_dataSources = subjects_predicates_objects.get(object);
 
                 // Complements processing
-                Map<RDFNode, Map<RDFNode, DataQualityRecords>> predicates = complements;
+                complements.putIfAbsent(property, new HashMap<>());
 
-                predicates.putIfAbsent(property, new HashMap<>());
-
-                Map<RDFNode, DataQualityRecords> predicates_objects = predicates.get(property);
+                Map<RDFNode, DataQualityRecords> predicates_objects = complements.get(property);
 
                 predicates_objects.putIfAbsent(object, new DataQualityInformation());
 
-                // Warning, the complement is already computed                   
-                DataQualityRecords records = (DataQualityRecords) predicates_objects.get(object);
-
                 // Warning, the statement is already present in the dataSouce
                 if (subjects_predicates_objects_dataSources.add(dataSource)) {
-                    records.dataSources.add(dataSource);
+                    ((DataQualityRecords) predicates_objects.get(object)).dataSources.add(dataSource);
                 }
 
             }
@@ -347,6 +342,9 @@ public class DataFusionProcessor {
 
                 // Last predicate
                 RDFNode last_predicate = null;
+                
+                // Retrieving the subject provenance 
+                Collection<DataSource> subject_provenance = subjects.get(subject);
 
                 for (Map.Entry<RDFNode, Map<RDFNode, Collection<DataSource>>> classe_subject_predicate : classe_subject_predicates.entrySet()) {
 
@@ -394,7 +392,10 @@ public class DataFusionProcessor {
                         } else {
                             records.homogeneity++;
                         }
-
+                        
+                        // Adding the provenance
+                        subject_provenance.addAll(records.dataSources);
+                        
                     }
                 }
 
@@ -415,7 +416,7 @@ public class DataFusionProcessor {
                                 
                 for (RDFNode predicate : mapping.keySet()) {
                     
-                    predicates.put(predicate, null);
+                    predicates.putIfAbsent(predicate, new HashSet<>());
                     
                     functions.addAll(parameters.getOrDefault(predicate, Collections.EMPTY_SET));
                    
