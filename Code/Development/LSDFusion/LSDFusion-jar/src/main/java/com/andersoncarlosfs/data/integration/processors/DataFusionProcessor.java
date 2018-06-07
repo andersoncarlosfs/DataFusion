@@ -275,11 +275,9 @@ public class DataFusionProcessor {
                 }
 
                 // Statements processing
-                Map<RDFNode, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>> subjects = statements;
+                statements.putIfAbsent(subject, new HashMap<>());
 
-                subjects.putIfAbsent(subject, new HashMap<>());
-
-                Map<RDFNode, Map<RDFNode, Collection<DataSource>>> subjects_predicates = subjects.get(subject);
+                Map<RDFNode, Map<RDFNode, Collection<DataSource>>> subjects_predicates = statements.get(subject);
 
                 subjects_predicates.putIfAbsent(property, new HashMap<>());
 
@@ -486,9 +484,7 @@ public class DataFusionProcessor {
 
                                 outstanding.morePrecise.add(current_object);
 
-                            } catch (LiteralRequiredException e) {
-                                // Do nothing                       
-                            } catch (NumberFormatException e) {
+                            } catch (LiteralRequiredException |NumberFormatException e) {
                                 // Do nothing 
                             } catch (NullPointerException e) {
                                 if (NumberUtils.isCreatable(current_object.asLiteral().getValue().toString())) {
