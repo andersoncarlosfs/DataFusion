@@ -199,30 +199,26 @@ public class DataFusionProcessor {
      */
     public DataFusionProcessor(Collection<? extends DataSource> dataSources, Collection<Rule> rules, boolean duplicatesAllowed) throws IOException, CloneNotSupportedException {
         // Rules processing
-        DisjointMap<Property, Collection<Function>> parameters = new DisjointMap<>();
-        DisjointMap<Property, Collection<Object>> arguments = new DisjointMap<>();
+        DisjointMap<Property, Map<Function, Collection<Object>>> parameters = new DisjointMap<>();
 
         for (Rule rule : rules) {
 
-            Function function = rule.getFunction();
             Property property = rule.getProperty();
+            Function function = rule.getFunction();            
             Object value = rule.getValue();
 
-            // Attaching zero or more functions a property 
-            parameters.putIfAbsent(property, new HashSet<>());
-            parameters.get(property).add(function);
+            // Attaching zero or more functions to a property 
+            parameters.putIfAbsent(property, new HashMap<>());
+            
+            Map<Function, Collection<Object>> arguments = parameters.get(property);
+            
+            // Attaching zero or more arguments to a property 
+            arguments.putIfAbsent(function, new HashSet<>());
+            arguments.get(function).add(value);
 
-            switch (function) {
-                // Attaching zero or more arguments a property 
-                case EXTRA_KNOWLEDGE:
-                    arguments.putIfAbsent(property, new HashSet<>());
-                    arguments.get(property).add(rule.getValue());
-                    break;
-                // Grouping the properties
-                case MAPPING:
-                    parameters.union(property, (Property) value);
-                    arguments.union(property, (Property) value);
-                    break;
+            // Grouping the properties
+            if (function == Function.MAPPING) {
+                parameters.union(property, (Property) value);
             }
 
         }
@@ -255,12 +251,12 @@ public class DataFusionProcessor {
                 RDFNode object = statement.getObject();
 
                 // Escaping the predicates
-                if (parameters.getOrDefault(property, Collections.EMPTY_SET).contains(Function.ESCAPE)) {
+                if (parameters.getOrDefault(property, Collections.EMPTY_MAP).containsKey(Function.ESCAPE)) {
                     continue;
                 }
 
                 // Equivalence classes processing 
-                if (parameters.getOrDefault(property, Collections.EMPTY_SET).contains(Function.IDENTITY)) {
+                if (parameters.getOrDefault(property, Collections.EMPTY_MAP).containsKey(Function.IDENTITY)) {
 
                     // Putting the equivalent members 
                     statements.putIfAbsent(subject, new HashMap<>());
@@ -342,7 +338,7 @@ public class DataFusionProcessor {
 
                 // Last predicate
                 RDFNode last_predicate = null;
-                
+
                 // Retrieving the subject provenance 
                 Collection<DataSource> subject_provenance = subjects.get(subject);
 
@@ -356,7 +352,7 @@ public class DataFusionProcessor {
                     classe_complements.putIfAbsent(current_predicate, new HashMap<>());
 
                     // Grouping the predicates
-                    if (parameters.getOrDefault(current_predicate, Collections.EMPTY_SET).contains(Function.MAPPING)) {
+                    if (parameters.getOrDefault(current_predicate, Collections.EMPTY_MAP).containsKey(Function.MAPPING)) {
                         ((DisjointMap) classe_complements).union(last_predicate, current_predicate);
                     }
 
@@ -392,10 +388,10 @@ public class DataFusionProcessor {
                         } else {
                             records.homogeneity++;
                         }
-                        
+
                         // Adding the provenance
                         subject_provenance.addAll(records.dataSources);
-                        
+
                     }
                 }
 
@@ -409,19 +405,19 @@ public class DataFusionProcessor {
             for (Map<RDFNode, Map<RDFNode, DataQualityAssessment>> mapping : mappings) {
 
                 Map<RDFNode, Collection<DataSource>> predicates = new HashMap<>();
-               
-                Collection<Function> functions = new HashSet<>();
-               
-                Collection<Path> knowledge = new HashSet<>();
-                                
+
+                Map<Function, Collection<Object>> functions = new HashMap<>();
+
+                // TO REDO:
                 for (RDFNode predicate : mapping.keySet()) {
-                    
+
                     predicates.putIfAbsent(predicate, new HashSet<>());
-                    
-                    functions.addAll(parameters.getOrDefault(predicate, Collections.EMPTY_SET));
-                   
-                    knowledge.addAll(arguments.getOrDefault(predicate, Collections.EMPTY_SET));
-                    
+
+                    for (Entry<Function, Collection<Object>> entry : parameters.getOrDefault(predicate, new HashMap<>()).entrySet()) {
+                        functions.putIfAbsent(entry.getKey(), entry.getValue());
+                        functions.get(entry.getKey()).add(entry.getValue());
+                    }
+
                 }
 
                 Map<RDFNode, DataQualityAssessment> objects = new HashMap<>();
@@ -451,21 +447,21 @@ public class DataFusionProcessor {
                         records.dataSources.addAll(v.dataSources);
 
                         // Applying the functions
-                        if (functions.contains(Function.AVG) || functions.contains(Function.EXTRA_KNOWLEDGE)) {
+                        if (functions.containsKey(Function.AVG) || functions.containsKey(Function.EXTRA_KNOWLEDGE)) {
                             continue;
                         }
 
-                        if (functions.contains(Function.MAX) || functions.contains(Function.MIN)) {
+                        if (functions.containsKey(Function.MAX) || functions.containsKey(Function.MIN)) {
 
                             try {
 
                                 Float elect = best_object.asLiteral().getFloat();
                                 Float candidate = current_object.asLiteral().getFloat();
 
-                                if (functions.contains(Function.MIN)) {
+                                if (functions.containsKey(Function.MIN)) {
                                     elect = Math.min(elect, candidate);
                                 }
-                                if (functions.contains(Function.MAX)) {
+                                if (functions.containsKey(Function.MAX)) {
                                     elect = Math.max(elect, candidate);
                                 }
 
@@ -485,7 +481,7 @@ public class DataFusionProcessor {
 
                                 outstanding.morePrecise.add(current_object);
 
-                            } catch (LiteralRequiredException |NumberFormatException e) {
+                            } catch (LiteralRequiredException | NumberFormatException e) {
                                 // Do nothing 
                             } catch (NullPointerException e) {
                                 if (NumberUtils.isCreatable(current_object.asLiteral().getValue().toString())) {
@@ -523,7 +519,7 @@ public class DataFusionProcessor {
                 }
 
                 // Applying the functions
-                if (functions.contains(Function.AVG)) {
+                if (functions.containsKey(Function.AVG)) {
 
                     DataQualityInformation records = new DataQualityInformation();
 
@@ -548,10 +544,10 @@ public class DataFusionProcessor {
                 }
 
                 // TO REDO:
-                if (functions.contains(Function.EXTRA_KNOWLEDGE)) {
+                if (functions.containsKey(Function.EXTRA_KNOWLEDGE)) {
 
                     // Getting the extra knowledge
-                    Path path = knowledge.iterator().next();
+                    Path path = (Path) functions.get(Function.EXTRA_KNOWLEDGE).iterator().next();
 
                     Queue<RDFNode> nodes = new LinkedList<>(objects.keySet());
 
