@@ -115,16 +115,6 @@ public class DataFusionProcessor {
             super(new HashSet<>(), new HashSet<>());
         }
 
-        public DataQualityInformation(float frequency, float homogeneity, float reliability, float freshness) {
-            super(new HashSet<>(), new HashSet<>());         
-            this.frequency = frequency;
-            super.homogeneity= homogeneity;
-            this.reliability = reliability;
-            this.freshness = freshness;
-        }
-        
-        
-
         @Override
         public Float getFrequency() {
             return frequency;
@@ -529,7 +519,7 @@ public class DataFusionProcessor {
                 if (functions.containsKey(Function.AVG)) {
 
                     DataQualityRecords information = new DataQualityInformation();
-                    
+
                     Float average = new Float(0);
 
                     for (RDFNode object : information.morePrecise) {
@@ -541,7 +531,7 @@ public class DataFusionProcessor {
                     }
 
                     objects.put(ResourceFactory.createTypedLiteral(average), information);
-                    
+
                     information.homogeneity = Float.NaN;
 
                 }
@@ -623,7 +613,7 @@ public class DataFusionProcessor {
                         reader.close();
 
                         objects.put(previous_object, records);
-                        
+
                         records.homogeneity = Float.NaN;
 
                     }
@@ -652,23 +642,23 @@ public class DataFusionProcessor {
                     DataQualityInformation information = (DataQualityInformation) value;
 
                     // Computing the relative homogeneity
-                    if(((DataQualityRecords) value).homogeneity == Float.NaN ) {
-                        
+                    if (((DataQualityRecords) value).homogeneity == Float.NaN) {
+
                         ((DataQualityRecords) value).homogeneity = 1;
-                        
-                        information.frequency = 1; 
+
+                        information.frequency = 1;
                         information.reliability = 1;
                         information.freshness = 1;
-                        
+
                         continue;
-                                                                       
+
                     }
-                      
+
                     // Computing the relative homogeneity    
-                    ((DataQualityRecords) value).homogeneity  /= count;                    
-                    
+                    ((DataQualityRecords) value).homogeneity /= count;
+
                     // Computing the relative frequency
-                    information.frequency /= statements_size;                    
+                    information.frequency /= statements_size;
 
                     // Computing the relative reliability
                     information.reliability = information.getReliability(true);
