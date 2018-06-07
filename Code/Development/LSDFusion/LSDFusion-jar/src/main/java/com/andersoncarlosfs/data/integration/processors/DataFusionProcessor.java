@@ -93,6 +93,10 @@ public class DataFusionProcessor {
             return value;
         }
 
+        public Collection<DataSource> getDataSources() {
+            return dataSources;
+        }
+
         @Override
         public Collection<RDFNode> getMorePrecise() {
             return morePrecise;
