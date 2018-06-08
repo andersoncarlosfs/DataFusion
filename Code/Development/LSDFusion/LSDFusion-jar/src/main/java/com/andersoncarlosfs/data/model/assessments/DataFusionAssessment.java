@@ -8,6 +8,7 @@ package com.andersoncarlosfs.data.model.assessments;
 import com.andersoncarlosfs.data.model.DataSource;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
@@ -22,7 +23,7 @@ public interface DataFusionAssessment {
      *
      * @return
      */
-    public Map<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>>> getComputedDataQualityAssessment();
+    public Map<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>>> getComputedDataQualityAssessment();
 
     /**
      *

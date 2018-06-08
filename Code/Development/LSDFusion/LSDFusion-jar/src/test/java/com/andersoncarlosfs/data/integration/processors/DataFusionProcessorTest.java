@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import org.apache.jena.rdf.model.Property;
 
 /**
@@ -73,31 +74,31 @@ public class DataFusionProcessorTest {
 
         DataFusionAssessment assessment = DataFusionProcessor.process(dataSources, rules, duplicatesAllowed);
 
-        Map<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>>> values = assessment.getComputedDataQualityAssessment();
+        Map<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>>> values = assessment.getComputedDataQualityAssessment();
 
-        for (Map.Entry<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>>> classes : values.entrySet()) {
+        for (Entry<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>>> classes : values.entrySet()) {
 
             Collection<RDFNode> subjects = classes.getKey().keySet();
 
             System.out.println("{\n\t" + "Subjects=" + subjects);
 
-            Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>> complements = classes.getValue();
+            Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>> complements = classes.getValue();
 
-            for (Map.Entry<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, DataQualityAssessment>> complement : complements.entrySet()) {
+            for (Entry<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>> complement : complements.entrySet()) {
 
                 Collection<RDFNode> predicates = complement.getKey().keySet();
 
                 System.out.println("\t\t" + "Predicates=" + predicates);
 
-                Map<RDFNode, DataQualityAssessment> objects = complement.getValue();
+                Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>> objects = complement.getValue();
 
-                for (Map.Entry<RDFNode, DataQualityAssessment> object : objects.entrySet()) {
+                for (Entry<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>> object : objects.entrySet()) {
 
                     RDFNode value = object.getKey();
 
                     System.out.println("\t\t\t" + "Object=" + value);
 
-                    DataQualityAssessment records = object.getValue();
+                    DataQualityAssessment records = object.getValue().getKey();
 
                     System.out.println("\t\t\t\t" + "Frequency=" + records.getFrequency());
                     System.out.println("\t\t\t\t" + "Homogeneity=" + records.getHomogeneity());
