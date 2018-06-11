@@ -487,8 +487,6 @@ public class DataFusionProcessor {
 
                     while (!nodes.isEmpty()) {
 
-                        DataQualityRecords records = new DataQualityRecords();
-
                         // Getting the object
                         RDFNode previous_object = nodes.poll();
                         String previous_value = previous_object.asLiteral().getString();
@@ -519,6 +517,7 @@ public class DataFusionProcessor {
 
                                 // Getting the object
                                 RDFNode current_object = nodes.poll();
+                                
                                 String current_value = current_object.asLiteral().getString();
 
                                 if (!line.contains(current_value) && temp.add(current_object)) {
@@ -535,13 +534,13 @@ public class DataFusionProcessor {
                                 // Updating the best object
                                 if (current_position > previous_position) {
 
-                                    records.getMorePrecise().add(previous_object);
+                                    objects.get(current_object).getKey().getMorePrecise().add(previous_object);
 
                                     previous_object = current_object;
 
                                 } else {
 
-                                    records.getMorePrecise().add(current_object);
+                                    objects.get(previous_object).getKey().getMorePrecise().add(current_object);
 
                                 }
 
@@ -552,10 +551,6 @@ public class DataFusionProcessor {
                         }
 
                         reader.close();
-
-                        objects.put(previous_object, new AbstractMap.SimpleEntry<>(records, Collections.EMPTY_SET));
-
-                        records.homogeneity = Float.NaN;
 
                     }
 
