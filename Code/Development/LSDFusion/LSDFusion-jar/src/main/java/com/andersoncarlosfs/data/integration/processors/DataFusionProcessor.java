@@ -62,10 +62,6 @@ public class DataFusionProcessor {
             return frequency;
         }
 
-        public Float getFrequency(Collection<DataSource> dataSources) {
-            return (float) dataSources.size();
-        }
-
         @Override
         public Float getHomogeneity() {
             return homogeneity;
@@ -74,17 +70,6 @@ public class DataFusionProcessor {
         @Override
         public Float getReliability() {
             return reliability;
-        }
-
-        public Float getReliability(Collection<DataSource> dataSources) {
-            Float value = Float.NEGATIVE_INFINITY;
-            for (DataSource d : dataSources) {
-                if (d.getReliability() == null) {
-                    continue;
-                }
-                value = Math.max(value, d.getReliability());
-            }
-            return value == Float.NEGATIVE_INFINITY ? null : value;
         }
 
         @Override
@@ -113,7 +98,6 @@ public class DataFusionProcessor {
     private class DataFusionInformation implements DataFusionAssessment {
 
         private Map<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>>> values;
-        private Collection<Triple> duplicates;
 
         @Override
         public Map<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>>> getComputedDataQualityAssessment() {
@@ -122,7 +106,7 @@ public class DataFusionProcessor {
 
         @Override
         public Collection<Triple> getDuplicates() {
-            return duplicates;
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
@@ -322,15 +306,10 @@ public class DataFusionProcessor {
 
                         DataQualityRecords records = (DataQualityRecords) objects.get(object).getKey();
 
-                        int duplicates = classe_subject_predicate_object.getValue().size();
-
-                        // Searching for duplicate statements
-                        if (duplicates > 1) {
-                            data.duplicates.add(new Triple(subject.asNode(), last_predicate.asNode(), object.asNode()));
-                        }
+                        int duplicates = provenance.size();
 
                         // Computing the absolute homogeneity
-                        if (duplicatesAllowed) {
+                        if (duplicates > 1) {
                             records.homogeneity += duplicates;
                         } else {
                             records.homogeneity++;
@@ -393,7 +372,7 @@ public class DataFusionProcessor {
 
                         // Processing the absolute criteria
                         if (objects.putIfAbsent(current_object, current_entry) != null) {
-                            
+
                             // Computing the absolute homogeneity
                             ((DataQualityRecords) objects.get(current_object).getKey()).homogeneity += current_records.homogeneity;
 
@@ -408,7 +387,7 @@ public class DataFusionProcessor {
 
                         // Computing the absolute freshness and absolute reability
                         previous_entry.getValue().addAll(current_provenance);
-                        
+
                         current_records = previous_record;
 
                         // Applying the functions
@@ -486,9 +465,9 @@ public class DataFusionProcessor {
 
                 // Applying the functions
                 if (functions.containsKey(Function.AVG)) {
-                    
+
                     DataQualityRecords records = new DataQualityRecords();
-                    
+
                     records.morePrecise = objects.keySet();
 
                     Float average = new Float(0);
@@ -637,7 +616,7 @@ public class DataFusionProcessor {
                     if (records.freshness == null) {
                         records.freshness = durations * 0.5F;
                     }
-                    
+
                     // Additive smoothing
                     records.freshness = ((records.freshness + 1) / durations) - 1;
 
