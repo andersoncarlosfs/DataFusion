@@ -53,8 +53,8 @@ public class DataFusionProcessor {
 
         private Float frequency = 0F;
         private Float homogeneity = 0F;
-        private Float reliability = 0F;
-        private Float freshness = 0F;
+        private Float reliability = Float.NEGATIVE_INFINITY;
+        private Float freshness = Float.POSITIVE_INFINITY;
         private Collection<RDFNode> morePrecise = new HashSet<>();
 
         @Override
@@ -71,32 +71,10 @@ public class DataFusionProcessor {
         public Float getReliability() {
             return reliability;
         }
-        
-        public Float getReliability(Collection<DataSource> dataSources) {
-            Float value = Float.NEGATIVE_INFINITY;
-            for (DataSource d : dataSources) {
-                if (d.getReliability() == null) {
-                    continue;
-                }
-                value = Math.max(value, d.getReliability());
-            }
-            return value == Float.NEGATIVE_INFINITY ? null : value;
-        }
 
         @Override
         public Float getFreshness() {
             return freshness;
-        }
-
-        public Float getFreshness(Collection<DataSource> dataSources) {
-            Float value = Float.POSITIVE_INFINITY;
-            for (DataSource d : dataSources) {
-                if (d.getFreshness() == null) {
-                    continue;
-                }
-                value = Math.min(value, d.getFreshness());
-            }
-            return value == Float.POSITIVE_INFINITY ? null : value;
         }
 
         @Override
@@ -180,7 +158,7 @@ public class DataFusionProcessor {
 
         Map<RDFNode, Map<RDFNode, DataQualityRecords>> complements = new DisjointMap<>();
 
-        long durations = 1;
+        long durations = 0;
 
         for (DataSource dataSource : dataSources) {
 
@@ -400,10 +378,10 @@ public class DataFusionProcessor {
 
                             // Computing the absolute freshness and absolute reability
                             previous_entry.getValue().addAll(current_provenance);
-                            
+
                             current_records = previous_record;
 
-                        }                        
+                        }
 
                         // Applying the functions
                         if (functions.containsKey(Function.AVG) || functions.containsKey(Function.EXTRA_KNOWLEDGE)) {
@@ -620,20 +598,31 @@ public class DataFusionProcessor {
                     // Computing the relative frequency
                     records.frequency /= size;
 
+                    for (DataSource dataSource : value.getValue()) {
+
+                        // Computing the relative reliability
+                        if (dataSource.getReliability() != null) {
+                            records.reliability = Math.max(records.reliability, dataSource.getReliability());
+                        }
+
+                        // Computing the relative freshness
+                        if (dataSource.getFreshness() != null) {
+                            records.freshness = Math.min(records.freshness, dataSource.getFreshness());
+                        }
+
+                    }
+
                     // Computing the relative reliability
-                    records.reliability = records.getReliability(value.getValue());
-                    if (records.reliability == null) {
+                    if (records.reliability == Float.NEGATIVE_INFINITY) {
                         records.reliability = 0.5F;
                     }
 
                     // Computing the relative freshness
-                    records.freshness = records.getFreshness(value.getValue());
-                    if (records.freshness == null) {
-                        records.freshness = durations * 0.5F;
+                    if (records.freshness == Float.POSITIVE_INFINITY) {
+                        records.freshness = 0.5F;
+                    } else {                        
+                        records.freshness /= durations;
                     }
-
-                    // Additive smoothing
-                    records.freshness = ((records.freshness + 1) / durations) - 1;
 
                 }
 
