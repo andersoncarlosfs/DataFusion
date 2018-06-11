@@ -71,6 +71,17 @@ public class DataFusionProcessor {
         public Float getReliability() {
             return reliability;
         }
+        
+        public Float getReliability(Collection<DataSource> dataSources) {
+            Float value = Float.NEGATIVE_INFINITY;
+            for (DataSource d : dataSources) {
+                if (d.getReliability() == null) {
+                    continue;
+                }
+                value = Math.max(value, d.getReliability());
+            }
+            return value == Float.NEGATIVE_INFINITY ? null : value;
+        }
 
         @Override
         public Float getFreshness() {
@@ -135,7 +146,7 @@ public class DataFusionProcessor {
      * @throws IOException
      * @throws java.lang.CloneNotSupportedException
      */
-    public DataFusionProcessor(Collection<? extends DataSource> dataSources, Collection<Rule> rules, boolean duplicatesAllowed) throws IOException, CloneNotSupportedException {
+    public DataFusionProcessor(Collection<? extends DataSource> dataSources, Collection<Rule> rules) throws IOException {
         // Rules processing
         DisjointMap<Property, Map<Function, Collection<Object>>> parameters = new DisjointMap<>();
 
@@ -160,6 +171,9 @@ public class DataFusionProcessor {
             }
 
         }
+
+        // Allowing duplicates
+        Boolean deduplicate = (Boolean) parameters.getOrDefault(null, Collections.EMPTY_MAP).getOrDefault(Function.DEDUPLICATE, Boolean.FALSE);
 
         // Data souces processing
         Map<RDFNode, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>> statements = new DisjointMap<>();
@@ -203,9 +217,6 @@ public class DataFusionProcessor {
                     // Grouping the members                    
                     ((DisjointMap) statements).union(subject, object);
 
-                    // Escaping
-                    continue;
-
                 }
 
                 // Statements processing
@@ -219,38 +230,40 @@ public class DataFusionProcessor {
 
                 subjects_predicates_objects.putIfAbsent(object, new HashSet<>());
 
-                Collection<DataSource> subjects_predicates_objects_dataSources = subjects_predicates_objects.get(object);
+                // Warning, the statement is already present in the dataSouce
+                subjects_predicates_objects.get(object).add(dataSource);
 
                 // Complements processing
                 complements.putIfAbsent(property, new HashMap<>());
 
-                complements.get(property).putIfAbsent(object, new DataQualityRecords());
+                Map<RDFNode, DataQualityRecords> predicates_objects = complements.get(property);
 
-                // Warning, the statement is already present in the dataSouce
-                subjects_predicates_objects_dataSources.add(dataSource);
+                predicates_objects.putIfAbsent(object, new DataQualityRecords());
+
+                // Counting the frequency
+                predicates_objects.get(object).frequency++;
 
             }
 
         }
 
         // Size processing
-        int statements_size = 0;
+        int size = 0;
 
-        for (Map<RDFNode, Map<RDFNode, Collection<DataSource>>> subjects : statements.values()) {
-            for (Map<RDFNode, Collection<DataSource>> properties : subjects.values()) {
-                if (duplicatesAllowed) {
-                    statements_size += properties.values().size();
+        for (Map<RDFNode, Map<RDFNode, Collection<DataSource>>> subjects_predicates : statements.values()) {
+            for (Map<RDFNode, Collection<DataSource>> subjects_predicates_objects : subjects_predicates.values()) {
+                if (deduplicate) {
+                    size += subjects_predicates_objects.values().size();
                 } else {
-                    statements_size++;
+                    for (Collection<DataSource> value : subjects_predicates_objects.values()) {
+                        size += value.size();
+                    }
                 }
             }
         }
 
         // Equivalence classes processing     
         data.values = new HashMap<>();
-
-        // Computing the duplicate statements
-        data.duplicates = new HashSet<>();
 
         // Retrieving the equivalence classes 
         Collection<Map<RDFNode, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>> classes = ((DisjointMap) statements).disjointValues();
@@ -309,7 +322,7 @@ public class DataFusionProcessor {
                         int duplicates = provenance.size();
 
                         // Computing the absolute homogeneity
-                        if (duplicates > 1) {
+                        if (deduplicate == false && duplicates > 1) {
                             records.homogeneity += duplicates;
                         } else {
                             records.homogeneity++;
@@ -338,7 +351,7 @@ public class DataFusionProcessor {
                 for (RDFNode predicate : mapping.keySet()) {
                     for (Entry<Function, Collection<Object>> entry : parameters.getOrDefault(predicate, new HashMap<>()).entrySet()) {
                         functions.putIfAbsent(entry.getKey(), entry.getValue());
-                        functions.get(entry.getKey()).add(entry.getValue());
+                        functions.get(entry.getKey()).addAll(entry.getValue());
                     }
                 }
 
@@ -370,25 +383,27 @@ public class DataFusionProcessor {
                         // Adding the provenance
                         predicate_provenance.addAll(current_provenance);
 
+                        Entry<DataQualityAssessment, Collection<DataSource>> previous_entry = objects.putIfAbsent(current_object, current_entry);
+
                         // Processing the absolute criteria
-                        if (objects.putIfAbsent(current_object, current_entry) != null) {
+                        if (previous_entry != null) {
+
+                            previous_entry = objects.get(current_object);
+
+                            DataQualityRecords previous_record = (DataQualityRecords) previous_entry.getKey();
+
+                            // Computing the absolute frequency
+                            previous_record.frequency += current_records.frequency;
 
                             // Computing the absolute homogeneity
-                            ((DataQualityRecords) objects.get(current_object).getKey()).homogeneity += current_records.homogeneity;
+                            previous_record.homogeneity += current_records.homogeneity;
 
-                        }
+                            // Computing the absolute freshness and absolute reability
+                            previous_entry.getValue().addAll(current_provenance);
+                            
+                            current_records = previous_record;
 
-                        Entry<DataQualityAssessment, Collection<DataSource>> previous_entry = objects.get(current_object);
-
-                        DataQualityRecords previous_record = (DataQualityRecords) previous_entry.getKey();
-
-                        // Computing the absolute frequency
-                        previous_record.frequency += current_records.getFrequency(current_provenance);
-
-                        // Computing the absolute freshness and absolute reability
-                        previous_entry.getValue().addAll(current_provenance);
-
-                        current_records = previous_record;
+                        }                        
 
                         // Applying the functions
                         if (functions.containsKey(Function.AVG) || functions.containsKey(Function.EXTRA_KNOWLEDGE)) {
@@ -603,7 +618,7 @@ public class DataFusionProcessor {
                     records.homogeneity /= count;
 
                     // Computing the relative frequency
-                    records.frequency /= statements_size;
+                    records.frequency /= size;
 
                     // Computing the relative reliability
                     records.reliability = records.getReliability(value.getValue());
@@ -659,8 +674,8 @@ public class DataFusionProcessor {
 
     }
 
-    public static DataFusionAssessment process(Collection<? extends DataSource> dataSources, Collection<Rule> rules, boolean duplicatesAllowed) throws IOException, CloneNotSupportedException {
-        return new DataFusionProcessor(dataSources, rules, true).data;
+    public static DataFusionAssessment process(Collection<? extends DataSource> dataSources, Collection<Rule> rules) throws IOException, CloneNotSupportedException {
+        return new DataFusionProcessor(dataSources, rules).data;
     }
 
 }

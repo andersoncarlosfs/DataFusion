@@ -34,8 +34,6 @@ public class DataFusionProcessorTest {
 
     private Collection<Rule> rules = new HashSet<>();
 
-    private boolean duplicatesAllowed = false;
-
     public DataFusionProcessorTest() {
     }
 
@@ -72,7 +70,7 @@ public class DataFusionProcessorTest {
     public void testProcess() throws Exception {
         System.out.println("process");
 
-        DataFusionAssessment assessment = DataFusionProcessor.process(dataSources, rules, duplicatesAllowed);
+        DataFusionAssessment assessment = DataFusionProcessor.process(dataSources, rules);
 
         Map<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>>> values = assessment.getComputedDataQualityAssessment();
 
