@@ -49,7 +49,7 @@ import org.apache.jena.vocabulary.SKOS;
  */
 public class DataFusionProcessor {
 
-    private class DataQualityRecords implements DataQualityAssessment, Cloneable {
+    private class DataQualityRecords implements DataQualityAssessment {
 
         private Float frequency = 0F;
         private Float homogeneity = 0F;
@@ -108,11 +108,6 @@ public class DataFusionProcessor {
             return morePrecise;
         }
 
-        @Override
-        protected Object clone() throws CloneNotSupportedException {
-            return super.clone();
-        }
-
     }
 
     private class DataFusionInformation implements DataFusionAssessment {
@@ -139,10 +134,10 @@ public class DataFusionProcessor {
 
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
 
-    private static final Comparator comparator = new Comparator<Entry<RDFNode, DataQualityAssessment>>() {
+    private static final Comparator comparator = new Comparator<Entry<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>>() {
         @Override
-        public int compare(Entry<RDFNode, DataQualityAssessment> o1, Entry<RDFNode, DataQualityAssessment> o2) {
-            return o2.getValue().getScore().compareTo(o1.getValue().getScore());
+        public int compare(Entry<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>> o1, Entry<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>> o2) {
+            return o2.getValue().getKey().getScore().compareTo(o1.getValue().getKey().getScore());
         }
     };
 
@@ -187,7 +182,7 @@ public class DataFusionProcessor {
 
         Map<RDFNode, Map<RDFNode, DataQualityRecords>> complements = new DisjointMap<>();
 
-        long durations = 0;
+        long durations = 1;
 
         for (DataSource dataSource : dataSources) {
 
@@ -336,9 +331,9 @@ public class DataFusionProcessor {
 
                         // Computing the absolute homogeneity
                         if (duplicatesAllowed) {
-                            information.homogeneity += duplicates;
+                            records.homogeneity += duplicates;
                         } else {
-                            information.homogeneity++;
+                            records.homogeneity++;
                         }
 
                         // Adding the provenance
@@ -350,11 +345,11 @@ public class DataFusionProcessor {
             }
 
             // Retrieving the mappings
-            Collection<Map<RDFNode, Map<RDFNode, Entry<DataQualityRecords, Collection<DataSource>>>>> mappings = ((DisjointMap) classe_complements).disjointValues();
+            Collection<Map<RDFNode, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>>> mappings = ((DisjointMap) classe_complements).disjointValues();
 
             Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>> summary = new DisjointMap<>();
 
-            for (Map<RDFNode, Map<RDFNode, Entry<DataQualityRecords, Collection<DataSource>>>> mapping : mappings) {
+            for (Map<RDFNode, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>> mapping : mappings) {
 
                 Map<RDFNode, Collection<DataSource>> predicates = new HashMap<>();
 
@@ -368,12 +363,12 @@ public class DataFusionProcessor {
                     }
                 }
 
-                Map<RDFNode, DataQualityAssessment> objects = new HashMap<>();
-                
+                Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>> objects = new HashMap<>();
+
                 // Best object
                 RDFNode best_object = null;
 
-                for (Entry<RDFNode, Map<RDFNode, Entry<DataQualityRecords, Collection<DataSource>>>> mapping_objects : mapping.entrySet()) {
+                for (Entry<RDFNode, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>> mapping_objects : mapping.entrySet()) {
 
                     RDFNode predicate = mapping_objects.getKey();
 
@@ -383,17 +378,38 @@ public class DataFusionProcessor {
                     // Retrieving the subject provenance 
                     Collection<DataSource> predicate_provenance = predicates.get(predicate);
 
-                    for (Entry<RDFNode, Entry<DataQualityRecords, Collection<DataSource>>> mapping_object : mapping_objects.getValue().entrySet()) {
+                    for (Entry<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>> mapping_object : mapping_objects.getValue().entrySet()) {
 
                         RDFNode current_object = mapping_object.getKey();
 
-                        Entry<DataQualityRecords, Collection<DataSource>> current_entry = mapping_object.getValue();
+                        Entry<DataQualityAssessment, Collection<DataSource>> current_entry = mapping_object.getValue();
+
+                        DataQualityRecords current_records = (DataQualityRecords) current_entry.getKey();
+
+                        Collection<DataSource> current_provenance = current_entry.getValue();
 
                         // Adding the provenance
-                        predicate_provenance.addAll(current_entry.getValue());
+                        predicate_provenance.addAll(current_provenance);
 
                         // Processing the absolute criteria
-                        DataQualityRecords records = (DataQualityRecords) classe_complements.get(predicate).get(current_object).getKey();
+                        if (objects.putIfAbsent(current_object, current_entry) != null) {
+                            
+                            // Computing the absolute homogeneity
+                            ((DataQualityRecords) objects.get(current_object).getKey()).homogeneity += current_records.homogeneity;
+
+                        }
+
+                        Entry<DataQualityAssessment, Collection<DataSource>> previous_entry = objects.get(current_object);
+
+                        DataQualityRecords previous_record = (DataQualityRecords) previous_entry.getKey();
+
+                        // Computing the absolute frequency
+                        previous_record.frequency += current_records.getFrequency(current_provenance);
+
+                        // Computing the absolute freshness and absolute reability
+                        previous_entry.getValue().addAll(current_provenance);
+                        
+                        current_records = previous_record;
 
                         // Applying the functions
                         if (functions.containsKey(Function.AVG) || functions.containsKey(Function.EXTRA_KNOWLEDGE)) {
@@ -418,11 +434,11 @@ public class DataFusionProcessor {
 
                                 if (elect != best_object.asLiteral().getFloat()) {
 
-                                    records.morePrecise.addAll(outstanding.morePrecise);
+                                    current_records.morePrecise.addAll(outstanding.morePrecise);
 
                                     outstanding.morePrecise.clear();
 
-                                    outstanding = information;
+                                    outstanding = current_records;
 
                                     current_object = best_object;
 
@@ -454,7 +470,7 @@ public class DataFusionProcessor {
                                 }
 
                                 if (current_object.asLiteral().getString().contains(complement_object.asLiteral().getString())) {
-                                    records.morePrecise.add(complement_object);
+                                    current_records.morePrecise.add(complement_object);
                                 }
 
                                 if (complement_object.asLiteral().getString().contains(current_object.asLiteral().getString())) {
@@ -470,10 +486,14 @@ public class DataFusionProcessor {
 
                 // Applying the functions
                 if (functions.containsKey(Function.AVG)) {
+                    
+                    DataQualityRecords records = new DataQualityRecords();
+                    
+                    records.morePrecise = objects.keySet();
 
                     Float average = new Float(0);
 
-                    for (RDFNode object : information.morePrecise) {
+                    for (RDFNode object : records.morePrecise) {
                         try {
                             average += object.asLiteral().getFloat();
                         } catch (NumberFormatException e) {
@@ -481,7 +501,7 @@ public class DataFusionProcessor {
                         }
                     }
 
-                    objects.put(ResourceFactory.createTypedLiteral(average), new AbstractMap.SimpleEntry<>(null, Collections.EMPTY_SET));
+                    objects.put(ResourceFactory.createTypedLiteral(average), new AbstractMap.SimpleEntry<>(records, Collections.EMPTY_SET));
 
                 }
 
@@ -578,7 +598,7 @@ public class DataFusionProcessor {
 
             for (Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>> object : summary.values()) {
                 for (Entry<DataQualityAssessment, Collection<DataSource>> value : object.values()) {
-                    count += ((DataQualityRecords) value).homogeneity;
+                    count += ((DataQualityRecords) value.getKey()).homogeneity;
                 }
             }
 
@@ -589,7 +609,7 @@ public class DataFusionProcessor {
                     DataQualityRecords records = (DataQualityRecords) value.getKey();
 
                     // Computing the relative homogeneity
-                    if (records.homogeneity == null) {
+                    if (records.homogeneity == 0F) {
 
                         records.homogeneity = 1F;
                         records.frequency = 1F;
@@ -607,18 +627,19 @@ public class DataFusionProcessor {
                     records.frequency /= statements_size;
 
                     // Computing the relative reliability
-                    records.reliability = information.getReliability(value.getValue());
-                    if (records.reliability == Float.NEGATIVE_INFINITY) {
-                        records.reliability = new Float(0.5);
+                    records.reliability = records.getReliability(value.getValue());
+                    if (records.reliability == null) {
+                        records.reliability = 0.5F;
                     }
 
                     // Computing the relative freshness
-                    records.freshness = information.getFreshness(value.getValue());
-                    if (records.freshness == Float.POSITIVE_INFINITY) {
-                        records.freshness = new Float(0.5);
-                    } else {
-                        records.freshness /= durations;
+                    records.freshness = records.getFreshness(value.getValue());
+                    if (records.freshness == null) {
+                        records.freshness = durations * 0.5F;
                     }
+                    
+                    // Additive smoothing
+                    records.freshness = ((records.freshness + 1) / durations) - 1;
 
                 }
 
