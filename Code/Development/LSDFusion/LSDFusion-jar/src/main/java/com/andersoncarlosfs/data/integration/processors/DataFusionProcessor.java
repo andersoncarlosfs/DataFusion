@@ -86,7 +86,7 @@ public class DataFusionProcessor {
 
     private class DataFusionInformation implements DataFusionAssessment {
 
-        private Map<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>>> values;
+        private Map<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>>> values = new HashMap<>();
 
         @Override
         public Map<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Collection<DataSource>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>>> getComputedDataQualityAssessment() {
@@ -239,9 +239,6 @@ public class DataFusionProcessor {
                 }
             }
         }
-
-        // Equivalence classes processing     
-        data.values = new HashMap<>();
 
         // Retrieving the equivalence classes 
         Collection<Map<RDFNode, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>> classes = ((DisjointMap) statements).disjointValues();
