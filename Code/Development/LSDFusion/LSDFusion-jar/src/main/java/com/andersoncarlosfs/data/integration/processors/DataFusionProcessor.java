@@ -370,7 +370,7 @@ public class DataFusionProcessor {
 
                             //
                             predicate_provenance.put(subject, provenance);
-                            
+
                             //
                             current_provenance.addAll(provenance);
 
@@ -673,7 +673,7 @@ public class DataFusionProcessor {
 
     }
 
-    public static DataFusionAssessment process(Collection<? extends DataSource> dataSources, Collection<Rule> rules) throws IOException, CloneNotSupportedException {
+    public static DataFusionAssessment process(Collection<? extends DataSource> dataSources, Collection<Rule> rules) throws IOException {
         return new DataFusionProcessor(dataSources, rules).data;
     }
 
