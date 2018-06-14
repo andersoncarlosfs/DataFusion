@@ -10,8 +10,10 @@ import com.andersoncarlosfs.data.model.Rule;
 import com.andersoncarlosfs.data.model.assessments.DataFusionAssessment;
 import com.andersoncarlosfs.data.model.assessments.DataQualityAssessment;
 import com.andersoncarlosfs.data.util.Function;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.riot.Lang;
@@ -30,15 +32,28 @@ import org.apache.jena.rdf.model.Property;
  */
 public class DataFusionProcessorTest {
 
+    private Map<Path, Lang> files = new HashMap<>();
+    
     private Collection<DataSource> dataSources = new HashSet<>();
 
     private Collection<Rule> rules = new HashSet<>();
 
     public DataFusionProcessorTest() {
+
+        files.put(Paths.get("../../../../Datasets/Books/dataset.rdf"), Lang.N3);
+        files.put(Paths.get("../../../../Datasets/Books/links.rdf"), Lang.N3);
+
+        for (Property property : DataFusionProcessor.EQUIVALENCE_PROPERTIES) {
+            rules.add(new Rule(Function.IDENTITY, property));
+        }
+        
+        dataSources.add(new DataSource("Books", files));
+
     }
 
     @BeforeClass
     public static void setUpClass() {
+
     }
 
     @AfterClass
@@ -48,13 +63,6 @@ public class DataFusionProcessorTest {
     @Before
     public void setUp() {
 
-        dataSources.add(new DataSource(Paths.get("../../../../Datasets/Books/dataset.rdf"), Lang.N3, null, null));
-        dataSources.add(new DataSource(Paths.get("../../../../Datasets/Books/links.rdf"), Lang.N3, null, null));
-
-        for (Property property : DataFusionProcessor.EQUIVALENCE_PROPERTIES) {
-            rules.add(new Rule(Function.IDENTITY, property));
-        }
-        
     }
 
     @After
@@ -103,7 +111,7 @@ public class DataFusionProcessorTest {
                     System.out.println("\t\t\t\t" + "Freshness=" + records.getFreshness());
                     System.out.println("\t\t\t\t" + "Reliability=" + records.getReliability());
                     System.out.println("\t\t\t\t" + "Score=" + records.getScore());
-                    System.out.println("\t\t\t\t" + "MorePrecise=" + records.getMorePrecise());                    
+                    System.out.println("\t\t\t\t" + "MorePrecise=" + records.getMorePrecise());
 
                 }
             }

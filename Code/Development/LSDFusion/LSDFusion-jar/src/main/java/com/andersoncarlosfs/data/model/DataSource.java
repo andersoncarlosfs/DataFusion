@@ -6,6 +6,7 @@ package com.andersoncarlosfs.data.model;
  * and open the template in the editor.
  */
 import java.nio.file.Path;
+import java.util.Map;
 import org.apache.jena.riot.Lang;
 
 /**
@@ -14,56 +15,56 @@ import org.apache.jena.riot.Lang;
  */
 public class DataSource {
 
-    private Path path;
-    private Lang syntax;
+    private String name;
+    private Map<Path, Lang> files;
     private Long freshness;
     private Float reliability;
 
-    public DataSource(Path path, Lang syntax) {
-        this.path = path;
-        this.syntax = syntax;
-        this.freshness = null;
-        this.reliability = null;
-
+    protected DataSource() {
     }
 
-    public DataSource(Path path, Lang syntax, Long freshness, Float reliability) {
-        this.path = path;
-        this.syntax = syntax;
+    public DataSource(String name, Map<Path, Lang> files) {
+        this.name = name;
+        this.files = files;
+    }
+
+    public DataSource(String name, Map<Path, Lang> files, Long freshness, Float reliability) {
+        this.name = name;
+        this.files = files;
         this.freshness = freshness;
         this.reliability = reliability;
     }
 
     /**
      *
-     * @return the path
+     * @return the name
      */
-    public Path getPath() {
-        return path;
+    public String getName() {
+        return name;
     }
 
     /**
      *
-     * @param path the path to set
+     * @param name the name to set
      */
-    protected void setPath(Path path) {
-        this.path = path;
+    protected void setName(String name) {
+        this.name = name;
     }
 
     /**
      *
-     * @return the syntax
+     * @return the files
      */
-    public Lang getSyntax() {
-        return syntax;
+    public Map<Path, Lang> getFiles() {
+        return files;
     }
 
     /**
      *
-     * @param syntax the syntax to set
+     * @param files the files to set
      */
-    protected void setSyntax(Lang syntax) {
-        this.syntax = syntax;
+    protected void setFiles(Map<Path, Lang> files) {
+        this.files = files;
     }
 
     /**
@@ -97,8 +98,8 @@ public class DataSource {
     protected void setReliability(Float reliability) {
         this.reliability = reliability;
     }
-    
-        /**
+
+    /**
      *
      * @see java.lang.Object#hashCode()
      * @return
@@ -106,10 +107,7 @@ public class DataSource {
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (path != null ? path.hashCode() : 0);
-        hash += (syntax != null ? syntax.hashCode() : 0);
-        hash += (freshness != null ? freshness.hashCode() : 0);
-        hash += (reliability != null ? reliability.hashCode() : 0);
+        hash += (name != null ? name.hashCode() : 0);
         return hash;
     }
 
@@ -121,21 +119,11 @@ public class DataSource {
      */
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
         if (!(object instanceof Rule)) {
             return false;
         }
         DataSource other = (DataSource) object;
-        if ((this.path == null && other.path != null) || (this.path != null && !this.path.equals(other.path))) {
-            return false;
-        }
-        if ((this.syntax == null && other.syntax != null) || (this.syntax != null && !this.syntax.equals(other.syntax))) {
-            return false;
-        }
-        if ((this.freshness == null && other.freshness != null) || (this.freshness != null && !this.freshness.equals(other.freshness))) {
-            return false;
-        }
-        if ((this.reliability == null && other.reliability != null) || (this.reliability != null && !this.reliability.equals(other.reliability))) {
+        if ((this.name == null && other.name != null) || (this.name != null && !this.name.equals(other.name))) {
             return false;
         }
         return true;

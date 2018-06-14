@@ -39,6 +39,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.SKOS;
@@ -166,58 +167,63 @@ public class DataFusionProcessor {
                 durations += freshness;
             }
 
-            Model model = RDFDataMgr.loadModel(dataSource.getPath().toString(), dataSource.getSyntax());
+            // Processing files
+            for (Entry<Path, Lang> file : dataSource.getFiles().entrySet()) {
 
-            StmtIterator iterator = model.listStatements();
+                Model model = RDFDataMgr.loadModel(file.getKey().toString(), file.getValue());
 
-            while (iterator.hasNext()) {
+                StmtIterator iterator = model.listStatements();
 
-                Statement statement = iterator.next();
+                while (iterator.hasNext()) {
 
-                Resource subject = statement.getSubject();
-                Property property = statement.getPredicate();
-                RDFNode object = statement.getObject();
+                    Statement statement = iterator.next();
 
-                // Escaping the predicates
-                if (parameters.getOrDefault(property, Collections.EMPTY_MAP).containsKey(Function.ESCAPE)) {
-                    continue;
-                }
+                    Resource subject = statement.getSubject();
+                    Property property = statement.getPredicate();
+                    RDFNode object = statement.getObject();
 
-                // Equivalence classes processing 
-                if (parameters.getOrDefault(property, Collections.EMPTY_MAP).containsKey(Function.IDENTITY)) {
+                    // Escaping the predicates
+                    if (parameters.getOrDefault(property, Collections.EMPTY_MAP).containsKey(Function.ESCAPE)) {
+                        continue;
+                    }
 
-                    // Putting the equivalent members 
+                    // Equivalence classes processing 
+                    if (parameters.getOrDefault(property, Collections.EMPTY_MAP).containsKey(Function.IDENTITY)) {
+
+                        // Putting the equivalent members 
+                        statements.putIfAbsent(subject, new HashMap<>());
+                        statements.putIfAbsent(object, new HashMap<>());
+
+                        // Grouping the members                    
+                        ((DisjointMap) statements).union(subject, object);
+
+                    }
+
+                    // Statements processing
                     statements.putIfAbsent(subject, new HashMap<>());
-                    statements.putIfAbsent(object, new HashMap<>());
 
-                    // Grouping the members                    
-                    ((DisjointMap) statements).union(subject, object);
+                    Map<RDFNode, Map<RDFNode, Collection<DataSource>>> subjects_predicates = statements.get(subject);
+
+                    subjects_predicates.putIfAbsent(property, new HashMap<>());
+
+                    Map<RDFNode, Collection<DataSource>> subjects_predicates_objects = subjects_predicates.get(property);
+
+                    subjects_predicates_objects.putIfAbsent(object, new HashSet<>());
+
+                    // Warning, the statement is already present in the dataSouce
+                    subjects_predicates_objects.get(object).add(dataSource);
+
+                    // Complements processing
+                    complements.putIfAbsent(property, new HashMap<>());
+
+                    Map<RDFNode, DataQualityRecords> predicates_objects = complements.get(property);
+
+                    predicates_objects.putIfAbsent(object, new DataQualityRecords());
+
+                    // Counting the frequency
+                    predicates_objects.get(object).frequency++;
 
                 }
-
-                // Statements processing
-                statements.putIfAbsent(subject, new HashMap<>());
-
-                Map<RDFNode, Map<RDFNode, Collection<DataSource>>> subjects_predicates = statements.get(subject);
-
-                subjects_predicates.putIfAbsent(property, new HashMap<>());
-
-                Map<RDFNode, Collection<DataSource>> subjects_predicates_objects = subjects_predicates.get(property);
-
-                subjects_predicates_objects.putIfAbsent(object, new HashSet<>());
-
-                // Warning, the statement is already present in the dataSouce
-                subjects_predicates_objects.get(object).add(dataSource);
-
-                // Complements processing
-                complements.putIfAbsent(property, new HashMap<>());
-
-                Map<RDFNode, DataQualityRecords> predicates_objects = complements.get(property);
-
-                predicates_objects.putIfAbsent(object, new DataQualityRecords());
-
-                // Counting the frequency
-                predicates_objects.get(object).frequency++;
 
             }
 
