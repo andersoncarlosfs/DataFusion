@@ -23,7 +23,7 @@ public interface DataFusionAssessment {
      *
      * @return
      */
-    public Map<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Map<RDFNode, Collection<DataSource>>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>>> getComputedDataQualityAssessment();
+    public Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>>>> getComputedDataQualityAssessment();
 
     /**
      *
