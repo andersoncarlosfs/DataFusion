@@ -303,6 +303,9 @@ public class DataFusionProcessor {
 
                         Entry<DataQualityAssessment, Collection<RDFNode>> details = objects.get(object);
 
+                        // Retrieving the property provenance 
+                        Collection<RDFNode> property_provenance = details.getValue();
+                        
                         int duplicates = provenance.size();
 
                         // Computing the absolute homogeneity
@@ -312,6 +315,9 @@ public class DataFusionProcessor {
                             ((DataQualityRecords) details.getKey()).homogeneity++;
                         }
 
+                        // Updating the provenance
+                        property_provenance.add(subject);
+                        
                         // Adding the provenance
                         subject_provenance.addAll(provenance);
 
