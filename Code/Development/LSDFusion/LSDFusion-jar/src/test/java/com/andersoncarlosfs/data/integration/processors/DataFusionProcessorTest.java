@@ -6,6 +6,7 @@
 package com.andersoncarlosfs.data.integration.processors;
 
 import com.andersoncarlosfs.data.model.DataSource;
+import com.andersoncarlosfs.data.model.Policy;
 import com.andersoncarlosfs.data.model.Rule;
 import com.andersoncarlosfs.data.model.assessments.DataFusionAssessment;
 import com.andersoncarlosfs.data.model.assessments.DataQualityAssessment;
@@ -78,7 +79,7 @@ public class DataFusionProcessorTest {
     public void testProcess() throws Exception {
         System.out.println("process");
 
-        DataFusionAssessment assessment = DataFusionProcessor.process(dataSources, rules);
+        DataFusionAssessment assessment = DataFusionProcessor.process(dataSources, new Policy(rules));
 
         Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>>>> values = assessment.getComputedDataQualityAssessment();
 

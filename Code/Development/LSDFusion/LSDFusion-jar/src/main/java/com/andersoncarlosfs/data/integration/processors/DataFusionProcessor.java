@@ -7,7 +7,7 @@ package com.andersoncarlosfs.data.integration.processors;
 
 import com.andersoncarlosfs.util.DisjointMap;
 import com.andersoncarlosfs.data.model.DataSource;
-import com.andersoncarlosfs.data.model.Rule;
+import com.andersoncarlosfs.data.model.Policy;
 import com.andersoncarlosfs.data.model.assessments.DataFusionAssessment;
 import com.andersoncarlosfs.data.model.assessments.DataQualityAssessment;
 import com.andersoncarlosfs.data.util.Function;
@@ -108,39 +108,14 @@ public class DataFusionProcessor {
 
     /**
      *
-     * @param rules
+     * @param policy 
      * @param dataSources
      * @throws IOException
      */
-    public DataFusionProcessor(Collection<? extends DataSource> dataSources, Collection<Rule> rules) throws IOException {
-
-        // Rules processing
-        DisjointMap<Property, Map<Function, Collection<Object>>> parameters = new DisjointMap<>();
-
-        for (Rule rule : rules) {
-
-            Property property = rule.getProperty();
-            Function function = rule.getFunction();
-            Object value = rule.getValue();
-
-            // Attaching zero or more functions to a property 
-            parameters.putIfAbsent(property, new HashMap<>());
-
-            Map<Function, Collection<Object>> arguments = parameters.get(property);
-
-            // Attaching zero or more arguments to a property 
-            arguments.putIfAbsent(function, new HashSet<>());
-            arguments.get(function).add(value);
-
-            // Grouping the properties
-            if (function == Function.MAPPING) {
-                parameters.union(property, (Property) value);
-            }
-
-        }
+    public DataFusionProcessor(Collection<? extends DataSource> dataSources, Policy policy) throws IOException {
 
         // Allowing duplicates
-        Boolean deduplicate = (Boolean) parameters.getOrDefault(null, Collections.EMPTY_MAP).getOrDefault(Function.DEDUPLICATE, Boolean.FALSE);
+        Boolean deduplicate = policy.contains(Function.DEDUPLICATE) ;
 
         // Data souces processing
         Map<RDFNode, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>> statements = new DisjointMap<>();
@@ -173,12 +148,12 @@ public class DataFusionProcessor {
                     RDFNode object = statement.getObject();
 
                     // Escaping the predicates
-                    if (parameters.getOrDefault(property, Collections.EMPTY_MAP).containsKey(Function.ESCAPE)) {
+                    if (policy.contains(property, Function.ESCAPE)) {
                         continue;
                     }
 
                     // Equivalence classes processing 
-                    if (parameters.getOrDefault(property, Collections.EMPTY_MAP).containsKey(Function.IDENTITY)) {
+                    if (policy.contains(property, Function.IDENTITY)) {
 
                         // Putting the equivalent members 
                         statements.putIfAbsent(subject, new HashMap<>());
@@ -265,7 +240,7 @@ public class DataFusionProcessor {
                     classe_complements.putIfAbsent(current_predicate, new HashMap<>());
 
                     // Grouping the predicates
-                    if (parameters.getOrDefault(current_predicate, Collections.EMPTY_MAP).containsKey(Function.MAPPING)) {
+                    if (policy.contains((Property) current_predicate, Function.MAPPING)) {
                         ((DisjointMap) classe_complements).union(last_predicate, current_predicate);
                     }
 
@@ -322,7 +297,7 @@ public class DataFusionProcessor {
 
                 // TO REDO:
                 for (RDFNode predicate : mapping.keySet()) {
-                    for (Entry<Function, Collection<Object>> entry : parameters.getOrDefault(predicate, new HashMap<>()).entrySet()) {
+                    for (Entry<Function, Collection<Object>> entry : policy.) {
                         functions.putIfAbsent(entry.getKey(), entry.getValue());
                         functions.get(entry.getKey()).addAll(entry.getValue());
                     }
@@ -680,8 +655,8 @@ public class DataFusionProcessor {
 
     }
 
-    public static DataFusionAssessment process(Collection<? extends DataSource> dataSources, Collection<Rule> rules) throws IOException {
-        return new DataFusionProcessor(dataSources, rules).data;
+    public static DataFusionAssessment process(Collection<? extends DataSource> dataSources, Policy policy) throws IOException {
+        return new DataFusionProcessor(dataSources, policy).data;
     }
 
 }
