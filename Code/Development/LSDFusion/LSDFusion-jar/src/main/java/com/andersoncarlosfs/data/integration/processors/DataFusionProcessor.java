@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.LiteralRequiredException;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;

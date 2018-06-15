@@ -41,6 +41,17 @@ public class DisjointSet<E> extends AbstractSet<E> implements Set<E>, Cloneable,
     }
 
     /**
+     * Constructs a new set containing the elements in the specified collection.
+     *
+     * @param c the collection whose elements are to be placed into this set
+     * @throws NullPointerException if the specified collection is null
+     */
+    public DisjointSet(Collection<? extends E> c) {
+        data = new DisjointMap<>(Math.max((int) (c.size() / .75f) + 1, 16));
+        addAll(c);
+    }
+
+    /**
      * Adds the specified element to this set if it is not already present.
      *
      * @param e element to be added to this set

@@ -32,6 +32,10 @@ public class DisjointMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, C
     public DisjointMap() {
         data = new HashMap<>();
     }
+    
+    public DisjointMap(int initialCapacity) {
+        data = new HashMap<>(initialCapacity);
+    }
 
     /**
      *
