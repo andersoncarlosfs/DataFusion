@@ -252,9 +252,9 @@ public class DataFusionProcessor {
             /*
              * Map<Predicate, Map<Object, Details>
              * Map<Predicate, Map<Object, Entry<Mesures, Provenance>>
-             * Map<Predicate, Map<Object, Entry<DataQualityAssessment, Collection<Subject>>>>
+             * Map<Predicate, Map<Object, Entry<DataQualityAssessment, Map<Subject, Collection<DataSource>>>>>
              */
-            Map<RDFNode, Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>>> classe_complements = new DisjointMap<>();
+            Map<RDFNode, Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Collection<DataSource>>>>> classe_complements = new DisjointMap<>();
 
             for (Entry<RDFNode, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>> classe_subject : classe.entrySet()) {
 
@@ -281,7 +281,7 @@ public class DataFusionProcessor {
 
                     last_predicate = current_predicate;
 
-                    Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>> objects = classe_complements.get(last_predicate);
+                    Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Collection<DataSource>>>> objects = classe_complements.get(last_predicate);
 
                     for (Entry<RDFNode, Collection<DataSource>> classe_subject_predicate_object : classe_subject_predicate_objects.entrySet()) {
 
@@ -291,13 +291,14 @@ public class DataFusionProcessor {
                         // Provenance
                         Collection<DataSource> provenance = classe_subject_predicate_object.getValue();
 
-                        //
-                        DataQualityRecords records = ;
-                        
                         // Processing the absolute criteria                          
-                        objects.putIfAbsent(complements.get(last_predicate).get(object), new SimpleEntry<>(records, new HashMap<RDFNode, Map<RDFNode, Collection<DataSource>>>));
+                        objects.putIfAbsent(object, new SimpleEntry<>(complements.get(last_predicate).get(object), new HashMap<RDFNode, Collection<DataSource>>()));
 
-                        
+                        //
+                        Entry<DataQualityAssessment, Map<RDFNode, Collection<DataSource>>> entry = objects.get(object);
+
+                        //
+                        DataQualityRecords records = (DataQualityRecords) entry.getKey();
 
                         int duplicates = provenance.size();
 
@@ -308,17 +309,24 @@ public class DataFusionProcessor {
                             records.homogeneity++;
                         }
 
+                        //
+                        Map<RDFNode, Collection<DataSource>> subject_provenance = entry.getValue();
+
+                        subject_provenance.putIfAbsent(subject, new HashSet<>());
+
+                        subject_provenance.get(subject).addAll(provenance);
+
                     }
                 }
 
             }
 
             // Retrieving the mappings
-            Collection<Map<RDFNode, Map<RDFNode, DataQualityAssessment>>> mappings = ((DisjointMap) classe_complements).disjointValues();
+            Collection<Map<RDFNode, Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Collection<DataSource>>>>>> mappings = ((DisjointMap) classe_complements).disjointValues();
 
-            Map<Map<RDFNode, Map<RDFNode, Collection<DataSource>>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>> summary = new DisjointMap<>();
+            Map<Collection<RDFNode>, Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>>> summary = new HashMap<>();
 
-            for (Map<RDFNode, Map<RDFNode, DataQualityAssessment>> mapping : mappings) {
+            for (Map<RDFNode, Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Collection<DataSource>>>>> mapping : mappings) {
 
                 Map<Function, Collection<Object>> functions = new HashMap<>();
 
@@ -335,24 +343,20 @@ public class DataFusionProcessor {
                 // Best object
                 RDFNode best_object = null;
 
-                for (Entry<RDFNode, Map<RDFNode, DataQualityAssessment>> mapping_objects : mapping.entrySet()) {
+                for (Entry<RDFNode, Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Collection<DataSource>>>>> mapping_objects : mapping.entrySet()) {
 
                     RDFNode predicate = mapping_objects.getKey();
 
-                    for (Entry<RDFNode, DataQualityAssessment> mapping_object : mapping_objects.getValue().entrySet()) {
+                    for (Entry<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Collection<DataSource>>>> mapping_object : mapping_objects.getValue().entrySet()) {
 
                         RDFNode current_object = mapping_object.getKey();
 
-                        DataQualityAssessment current_entry = mapping_object.getValue();
+                        Entry<DataQualityAssessment, Map<RDFNode, Collection<DataSource>>> current_entry = mapping_object.getValue();
 
-                        DataQualityRecords current_records = (DataQualityRecords) current_entry;
+                        DataQualityRecords current_records = (DataQualityRecords) current_entry.getKey();
 
-                        Collection<DataSource> current_provenance = new HashSet<>();
-
-                        // Processing the provenance
-                        
-
-                        Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>> previous_entry = objects.putIfAbsent(current_object, null);
+                        //
+                        Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>> previous_entry = objects.putIfAbsent(current_object, new SimpleEntry<>(current_records, new HashMap<RDFNode, Map<RDFNode, Collection<DataSource>>>()));
 
                         // Processing the absolute criteria
                         if (previous_entry != null) {
@@ -367,10 +371,26 @@ public class DataFusionProcessor {
                             // Computing the absolute homogeneity
                             previous_record.homogeneity += current_records.homogeneity;
 
-                            // Computing the absolute freshness and absolute reability
-                            previous_entry.getValue().addAll(current_provenance);
+                            Map<RDFNode, Map<RDFNode, Collection<DataSource>>> previous_provenance = previous_entry.getValue();
 
                             current_records = previous_record;
+
+                        } else {
+                            
+                            previous_entry = objects.get(current_object);
+                            
+                        }
+
+                        // Updating the provenance
+                        Map<RDFNode, Map<RDFNode, Collection<DataSource>>> previous_provenance = previous_entry.getValue();
+
+                        for (Entry<RDFNode, Collection<DataSource>> provenance : current_entry.getValue().entrySet()) {
+
+                            previous_provenance.putIfAbsent(provenance.getKey(), new HashMap<>());
+
+                            previous_provenance.get(provenance.getKey()).putIfAbsent(predicate, new HashSet<>());
+
+                            previous_provenance.get(provenance.getKey()).get(predicate).addAll(provenance.getValue());
 
                         }
 
@@ -418,7 +438,7 @@ public class DataFusionProcessor {
                             }
 
                         } else {
-                            for (Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>> complement : objects.entrySet()) {
+                            for (Entry<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>> complement : objects.entrySet()) {
 
                                 RDFNode complement_object = complement.getKey();
 
@@ -464,7 +484,7 @@ public class DataFusionProcessor {
                         }
                     }
 
-                    objects.put(ResourceFactory.createTypedLiteral(average), new SimpleEntry<>(records, Collections.EMPTY_SET));
+                    objects.put(ResourceFactory.createTypedLiteral(average), new SimpleEntry<>(records, Collections.EMPTY_MAP));
 
                 }
 
@@ -554,15 +574,15 @@ public class DataFusionProcessor {
             // Processing the relative criteria
             int count = 0;
 
-            for (Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>> object : summary.values()) {
-                for (Entry<DataQualityAssessment, Collection<DataSource>> value : object.values()) {
+            for (Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>> object : summary.values()) {
+                for (Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>> value : object.values()) {
                     count += ((DataQualityRecords) value.getKey()).homogeneity;
                 }
             }
 
-            for (Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>> object : summary.values()) {
+            for (Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>> object : summary.values()) {
 
-                for (Entry<DataQualityAssessment, Collection<DataSource>> value : object.values()) {
+                for (Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>> value : object.values()) {
 
                     DataQualityRecords records = (DataQualityRecords) value.getKey();
 
@@ -578,13 +598,34 @@ public class DataFusionProcessor {
 
                     }
 
+                    //
+                    Collection<DataSource> provenance = new HashSet<>();
+
+                    for (Map<RDFNode, Collection<DataSource>> subjects_provenance : value.getValue().values()) {
+
+                        if (provenance.containsAll(dataSources)) {
+                            break;
+                        }
+
+                        for (Collection<DataSource> subjects_predicate_provenance : subjects_provenance.values()) {
+
+                            if (provenance.containsAll(dataSources)) {
+                                break;
+                            }
+
+                            provenance.addAll(subjects_predicate_provenance);
+
+                        }
+
+                    }
+
                     // Computing the relative homogeneity    
                     records.homogeneity /= count;
 
                     // Computing the relative frequency
                     records.frequency /= size;
 
-                    for (DataSource dataSource : value.getValue()) {
+                    for (DataSource dataSource : provenance) {
 
                         // Computing the relative reliability
                         if (dataSource.getReliability() != null) {
@@ -621,19 +662,19 @@ public class DataFusionProcessor {
         // Ordering the values
         Map<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>>>> values = new HashMap<>();
 
-        for (Entry<Map<RDFNode, Collection<DataSource>>, Map<Map<RDFNode, Map<RDFNode, Collection<DataSource>>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>>> value : data.values.entrySet()) {
+        for (Entry<Collection<RDFNode>, Map<Collection<RDFNode>, Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>>>> value : data.values.entrySet()) {
 
-            Map<Map<RDFNode, Map<RDFNode, Collection<DataSource>>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>> summary = new HashMap<>();
+            Map<Collection<RDFNode>, Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>>> summary = new HashMap<>();
 
-            for (Entry<Map<RDFNode, Map<RDFNode, Collection<DataSource>>>, Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>>> complement : value.getValue().entrySet()) {
+            for (Entry<Collection<RDFNode>, Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>>> complement : value.getValue().entrySet()) {
 
-                List<Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>> list = new LinkedList<>(complement.getValue().entrySet());
+                List<Entry<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>>> list = new LinkedList<>(complement.getValue().entrySet());
 
                 Collections.sort(list, comparator);
 
-                Map<RDFNode, Entry<DataQualityAssessment, Collection<DataSource>>> objects = new LinkedHashMap<>();
+                Map<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>> objects = new LinkedHashMap<>();
 
-                for (Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>> entry : list) {
+                for (Entry<RDFNode, Entry<DataQualityAssessment, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>>> entry : list) {
                     objects.put(entry.getKey(), entry.getValue());
                 }
 
