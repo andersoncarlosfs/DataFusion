@@ -29,12 +29,16 @@ public interface DataFusionAssessment {
      *
      * @return a view of the duplicate statements in this data fusion processing
      */
-    public Collection<Triple> getDuplicates();
+    default Collection<Triple> getDuplicates() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
     /**
      *
      * @return the model
      */
-    public Model getModel();
+    default Model getModel() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
 }

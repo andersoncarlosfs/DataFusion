@@ -94,16 +94,6 @@ public class DataFusionProcessor {
             return values;
         }
 
-        @Override
-        public Collection<Triple> getDuplicates() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public Model getModel() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
     }
 
     public static final Collection<Property> EQUIVALENCE_PROPERTIES = Arrays.asList(OWL.sameAs, SKOS.exactMatch);
@@ -124,6 +114,7 @@ public class DataFusionProcessor {
      * @throws IOException
      */
     public DataFusionProcessor(Collection<? extends DataSource> dataSources, Collection<Rule> rules) throws IOException {
+
         // Rules processing
         DisjointMap<Property, Map<Function, Collection<Object>>> parameters = new DisjointMap<>();
 
@@ -376,9 +367,9 @@ public class DataFusionProcessor {
                             current_records = previous_record;
 
                         } else {
-                            
+
                             previous_entry = objects.get(current_object);
-                            
+
                         }
 
                         // Updating the provenance
