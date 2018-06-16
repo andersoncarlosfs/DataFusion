@@ -108,14 +108,14 @@ public class DataFusionProcessor {
 
     /**
      *
-     * @param policy 
+     * @param policy
      * @param dataSources
      * @throws IOException
      */
     public DataFusionProcessor(Collection<? extends DataSource> dataSources, Policy policy) throws IOException {
 
         // Allowing duplicates
-        Boolean deduplicate = policy.contains(Function.DEDUPLICATE) ;
+        Boolean deduplicate = policy.contains(null, Function.DEDUPLICATE);
 
         // Data souces processing
         Map<RDFNode, Map<RDFNode, Map<RDFNode, Collection<DataSource>>>> statements = new DisjointMap<>();
@@ -297,7 +297,7 @@ public class DataFusionProcessor {
 
                 // TO REDO:
                 for (RDFNode predicate : mapping.keySet()) {
-                    for (Entry<Function, Collection<Object>> entry : policy.) {
+                    for (Entry<Function, Collection<Object>> entry : policy.getFunctions((Property) predicate).entrySet()) {
                         functions.putIfAbsent(entry.getKey(), entry.getValue());
                         functions.get(entry.getKey()).addAll(entry.getValue());
                     }
